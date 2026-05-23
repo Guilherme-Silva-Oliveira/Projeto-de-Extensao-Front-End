@@ -1,0 +1,35 @@
+.input-container{
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-top: 20px;
+}
+
+.input-label{
+    font-size: 20px;
+
+    color: #555;
+
+    font-family: "Inter", sans-serif;
+}
+
+.input-form{
+    width: 20vw;
+    height: 4vh;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    padding-left: 15px;
+    font-size: 20px;
+
+    outline: none;
+
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.15);
+
+    font-family: "Inter", sans-serif;
+}
+
+.input-form::placeholder{
+    color: #b3b3b3;
+}
