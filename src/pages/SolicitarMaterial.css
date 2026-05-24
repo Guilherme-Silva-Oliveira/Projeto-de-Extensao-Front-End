@@ -1,0 +1,158 @@
+.solicitar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    padding: 40px 20px;
+}
+
+.titulo-solicitar {
+    color: #333333;
+    font-weight: 400;
+    font-size: 32px;
+    text-align: center;
+    margin: 0;
+    font-family: "Inter", sans-serif;
+}
+
+.linha-laranja {
+    width: 260px;
+    height: 4px;
+    background-color: #ff5a1f;
+    margin: 10px auto 30px auto;
+    border-radius: 10px;
+}
+
+/* Botões Automático / Manual */
+.modo-buttons {
+    display: flex;
+    gap: 0;
+    margin-bottom: 30px;
+    border: 1px solid #d3d3d3;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}
+
+.modo-btn {
+    background-color: white;
+    border: none;
+    border-radius: 0;
+    padding: 10px 40px;
+    font-size: 16px;
+    font-family: "Inter", sans-serif;
+    cursor: pointer;
+    color: #555;
+    transition: 0.3s;
+    width: auto;
+    height: auto;
+    box-shadow: none;
+}
+
+.modo-btn:hover {
+    background-color: #ebebeb;
+    color: #333;
+}
+
+.modo-btn.modo-ativo {
+    background-color: #0A086B;
+    color: white;
+}
+
+.modo-btn.modo-ativo:hover {
+    background-color: #0d0b8a;
+    color: white;
+}
+
+/* Form principal */
+.solicitar-form {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Linha de 3 campos lado a lado */
+.campos-linha {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.campos-linha > * {
+    flex: 1;
+    min-width: 160px;
+}
+
+/* Garante que os inputs ocupem 100% dentro da linha */
+.campos-linha .input-form {
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+/* Seção de materiais */
+.materiais-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.materiais-label {
+    font-size: 18px;
+    color: #555;
+    font-family: "Inter", sans-serif;
+}
+
+.materiais-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Botão adicionar */
+.adicionar-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: #0A086B;
+    font-size: 16px;
+    font-family: "Inter", sans-serif;
+    cursor: pointer;
+    padding: 4px 0;
+    width: auto;
+    height: auto;
+    box-shadow: none;
+    font-weight: 500;
+}
+
+.adicionar-btn:hover {
+    background: none;
+    color: #0d0b8a;
+    text-decoration: underline;
+}
+
+.adicionar-btn:active {
+    transform: scale(0.97);
+    background: none;
+    box-shadow: none;
+}
+
+.adicionar-icone {
+    font-size: 20px;
+}
+
+/* Botões de ação */
+.solicitar-actions {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.solicitar-actions > * {
+    flex: 1;
+    width: 100%;
+}

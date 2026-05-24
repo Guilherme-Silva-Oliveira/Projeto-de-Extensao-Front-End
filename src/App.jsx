@@ -1,11 +1,21 @@
 import "./components/App.css";
+import { useState } from "react";
 import NavBar from "./components/NavBar";
 import InputForm from "./components/InputForm";
 import ButtonFormOption from "./components/ButtonFormOption";
 import Link from "./components/LinkText";
 import MainButton from "./components/MainButton";
+import SolicitarMaterial from "./pages/SolicitarMaterial";
+
 
 function App() {
+
+  const [tela, setTela] = useState("login");
+
+  if (tela === "solicitar") {
+    return <SolicitarMaterial onVoltar={() => setTela("login")} />;
+  }
+
   return (
     <div className="page-container">
       <NavBar />
@@ -32,7 +42,7 @@ function App() {
           </div>
 
           <div className="action-buttons">
-            <MainButton texto="Entrar" cor="#0A086B" />
+            <MainButton texto="Entrar" cor="#0A086B" onClick={() => setTela("solicitar")} />
             <MainButton texto="Cancelar" cor="#FF4B09" />
           </div>
         </form>
