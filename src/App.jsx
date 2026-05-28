@@ -3,23 +3,25 @@ import { useState } from "react";
 import NavBar from "./components/NavBar";
 import InputForm from "./components/InputForm";
 import ButtonFormOption from "./components/ButtonFormOption";
-import Link from "./components/LinkText";
+import LinkText from "./components/LinkText";
 import MainButton from "./components/MainButton";
 import SolicitarMaterial from "./pages/SolicitarMaterial";
-
+import CadastroMaterial from "./pages/CadastroMaterial";
 
 function App() {
-
-  const [tela, setTela] = useState("login");
+  const [tela, setTela] = useState("cadastro");
 
   if (tela === "solicitar") {
     return <SolicitarMaterial onVoltar={() => setTela("login")} />;
   }
 
+  if (tela === "cadastro") {
+    return <CadastroMaterial onVoltar={() => setTela("cadastro")} />;
+  }
+
   return (
     <div className="page-container">
       <NavBar />
-
       <main className="login-container">
         <h1 className="titulo-login">FAÇA SEU LOGIN</h1>
         <div className="linha-laranja"></div>
@@ -37,12 +39,12 @@ function App() {
           </div>
 
           <div className="links-container">
-            <Link texto="Esqueci minha Senha" />
-            <Link texto="Precisa de Ajuda?" />
+            <LinkText texto="Esqueci minha Senha" />
+            <LinkText texto="Precisa de Ajuda?" />
           </div>
 
           <div className="action-buttons">
-            <MainButton texto="Entrar" cor="#0A086B" onClick={() => setTela("solicitar")} />
+            <MainButton texto="Entrar" cor="#0A086B" onClick={() => setTela("cadastro")} />
             <MainButton texto="Cancelar" cor="#FF4B09" />
           </div>
         </form>
