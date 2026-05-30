@@ -1,0 +1,55 @@
+.navbardashboard {
+    width: 80px;
+    height: 100vh;
+    background: #1f1698;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+    position: relative;
+    padding-bottom: 30px;
+    overflow: hidden;
+}
+
+.navbardashboard::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -40px;
+    width: 110px;
+    height: 420px;
+    background: #3425a8;
+    border-radius: 50%;
+}
+
+.navbardashboard button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 2;
+    transition: 0.2s;
+}
+
+.navbardashboard button:hover {
+    transform: scale(1.08);
+}
+
+.navbardashboard-perfil {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.navbardashboard-menu {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+}
+
+.navbardashboard-voltar {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}

@@ -1,0 +1,19 @@
+.tabela-listagem {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.1rem;
+    margin: 10px;
+}
+
+.tabela-listagem th,
+.tabela-listagem td {
+    border: 1px solid #ddd;
+    padding: 0.35em 0.6em;
+    text-align: left;
+}
+
+.tabela-listagem th {
+    font-weight: 500;
+    background-color: #f9f9f9;
+    text-align: center;
+}
