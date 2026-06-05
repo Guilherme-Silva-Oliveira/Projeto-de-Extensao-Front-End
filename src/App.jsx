@@ -12,8 +12,13 @@ import DashboardControleAlmoxarifado from "./pages/DashboardControleAlmoxarifado
 function App() {
   const [tela, setTela] = useState("login");
 
-  if(tela === "dashboard"){
-    return <DashboardControleAlmoxarifado onVoltar={() => setTela("login")} />;
+  if (tela === "dashboard") {
+    return (
+      <DashboardControleAlmoxarifado
+        onVoltar={() => setTela("login")}
+        onCadastrar={() => setTela("cadastro")}
+      />
+    );
   }
 
   if (tela === "solicitar") {
@@ -50,7 +55,7 @@ function App() {
 
           <div className="action-buttons">
             <MainButton texto="Entrar" cor="#0A086B" onClick={() => setTela("dashboard")} />
-            <MainButton texto="Cancelar" cor="#FF4B09" onClick={() => setTela("cadastro")}/>
+            <MainButton texto="Cancelar" cor="#FF4B09" />
           </div>
         </form>
       </main>

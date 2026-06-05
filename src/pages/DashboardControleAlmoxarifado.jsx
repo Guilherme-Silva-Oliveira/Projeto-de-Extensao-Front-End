@@ -8,7 +8,7 @@ import TabelaListagem from "../components/TabelaListagem";
 import dashboardIcon from "../assets/dashboardIcon.png";
 import "./DashboardControleAlmoxarifado.css";
 
-function DashboardControleAlmoxarifado({ onVoltar }) {
+function DashboardControleAlmoxarifado({ onVoltar, onCadastrar }) {
     const hoje = new Date();
 
     const [dataInicio, setDataInicio] = useState("");
@@ -47,7 +47,7 @@ function DashboardControleAlmoxarifado({ onVoltar }) {
 
     return (
         <div className="dashboard">
-            <NavBarDashboard onVoltar={onVoltar} />
+            <NavBarDashboard onVoltar={onVoltar} onCadastrar={onCadastrar} />
             <section className="dashboard-content">
                 <div className="titulo-dashboard">
                     <h1>Dashboard de Controle de Almoxarifado</h1>
@@ -77,12 +77,12 @@ function DashboardControleAlmoxarifado({ onVoltar }) {
                         <p>Selecione o período de tempo</p>
                         <hr />
                         <div className="kpi-divisao">
-                            <SelectData>
+                            <SelectData
                                 dataInicio={dataInicio}
                                 dataFim={dataFim}
                                 setDataInicio={setDataInicio}
                                 setDataFim={setDataFim}
-                            </SelectData>
+                            />
                         </div>
                     </CardDashboard>
                 </div>
