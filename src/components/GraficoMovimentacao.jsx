@@ -36,7 +36,7 @@ function GraficoMovimentacao() {
           {
             label: "Entradas",
             data: dados.map((d) => d.entradas),
-            backgroundColor: "#e84118",
+            backgroundColor: "#094D92",
             borderRadius: 3,
             barPercentage: 0.7,
             categoryPercentage: 0.8,
@@ -44,7 +44,7 @@ function GraficoMovimentacao() {
           {
             label: "Saídas",
             data: dados.map((d) => d.saidas),
-            backgroundColor: "#fbc531",
+            backgroundColor: "#96031A",
             borderRadius: 3,
             barPercentage: 0.7,
             categoryPercentage: 0.8,

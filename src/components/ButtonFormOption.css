@@ -24,6 +24,7 @@ button:focus {
 }
 
 .btn-form-option {
+    padding: 2em;
     width: 9vw;
     display: flex;
     flex-direction: column;
