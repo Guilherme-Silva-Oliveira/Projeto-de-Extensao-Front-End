@@ -3,8 +3,10 @@ import NavBar from "../components/NavBar";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import SelectForm from "../components/SelectForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../provider/api.js"
 
+/*
 const categorias = [
     "Artes",
     "Papelaria",
@@ -17,7 +19,51 @@ const categorias = [
     "Manutenção",
     "Outros",
 ];
+*/
+const categorias = [
+  {
+    "id": 1,
+    "nomeCategoria": "Artes"
+  },
+  {
+    "id": 2,
+    "nomeCategoria": "Papelaria"
+  },
+  {
+    "id": 3,
+    "nomeCategoria": "Limpeza"
+  },
+  {
+    "id": 4,
+    "nomeCategoria": "Informática"
+  },
+  {
+    "id": 5,
+    "nomeCategoria": "Esportes"
+  },
+  {
+    "id": 6,
+    "nomeCategoria": "Laboratório"
+  },
+  {
+    "id": 7,
+    "nomeCategoria": "Escritório"
+  },
+  {
+    "id": 8,
+    "nomeCategoria": "Higiene"
+  },
+  {
+    "id": 9,
+    "nomeCategoria": "Manutenção"
+  },
+  {
+    "id": 10,
+    "nomeCategoria": "Outros"
+  },
+];
 
+/*
 const fornecedores = [
     "Escola",
     "Pais",
@@ -27,13 +73,62 @@ const fornecedores = [
     "ONG Parceira",
     "Fornecedor Externo",
 ];
+*/
+const fornecedores = [
+  {
+    "id": 1,
+    "nome": "Escola"
+  },
+  {
+    "id": 2,
+    "nome": "Pais"
+  },
+  {
+    "id": 3,
+    "nome": "Doações"
+  },
+  {
+    "id": 4,
+    "nome": "Prefeitura"
+  },
+  {
+    "id": 5,
+    "nome": "Governo Estadual"
+  },
+  {
+    "id": 6,
+    "nome": "ONG Parceira"
+  },
+  {
+    "id": 7,
+    "nome": "Fornecedor Externo"
+  }
+];
+
 
 function CadastroMaterial({ onVoltar }) {
     const [nomeMaterial, setNomeMaterial] = useState("");
-    const [categoria, setCategoria] = useState(categorias[0]);
-    const [fornecedor, setFornecedor] = useState(fornecedores[0]);
+    const [categoriaId, setCategoriaId] = useState(categorias[0].id);
+    const [fornecedorId, setFornecedorId] = useState(fornecedores[0].id);
     const [unidade, setUnidade] = useState("");
     const [descricao, setDescricao] = useState("");
+
+    useEffect(() => {
+
+      // GET de categorias
+
+      // GET de fornecedores
+
+    }, [])
+
+    function cadastrar() {
+      console.log(categoriaId)
+      console.log(fornecedorId)
+      console.log(unidade)
+      console.log(descricao)
+
+      //api .post("/v1/materiais", { "" })
+    }
 
     return (
         <div className="page-container">
@@ -58,8 +153,9 @@ function CadastroMaterial({ onVoltar }) {
                         <SelectForm
                             titulo="Categoria:"
                             opcoes={categorias}
-                            valor={categoria}
-                            onChange={setCategoria}
+                            valor={categoriaId}
+                            onChange={setCategoriaId}
+                            labelField={"nomeCategoria"}
                         />
                     </div>
 
@@ -67,8 +163,9 @@ function CadastroMaterial({ onVoltar }) {
                         <SelectForm
                             titulo="Fornecedor:"
                             opcoes={fornecedores}
-                            valor={fornecedor}
-                            onChange={setFornecedor}
+                            valor={fornecedorId}
+                            onChange={setFornecedorId}
+                            labelField={"nome"}
                         />
                     </div>
 
