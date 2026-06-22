@@ -118,6 +118,8 @@ function CadastroMaterial({ onVoltar }) {
       // GET de categorias
 
       // GET de fornecedores
+      
+      // GET de unidade de medida
 
     }, [])
 
