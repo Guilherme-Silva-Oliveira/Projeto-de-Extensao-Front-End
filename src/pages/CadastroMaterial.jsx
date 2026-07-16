@@ -5,6 +5,8 @@ import MainButton from "../components/MainButton";
 import SelectForm from "../components/SelectForm";
 import { useEffect, useState } from "react";
 import { api } from "../provider/api.js"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 /*
 const categorias = [
@@ -106,7 +108,9 @@ const fornecedores = [
 ];
 
 
-function CadastroMaterial({ onVoltar }) {
+function CadastroMaterial() {
+    const navigate = useNavigate();
+
     const [nomeMaterial, setNomeMaterial] = useState("");
     const [categoriaId, setCategoriaId] = useState(categorias[0].id);
     const [fornecedorId, setFornecedorId] = useState(fornecedores[0].id);
@@ -134,7 +138,7 @@ function CadastroMaterial({ onVoltar }) {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} onVoltar={onVoltar} />
+            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
 
             <main className="cadastro-container">
                 <h1 className="titulo-cadastro">CADASTRO DE MATERIAL</h1>
@@ -195,7 +199,7 @@ function CadastroMaterial({ onVoltar }) {
 
                     <div className="cadastro-actions">
                         <MainButton texto="Cadastrar" cor="#0A086B" />
-                        <MainButton texto="Cancelar" cor="#FF4B09" onClick={onVoltar} />
+                        <MainButton texto="Cancelar" cor="#FF4B09" onClick={() => navigate(-1)} />
                     </div>
 
                 </div>

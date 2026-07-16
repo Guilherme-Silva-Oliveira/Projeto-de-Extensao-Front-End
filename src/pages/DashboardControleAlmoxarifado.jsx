@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CardDashboard from "../components/CardDashboard";
 import NavBarDashboard from "../components/NavBarDashboard";
 import SelectData from "../components/SelectData";
@@ -8,7 +9,8 @@ import TabelaListagem from "../components/TabelaListagem";
 import dashboardIcon from "../assets/dashboardIcon.png";
 import "./DashboardControleAlmoxarifado.css";
 
-function DashboardControleAlmoxarifado({ onVoltar, onCadastrar }) {
+function DashboardControleAlmoxarifado() {
+    const navigate = useNavigate();
     const hoje = new Date();
 
     const [dataInicio, setDataInicio] = useState("");
@@ -47,7 +49,7 @@ function DashboardControleAlmoxarifado({ onVoltar, onCadastrar }) {
 
     return (
         <div className="dashboard">
-            <NavBarDashboard onVoltar={onVoltar} onCadastrar={onCadastrar} />
+            <NavBarDashboard onVoltar={() => navigate(-1)} onCadastrar={() => navigate("/cadastro-material")} />
             <section className="dashboard-content">
                 <div className="titulo-dashboard">
                     <h1>Dashboard de Controle de Almoxarifado</h1>
