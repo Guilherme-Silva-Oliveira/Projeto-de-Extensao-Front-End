@@ -3,7 +3,7 @@ import NavBar from "../components/NavBar";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import SelectForm from "../components/SelectForm";
-import { useEffect, useState } from "react";
+import { useEffect} from "react";
 import { api } from "../provider/api.js"
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
