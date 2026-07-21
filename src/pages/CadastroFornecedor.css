@@ -1,0 +1,98 @@
+.cadastro-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    padding: 50px 20px 40px 20px;
+}
+
+.titulo-cadastro {
+    color: #333333;
+    font-weight: 400;
+    font-size: 32px;
+    text-align: center;
+    margin: 0;
+    font-family: "Inter", sans-serif;
+}
+
+.linha-laranja {
+    width: 320px;
+    height: 4px;
+    background-color: #ff5a1f;
+    margin: 10px auto 30px auto;
+    border-radius: 10px;
+}
+
+.cadastro-form {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cadastro-field {
+    width: 100%;
+}
+
+.cadastro-field .input-container {
+    width: 100%;
+    margin-top: 0;
+}
+
+.cadastro-field .input-form {
+    width: 100% !important;
+    height: 48px;
+    font-size: 18px;
+    box-sizing: border-box;
+}
+
+
+.descricao-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.descricao-label {
+    font-size: 18px;
+    color: #333;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+}
+
+.descricao-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d3d3d3;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: "Inter", sans-serif;
+    color: #555;
+    resize: vertical;
+    outline: none;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08);
+    line-height: 1.6;
+}
+
+.descricao-textarea:focus {
+    border-color: #0A086B;
+    box-shadow: 0px 0px 0px 2px rgba(10, 8, 107, 0.12);
+}
+
+.descricao-textarea::placeholder {
+    color: #b3b3b3;
+}
+
+
+.cadastro-actions {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.cadastro-actions > * {
+    flex: 1;
+    width: 100%;
+}
