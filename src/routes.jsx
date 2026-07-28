@@ -5,6 +5,7 @@ import CadastroMaterial from "./pages/CadastroMaterial";
 import DashboardControleAlmoxarifado from "./pages/DashboardControleAlmoxarifado";
 import SolicitarMaterial from "./pages/SolicitarMaterial";
 import CadastroFornecedor from "./pages/CadastroFornecedor";
+import GerenciarDevolucoes from "./pages/GerenciarDevolucoes";
 
 const routes = createBrowserRouter([
   {
@@ -30,6 +31,11 @@ const routes = createBrowserRouter([
   {
     path: "/cadastro-fornecedor",
     element: <CadastroFornecedor />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/gerenciar-devolucoes",
+    element: <GerenciarDevolucoes />,
     errorElement: <div>erro</div>,
   },
 ]);
