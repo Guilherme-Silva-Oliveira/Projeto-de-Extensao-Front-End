@@ -1,6 +1,6 @@
 import "./InputForm.css";
 
-function InputForm({ titulo, placeholder }) {
+function InputForm({ titulo, placeholder, type = "text", value, onChange, name, required = false }) {
     return (
         <div className="input-container">
 
