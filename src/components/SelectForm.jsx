@@ -1,6 +1,6 @@
 import "./SelectForm.css";
 
-function SelectForm({ titulo, opcoes, valor, onChange }) {
+function SelectForm({ titulo, opcoes, valor, onChange, labelField }) {
     return (
         <div className="select-container">
             <label className="select-label">{titulo}</label>
@@ -10,8 +10,8 @@ function SelectForm({ titulo, opcoes, valor, onChange }) {
                     value={valor}
                     onChange={(e) => onChange(e.target.value)}
                 >
-                    {opcoes.map((op) => (
-                        <option key={op} value={op}>{op}</option>
+                    {opcoes.map((opt) => (
+                        <option key={opt.id} value={opt[labelField]}>{opt[labelField]}</option>
                     ))}
                 </select>
                 <span className="select-arrow">∧</span>
