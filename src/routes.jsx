@@ -32,7 +32,6 @@ const routes = createBrowserRouter([
     errorElement: <div>erro</div>,
   },
   {
-<<<<<<< HEAD
     path: "/cadastro-professor",
     element: <CadastroProfessor />,
     errorElement: <div>erro</div>,
@@ -40,7 +39,9 @@ const routes = createBrowserRouter([
   {
     path: "/cadastro-categoria",
     element: <CadastroCategoria />,
-=======
+    errorElement: <div>erro</div>,
+  },
+  {
     path: "/cadastro-fornecedor",
     element: <CadastroFornecedor />,
     errorElement: <div>erro</div>,
@@ -53,7 +54,6 @@ const routes = createBrowserRouter([
   {
     path: "/cadastro-motivo",
     element: <CadastroMotivo />,
->>>>>>> 6afbe33c8b47c67096e12d3c10fcf2e49d93f341
     errorElement: <div>erro</div>,
   },
 ]);

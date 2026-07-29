@@ -34,7 +34,7 @@ function Login() {
           </div>
 
           <div className="action-buttons">
-            <MainButton texto="Entrar" cor="#0A086B" onClick={() => navigate("/cadastro-motivo")} />
+            <MainButton texto="Entrar" cor="#0A086B" onClick={() => navigate("/dashboard")} />
             <MainButton texto="Cancelar" cor="#FF4B09" />
           </div>
         </form>
