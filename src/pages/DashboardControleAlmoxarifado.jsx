@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CardDashboard from "../components/CardDashboard";
 import NavBarDashboard from "../components/NavBarDashboard";
@@ -8,6 +8,7 @@ import ButtonFormOption from "../components/ButtonFormOption";
 import TabelaListagem from "../components/TabelaListagem";
 import dashboardIcon from "../assets/dashboardIcon.png";
 import "./DashboardControleAlmoxarifado.css";
+import { api } from "../provider/api";
 
 function DashboardControleAlmoxarifado() {
     const navigate = useNavigate();
@@ -15,6 +16,7 @@ function DashboardControleAlmoxarifado() {
 
     const [dataInicio, setDataInicio] = useState("");
     const [dataFim, setDataFim] = useState(hoje);
+    const [materialMaisSolicitado, setMaterialMaisSolicitado] = useState("Carregando...");
 
     //Listagem vencimento
     const colunasVencimento = [
@@ -47,6 +49,27 @@ function DashboardControleAlmoxarifado() {
         { material: "Item Z", quantidade: 310, minimo: 180, diferenca: 130 },
     ];
 
+    useEffect(() => {
+        async function buscarMaterialMaisSolicitado() {
+            try {
+                const response = await api.get("/v1/materiais/mais-solicitado", {
+                    params: {
+                        dataInicio: dataInicio ? `${dataInicio}T00:00:00` : undefined,
+                        dataFim: dataFim ? `${dataFim instanceof Date ? dataFim.toISOString().split("T")[0] : dataFim}T23:59:59` : undefined
+                    }
+                });
+                
+                setMaterialMaisSolicitado(response.data.nomeMaterial);
+                console.log("Material mais solicitado:", response.data.nomeMaterial);
+            } catch (error) {
+                console.error("Erro ao buscar material mais solicitado:", error);
+                setMaterialMaisSolicitado("Erro ao carregar");
+            }
+        }
+
+        buscarMaterialMaisSolicitado();
+    }, [dataInicio, dataFim]);
+
     return (
         <div className="dashboard">
             <NavBarDashboard onVoltar={() => navigate(-1)} onCadastrar={() => navigate("/cadastro-material")} />
@@ -58,7 +81,7 @@ function DashboardControleAlmoxarifado() {
                 <div className="kpis">
                     <CardDashboard>
                         <p>Material mais solicitado</p>
-                        <h3>Papel</h3>
+                        <h3>{materialMaisSolicitado}</h3>
                     </CardDashboard>
                     <CardDashboard>
                         <p>Gestão de solicitações</p>
