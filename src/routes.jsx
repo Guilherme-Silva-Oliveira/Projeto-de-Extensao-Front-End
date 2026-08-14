@@ -9,11 +9,17 @@ import CadastroCategoria from "./pages/CadastroCategoria";
 import CadastroFornecedor from "./pages/CadastroFornecedor";
 import GerenciarDevolucoes from "./pages/GerenciarDevolucoes";
 import CadastroMotivo from "./pages/CadastroMotivo";
+import Menu from "./pages/Menu";
 
 const routes = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/menu",
+    element: <Menu />,
     errorElement: <div>erro</div>,
   },
   {
