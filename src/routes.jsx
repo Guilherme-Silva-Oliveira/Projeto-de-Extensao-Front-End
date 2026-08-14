@@ -62,6 +62,11 @@ const routes = createBrowserRouter([
     element: <CadastroMotivo />,
     errorElement: <div>erro</div>,
   },
+  {
+    path: "/gerenciar-devolucoes",
+    element: <GerenciarDevolucoes />,
+    errorElement: <div>erro</div>,
+  },
 ]);
 
 export default routes;
