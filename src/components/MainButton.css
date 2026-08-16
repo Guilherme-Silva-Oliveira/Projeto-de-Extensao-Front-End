@@ -1,5 +1,14 @@
-button:active{
-    transform: scale(0.9);
-    background-color: #bdbdbd;
-    box-shadow: inset 0px 2px 5px rgba(0,0,0,0.2);
+.main-button {
+    transition: transform 0.3s ease, filter 0.3s ease;
+    cursor: pointer;
+}
+
+.main-button:hover {
+    transform: scale(1.03);
+    filter: brightness(1.25);
+}
+
+.main-button:active {
+    transform: scale(0.97);
+    filter: brightness(0.95);
 }

@@ -21,13 +21,11 @@
     height: 48px;
     border: 1px solid #d3d3d3;
     border-radius: 8px;
-    padding: 0 40px 0 15px;
+    padding: 0 15px;
     font-size: 18px;
     font-family: "Inter", sans-serif;
     color: #555;
     background-color: white;
-    appearance: none;
-    -webkit-appearance: none;
     outline: none;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.10);
     cursor: pointer;
@@ -37,15 +35,4 @@
 
 .select-form:focus {
     border-color: #0A086B;
-}
-
-.select-arrow {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: #555;
-    pointer-events: none;
-    font-weight: bold;
 }

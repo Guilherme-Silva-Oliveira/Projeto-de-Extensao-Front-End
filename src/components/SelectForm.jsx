@@ -14,7 +14,6 @@ function SelectForm({ titulo, opcoes, valor, onChange, labelField }) {
                         <option key={opt.id} value={opt[labelField]}>{opt[labelField]}</option>
                     ))}
                 </select>
-                <span className="select-arrow">∧</span>
             </div>
         </div>
     );

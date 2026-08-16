@@ -5,6 +5,7 @@ function MainButton({ texto, cor, onClick }) {
         <button 
         
         type="button"
+        className="main-button"
         style={{ 
             backgroundColor: cor,
             color: "white"

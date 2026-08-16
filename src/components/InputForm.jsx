@@ -9,8 +9,12 @@ function InputForm({ titulo, placeholder, type = "text", value, onChange, name, 
             </label>
 
             <input
-                type="text"
+                type={type}
                 placeholder={placeholder}
+                value={value}
+                onChange={onChange}
+                name={name}
+                required={required}
                 className="input-form"
             />
 
