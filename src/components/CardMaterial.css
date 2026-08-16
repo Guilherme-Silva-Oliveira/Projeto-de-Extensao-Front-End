@@ -1,0 +1,43 @@
+.card-material {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    width: 100%;
+    border: 1px solid #d3d3d3;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08);
+    font-family: "Inter", sans-serif;
+    padding: 16px 24px;
+    box-sizing: border-box;
+}
+
+.card-material-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 120px;
+}
+
+.card-material-descricao {
+    flex: 1.4;
+    min-width: 200px;
+}
+
+.card-material-label {
+    font-size: 13px;
+    color: #777;
+}
+
+.card-material-valor {
+    font-size: 15px;
+    color: #333;
+}
+
+.card-material-quantidade {
+    font-size: 15px;
+    font-weight: 600;
+    color: #ff5a1f;
+}

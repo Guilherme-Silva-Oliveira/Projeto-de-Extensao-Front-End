@@ -10,6 +10,7 @@ import CadastroFornecedor from "./pages/CadastroFornecedor";
 import GerenciarDevolucoes from "./pages/GerenciarDevolucoes";
 import CadastroMotivo from "./pages/CadastroMotivo";
 import Menu from "./pages/Menu";
+import GerenciarAlmoxarifado from "./pages/GerenciarAlmoxarifado";
 
 const routes = createBrowserRouter([
   {
@@ -53,11 +54,6 @@ const routes = createBrowserRouter([
     errorElement: <div>erro</div>,
   },
   {
-    path: "/gerenciar-devolucoes",
-    element: <GerenciarDevolucoes />,
-    errorElement: <div>erro</div>,
-  },
-  {
     path: "/cadastro-motivo",
     element: <CadastroMotivo />,
     errorElement: <div>erro</div>,
@@ -65,6 +61,11 @@ const routes = createBrowserRouter([
   {
     path: "/gerenciar-devolucoes",
     element: <GerenciarDevolucoes />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/gerenciar-almoxarifado",
+    element: <GerenciarAlmoxarifado />,
     errorElement: <div>erro</div>,
   },
 ]);

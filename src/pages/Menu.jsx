@@ -23,7 +23,7 @@ function Menu() {
 
                 <div className="menu-form">
                     <p>Escolha uma opção:</p>
-                    <ButtonFormOption texto="Gerenciar Materiais" />
+                    <ButtonFormOption texto="Gerenciar Materiais" onClick={() => navigate("/gerenciar-almoxarifado")} />
                     <ButtonFormOption texto="Gerenciar Solicitações" />
                     <ButtonFormOption texto="Gerenciar Movimentações" />
                     <ButtonFormOption texto="Gerenciar Dashboard" />
