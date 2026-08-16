@@ -8,6 +8,7 @@ import CadastroProfessor from "./pages/CadastroProfessor";
 import CadastroCategoria from "./pages/CadastroCategoria";
 import CadastroFornecedor from "./pages/CadastroFornecedor";
 import GerenciarDevolucoes from "./pages/GerenciarDevolucoes";
+import GerenciarMovimentacoes from "./pages/GerenciarMovimentacoes";
 import CadastroMotivo from "./pages/CadastroMotivo";
 import Menu from "./pages/Menu";
 
@@ -55,6 +56,11 @@ const routes = createBrowserRouter([
   {
     path: "/gerenciar-devolucoes",
     element: <GerenciarDevolucoes />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/gerenciar-movimentacoes",
+    element: <GerenciarMovimentacoes />,
     errorElement: <div>erro</div>,
   },
   {
