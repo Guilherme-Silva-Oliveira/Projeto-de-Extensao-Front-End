@@ -11,6 +11,7 @@ import GerenciarDevolucoes from "./pages/GerenciarDevolucoes";
 import CadastroMotivo from "./pages/CadastroMotivo";
 import Menu from "./pages/Menu";
 import GerenciarAlmoxarifado from "./pages/GerenciarAlmoxarifado";
+import GerenciarSolicitacoes from "./pages/GerenciarSolicitacoes";
 
 const routes = createBrowserRouter([
   {
@@ -61,6 +62,11 @@ const routes = createBrowserRouter([
   {
     path: "/gerenciar-devolucoes",
     element: <GerenciarDevolucoes />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/gerenciar-solicitacoes",
+    element: <GerenciarSolicitacoes />,
     errorElement: <div>erro</div>,
   },
   {
