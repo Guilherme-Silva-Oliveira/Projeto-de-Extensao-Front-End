@@ -198,7 +198,7 @@ function CadastroMaterial() {
                     </div>
 
                     <div className="cadastro-actions">
-                        <MainButton texto="Cadastrar" cor="#0A086B" />
+                        <MainButton texto="Cadastrar" cor="#0A086B" onClick={() => navigate(-1)} />
                         <MainButton texto="Cancelar" cor="#FF4B09" onClick={() => navigate(-1)} />
                     </div>
 

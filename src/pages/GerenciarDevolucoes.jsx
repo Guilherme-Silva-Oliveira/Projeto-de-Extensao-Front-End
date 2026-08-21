@@ -304,7 +304,7 @@ function GerenciarDevolucoes() {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+            <NavBar mostrarVoltar={true} mostrarLinks={true} />
 
             <main className="devolucoes-container">
                 <div className="devolucoes-breadcrumb">

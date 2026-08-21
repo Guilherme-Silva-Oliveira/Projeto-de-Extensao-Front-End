@@ -1,17 +1,16 @@
 .navbardashboard {
-    width: 80px;
+    width: 130px;
     height: 100vh;
     background: #1f1698;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 18px;
     position: relative;
-    padding-bottom: 30px;
+    padding: 40px 10px;
     overflow: hidden;
 }
-
 .navbardashboard::before {
     content: "";
     position: absolute;
@@ -36,26 +35,29 @@
     transform: scale(1.08);
 }
 
-.navbardashboard-perfil {
-    width: 42px;
-    height: 42px;
-    object-fit: contain;
-}
-
 .navbardashboard-menu {
     width: 38px;
     height: 38px;
     object-fit: contain;
 }
 
-.navbardashboard-voltar {
-    width: 42px;
-    height: 42px;
+.navbardashboard-logo {
+    width: 111px;
+    height: auto;
     object-fit: contain;
+    z-index: 2;
+    margin-top: 10px;
 }
 
-.navbardashboard-cadastrar {
-    width: 42px;
-    height: 42px;
+.navbardashboard-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+
+.navbardashboard-voltar {
+    width: 2em;
+    height: 2em;
     object-fit: contain;
 }

@@ -35,7 +35,7 @@
 .kpis {
     display: flex;
     justify-content: space-around;
-    gap: 1em;
+    gap: 0.3em;
     margin: 1.5em 0;
 }
 
@@ -63,7 +63,7 @@
     flex-direction: column;
     overflow: hidden;
     height: 28vh;
-    width: 56.5vw;
+    width: 55vw;
 }
 
 .coluna-esquerda {

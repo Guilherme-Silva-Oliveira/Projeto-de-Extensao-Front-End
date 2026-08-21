@@ -1,24 +1,20 @@
 import "./NavBarDashboard.css"
-import perfil from "../assets/perfil.png"
-import menu from "../assets/menu.png"
+import logo from "../assets/logo_colegio_xingu.png"
 import voltar from "../assets/voltar.png"
-import cadastrar from "../assets/cadastrar.png"
+import { useNavigate } from "react-router-dom"
 
-function NavBarDashboard({ onVoltar, onCadastrar }) {
+function NavBarDashboard() {
+    const navigate = useNavigate();
+
     return (
         <nav className="navbardashboard">
-            <button onClick={onCadastrar}>
-                <img src={cadastrar} alt="cadastrar materiais" className="navbardashboard-cadastrar" />
-            </button>
-            <button>
-                <img src={perfil} alt="perfil" className="navbardashboard-perfil" />
-            </button>
-            <button>
-                <img src={menu} alt="Menu" className="navbardashboard-menu" />
-            </button>
-            <button onClick={onVoltar}>
-                <img src={voltar} alt="Voltar" className="navbardashboard-voltar" />
-            </button>
+            <img src={logo} alt="logo" className="navbardashboard-logo" />
+
+            <div className="navbardashboard-bottom">
+                <button onClick={() => navigate("/gerenciar-almoxarifado")}>
+                    <img src={voltar} alt="Voltar" className="navbardashboard-voltar" />
+                </button>
+            </div>
         </nav>
     )
 }

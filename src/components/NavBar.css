@@ -21,7 +21,7 @@
     width: 200px;
 }
 
-.navbar-voltar {
+.navbar-saida {
     background: none;
     border: none;
     cursor: pointer;
@@ -34,19 +34,36 @@
     height: auto;
 }
 
-.navbar-voltar:hover {
+.navbar-saida:hover {
     transform: scale(1.15);
     background: none;
 }
 
-.navbar-voltar:active {
+.navbar-saida:active {
     transform: scale(0.9);
     background: none;
     box-shadow: none;
 }
 
-.voltar-icon {
-    width: 55px;
-    height: 55px;
+.saida-icon {
+    width: 32px;
+    height: 32px;
     object-fit: contain;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 1.5em;
+}
+
+.navbar-links button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.navbar-links button:hover {
+    opacity: 0.8;
 }

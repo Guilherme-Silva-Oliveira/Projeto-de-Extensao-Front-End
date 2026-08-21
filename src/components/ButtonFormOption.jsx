@@ -1,8 +1,8 @@
 import "./ButtonFormOption.css"
 
-function ButtonFormOption({ texto, className, children }) {
+function ButtonFormOption({ texto, className, children, onClick }) {
     return (
-        <button type="button" className={`btn-form-option ${className || ""}`}>
+        <button type="button" className={`btn-form-option ${className || ""}`} onClick={onClick}>
             {texto}
             {children}
         </button>

@@ -85,7 +85,7 @@ function DashboardControleAlmoxarifado() {
                     </CardDashboard>
                     <CardDashboard>
                         <p>Gestão de solicitações</p>
-                        <hr />
+                        <br />
                         <div className="kpi-divisao">
                             <div>
                                 <h3>10</h3>
@@ -100,7 +100,7 @@ function DashboardControleAlmoxarifado() {
                     </CardDashboard>
                     <CardDashboard>
                         <p>Selecione o período de tempo</p>
-                        <hr />
+                        <br />
                         <div className="kpi-divisao">
                             <SelectData
                                 dataInicio={dataInicio}
@@ -129,7 +129,7 @@ function DashboardControleAlmoxarifado() {
                         </CardDashboard>
                     </div>
                     <div className="coluna-direita">
-                        <ButtonFormOption className="botoes-dashboard" texto="Visualizar Solicitações">
+                        <ButtonFormOption className="botoes-dashboard" texto="Visualizar Solicitações" onClick={() => navigate("/gerenciar-solicitacoes")}>
                             <img src={dashboardIcon} alt="" />
                         </ButtonFormOption>
                         <ButtonFormOption className="botoes-dashboard" texto="Em desenvolvimento">

@@ -23,16 +23,16 @@ function Menu() {
 
                 <div className="menu-form">
                     <p>Escolha uma opção:</p>
-                    <ButtonFormOption texto="Gerenciar Materiais" onClick={() => navigate("/gerenciar-almoxarifado")} />
-                    <ButtonFormOption texto="Gerenciar Solicitações" />
-                    <ButtonFormOption texto="Gerenciar Movimentações" />
-                    <ButtonFormOption texto="Gerenciar Dashboard" />
-                    <ButtonFormOption texto="Configurações de Conta" />
+                    <ButtonFormOption texto="Dashboard" onClick={() => navigate("/dashboard")}/>
+                    <ButtonFormOption texto="Almoxarifado" onClick={() => navigate("/gerenciar-almoxarifado")} />
+                    <ButtonFormOption texto="Solicitações" onClick={() => navigate("/gerenciar-solicitacoes")}/>
+                    <ButtonFormOption texto="Devoluções" onClick={() => navigate("/gerenciar-devolucoes")}/>
+                    <ButtonFormOption texto="Movimentações" onClick={() => navigate("/gerenciar-movimentacoes")}/>
 
                    
 
                     <div className="menu-actions">
-                        <MainButton texto="Sair" cor="#FF4B09" onClick={() => navigate(-1)} />
+                        <MainButton texto="Sair" cor="#FF4B09" onClick={() => navigate("/")}/>
                     </div>
                 </div>
             </main>

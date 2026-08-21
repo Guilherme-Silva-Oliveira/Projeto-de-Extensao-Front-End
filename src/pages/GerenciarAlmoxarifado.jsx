@@ -1,11 +1,11 @@
 import "./GerenciarAlmoxarifado.css";
 import NavBar from "../components/NavBar";
 import CardMaterial from "../components/CardMaterial";
-import ModalCadastroMaterial from "../components/ModalCadastroMaterial";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
+import cadastro from "../assets/cadastrar.png"
 
 // dados temporarios enquanto a api n ta conectada 
 
@@ -32,18 +32,6 @@ function gerarCategorias() {
     ];
 }
 
-function gerarMateriaisDisponiveis() {
-    // temporario por enquanto pq dps vem do crud
-    return [
-        { id: 1, nome: "Cartolina Azul", categoria: "Papéis" },
-        { id: 2, nome: "Cartolina Verde", categoria: "Papéis" },
-        { id: 3, nome: "Pincel Chato Nº 12", categoria: "Pincéis" },
-        { id: 4, nome: "Pincel Redondo Nº 8", categoria: "Pincéis" },
-        { id: 5, nome: "Tinta Guache Preta", categoria: "Tintas" },
-        { id: 6, nome: "Placa de Isopor", categoria: "Isopor" },
-    ];
-}
-
 function GerenciarAlmoxarifado() {
     const navigate = useNavigate();
     const filtroRef = useRef(null);
@@ -51,13 +39,10 @@ function GerenciarAlmoxarifado() {
     const [materiais, setMateriais] = useState([]);
     const [categorias, setCategorias] = useState([]);
     const [carregando, setCarregando] = useState(true);
-    const [materiaisDisponiveis, setMateriaisDisponiveis] = useState([]);
 
     const [busca, setBusca] = useState("");
     const [mostrarFiltroCategoria, setMostrarFiltroCategoria] = useState(false);
     const [categoriasSelecionadas, setCategoriasSelecionadas] = useState([]);
-
-    const [modalAberto, setModalAberto] = useState(false);
 
     useEffect(() => {
         // buscarMateriais();
@@ -68,7 +53,6 @@ function GerenciarAlmoxarifado() {
         setTimeout(() => {
             setMateriais(gerarMateriais());
             setCategorias(gerarCategorias());
-            setMateriaisDisponiveis(gerarMateriaisDisponiveis());
             setCarregando(false);
         }, 300);
     }, []);
@@ -113,32 +97,6 @@ function GerenciarAlmoxarifado() {
         );
     }
 
-    // registra um novo material e o exibe na tela
-    async function cadastrarMaterial({ nome, categoria, quantidade, validade, fornecedor }) {
-        //chamada de api (back)
-        // const response = await api.post("/v1/materiais", {
-        //     nome,
-        //     categoria,
-        //     quantidade: Number(quantidade),
-        //     dataVencimento: validade || null,
-        //     fornecedor,
-        // });
-
-        const novoMaterial = {
-            id: Date.now(),
-            nome: nome,
-            quantidade: Number(quantidade) || 0,
-            unidadeMedida: "Unidades",
-            dataVencimento: validade || null,
-            categoria: nome,
-            categoriaGrupo: categoria,
-            descricao: `Fornecedor: ${fornecedor || "não informado"}`,
-        };
-
-        setMateriais((prev) => [novoMaterial, ...prev]);
-        setModalAberto(false);
-    }
-
     const materiaisFiltrados = materiais.filter((m) => {
         const nomeCombina = m.nome.toLowerCase().includes(busca.toLowerCase());
         const categoriaCombina =
@@ -149,13 +107,13 @@ function GerenciarAlmoxarifado() {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+            <NavBar mostrarVoltar={true} mostrarLinks={true} />
 
             <main className="almoxarifado-container">
                 <div className="almoxarifado-breadcrumb">
                     <Link to="/menu">Menu de opções</Link>
                     <span> &gt; </span>
-                    <span>Gerenciar Materiais</span>
+                    <span>Gerenciar Almoxarifado</span>
                 </div>
 
                 <div className="almoxarifado-topo">
@@ -222,9 +180,10 @@ function GerenciarAlmoxarifado() {
                         <button
                             type="button"
                             className="acao-btn acao-ativa"
-                            onClick={() => setModalAberto(true)}
+                            onClick={() => navigate("/cadastro-material")}
                         >
                             Cadastrar Material
+                            <img src={cadastro} alt="ícone de cadastro" />
                         </button>
                         <button
                             type="button"
@@ -253,14 +212,6 @@ function GerenciarAlmoxarifado() {
                         ))}
                 </div>
             </main>
-
-            {modalAberto && (
-                <ModalCadastroMaterial
-                    materiaisDisponiveis={materiaisDisponiveis}
-                    onClose={() => setModalAberto(false)}
-                    onConfirmar={cadastrarMaterial}
-                />
-            )}
         </div>
     );
 }
