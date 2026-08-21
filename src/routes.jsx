@@ -12,6 +12,7 @@ import CadastroMotivo from "./pages/CadastroMotivo";
 import Menu from "./pages/Menu";
 import GerenciarAlmoxarifado from "./pages/GerenciarAlmoxarifado";
 import GerenciarSolicitacoes from "./pages/GerenciarSolicitacoes";
+import CadastroAlmoxarifado from "./pages/CadastroAlmoxarifado";
 
 const routes = createBrowserRouter([
   {
@@ -47,6 +48,11 @@ const routes = createBrowserRouter([
   {
     path: "/cadastro-categoria",
     element: <CadastroCategoria />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/cadastro-almoxarifado",
+    element: <CadastroAlmoxarifado />,
     errorElement: <div>erro</div>,
   },
   {
