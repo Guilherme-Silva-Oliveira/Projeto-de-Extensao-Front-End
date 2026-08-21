@@ -8,6 +8,7 @@ import CadastroProfessor from "./pages/CadastroProfessor";
 import CadastroCategoria from "./pages/CadastroCategoria";
 import CadastroFornecedor from "./pages/CadastroFornecedor";
 import GerenciarDevolucoes from "./pages/GerenciarDevolucoes";
+import GerenciarMovimentacoes from "./pages/GerenciarMovimentacoes";
 import CadastroMotivo from "./pages/CadastroMotivo";
 import Menu from "./pages/Menu";
 import GerenciarAlmoxarifado from "./pages/GerenciarAlmoxarifado";
@@ -58,6 +59,11 @@ const routes = createBrowserRouter([
   {
     path: "/cadastro-fornecedor",
     element: <CadastroFornecedor />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/gerenciar-movimentacoes",
+    element: <GerenciarMovimentacoes />,
     errorElement: <div>erro</div>,
   },
   {
