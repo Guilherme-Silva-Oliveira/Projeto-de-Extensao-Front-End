@@ -32,11 +32,8 @@ const listaMotivos = [
     { id: 6, nome: "Outros" },
 ];
 
-const criarBlocoVazio = () => ({
+const criarItemVazio = () => ({
     id: Date.now() + Math.random(),
-    nomeProfessor: listaProfessores[0].nome,
-    prazo: "",
-    motivo: listaMotivos[0].nome,
     materialId: catalogoMateriais[0].id,
     qtdSolicitada: "",
 });
@@ -48,20 +45,29 @@ function SolicitarMaterial() {
     // Modo Automático State
     const [mensagemAuto, setMensagemAuto] = useState("");
 
-    // Blocos de solicitação
-    const [blocos, setBlocos] = useState([criarBlocoVazio()]);
+    // Dados Gerais da Solicitação (Único para toda a solicitação)
+    const [nomeProfessor, setNomeProfessor] = useState(listaProfessores[0].nome);
+    const [prazo, setPrazo] = useState("");
+    const [motivo, setMotivo] = useState(listaMotivos[0].nome);
 
-    function adicionarBloco() {
-        setBlocos((prev) => [...prev, criarBlocoVazio()]);
+    // Lista de Materiais Solicitados
+    const [itens, setItens] = useState([criarItemVazio()]);
+
+    function adicionarItem() {
+        setItens((prev) => [...prev, criarItemVazio()]);
     }
 
-    function removerBloco(id) {
-        setBlocos((prev) => prev.filter((b) => b.id !== id));
+    function removerItem(id) {
+        if (itens.length === 1) {
+            alert("A solicitação deve conter pelo menos um material.");
+            return;
+        }
+        setItens((prev) => prev.filter((item) => item.id !== id));
     }
 
-    function atualizarBloco(id, campo, valor) {
-        setBlocos((prev) =>
-            prev.map((b) => (b.id === id ? { ...b, [campo]: valor } : b))
+    function atualizarItem(id, campo, valor) {
+        setItens((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, [campo]: valor } : item))
         );
     }
 
@@ -111,78 +117,77 @@ function SolicitarMaterial() {
                                     className="mensagem-textarea"
                                     value={mensagemAuto}
                                     onChange={(e) => setMensagemAuto(e.target.value)}
-                                    rows={4}
+                                    rows={3}
                                     placeholder="Eu Matheus Torres, gostaria de 50 cartolinas de cor verde claro para o dia 10/05/2026 para uma atividade avaliativa."
                                 />
                             </div>
                         )}
 
-                        {/* Renderização dos Blocos de Solicitação */}
-                        {blocos.map((bloco, index) => {
-                            const materialAtual =
-                                catalogoMateriais.find((m) => m.id === bloco.materialId) ||
-                                catalogoMateriais[0];
+                        {/* Dados Gerais da Solicitação (Linha Única) */}
+                        <div className="dados-gerais-section">
+                            <div className="campos-linha">
+                                <SelectForm
+                                    titulo="Nome do Professor:"
+                                    opcoes={listaProfessores}
+                                    valor={nomeProfessor}
+                                    onChange={(val) => setNomeProfessor(val)}
+                                    labelField="nome"
+                                />
 
-                            const qtdNum = Number(bloco.qtdSolicitada);
-                            const temEstoqueSuficiente =
-                                bloco.qtdSolicitada === "" ||
-                                (qtdNum > 0 && qtdNum <= materialAtual.qtdEstoque);
+                                <InputForm
+                                    titulo="Prazo para Solicitação:"
+                                    type="date"
+                                    placeholder="10/05/2026"
+                                    value={prazo}
+                                    onChange={(e) => setPrazo(e.target.value)}
+                                />
 
-                            return (
-                                <div key={bloco.id} className="bloco-wrapper">
-                                    {index > 0 && <div className="bloco-separador" />}
-                                    <div className="bloco-solicitacao">
-                                        {/* Cabeçalho do Bloco com Ícone de Lixeira */}
-                                        <div className="bloco-header">
-                                            <span className="bloco-titulo-index">Item de Solicitação #{index + 1}</span>
-                                            <button
-                                                type="button"
-                                                className="btn-remover-bloco"
-                                                onClick={() => removerBloco(bloco.id)}
-                                                title="Excluir este item de solicitação"
-                                            >
-                                                <span className="material-symbols-outlined btn-icone-lixeira">delete</span>
-                                            </button>
+                                <SelectForm
+                                    titulo="Motivo:"
+                                    opcoes={listaMotivos}
+                                    valor={motivo}
+                                    onChange={(val) => setMotivo(val)}
+                                    labelField="nome"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Seção de Itens da Solicitação */}
+                        <div className="itens-solicitacao-section">
+                            {itens.map((item, index) => {
+                                const materialAtual =
+                                    catalogoMateriais.find((m) => m.id === item.materialId) ||
+                                    catalogoMateriais[0];
+
+                                const qtdNum = Number(item.qtdSolicitada);
+                                const temEstoqueSuficiente =
+                                    item.qtdSolicitada === "" ||
+                                    (qtdNum > 0 && qtdNum <= materialAtual.qtdEstoque);
+
+                                return (
+                                    <div key={item.id} className="item-linha-wrapper">
+                                        <div className="item-header-row">
+                                            <span className="item-titulo-index">Item de Solicitação #{index + 1}</span>
+                                            {itens.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    className="btn-remover-bloco"
+                                                    onClick={() => removerItem(item.id)}
+                                                    title="Excluir este item de solicitação"
+                                                >
+                                                    <span className="material-symbols-outlined btn-icone-lixeira">delete</span>
+                                                </button>
+                                            )}
                                         </div>
 
-                                        {/* Linha 1: Professor (Select), Prazo (Date), Motivo (Select) */}
-                                        <div className="campos-linha">
-                                            <SelectForm
-                                                titulo="Nome do Professor:"
-                                                opcoes={listaProfessores}
-                                                valor={bloco.nomeProfessor}
-                                                onChange={(val) => atualizarBloco(bloco.id, "nomeProfessor", val)}
-                                                labelField="nome"
-                                            />
-
-                                            <InputForm
-                                                titulo="Prazo para Solicitação:"
-                                                type="date"
-                                                placeholder="10/05/2026"
-                                                value={bloco.prazo}
-                                                onChange={(e) =>
-                                                    atualizarBloco(bloco.id, "prazo", e.target.value)
-                                                }
-                                            />
-
-                                            <SelectForm
-                                                titulo="Motivo:"
-                                                opcoes={listaMotivos}
-                                                valor={bloco.motivo}
-                                                onChange={(val) => atualizarBloco(bloco.id, "motivo", val)}
-                                                labelField="nome"
-                                            />
-                                        </div>
-
-                                        {/* Linha 2: Material Solicitado (Select), Quantidade em estoque (Disabled), Quantidade Solicitada (Com status) */}
                                         <div className="campos-linha">
                                             <div className="input-container">
                                                 <label className="input-label">Material Solicitado:</label>
                                                 <select
                                                     className="select-material-form"
-                                                    value={bloco.materialId}
+                                                    value={item.materialId}
                                                     onChange={(e) =>
-                                                        atualizarBloco(bloco.id, "materialId", Number(e.target.value))
+                                                        atualizarItem(item.id, "materialId", Number(e.target.value))
                                                     }
                                                 >
                                                     {catalogoMateriais.map((mat) => (
@@ -212,9 +217,9 @@ function SolicitarMaterial() {
                                                         min="1"
                                                         className="input-form input-qtd-solicitada"
                                                         placeholder="50"
-                                                        value={bloco.qtdSolicitada}
+                                                        value={item.qtdSolicitada}
                                                         onChange={(e) =>
-                                                            atualizarBloco(bloco.id, "qtdSolicitada", e.target.value)
+                                                            atualizarItem(item.id, "qtdSolicitada", e.target.value)
                                                         }
                                                     />
                                                     {temEstoqueSuficiente ? (
@@ -236,15 +241,15 @@ function SolicitarMaterial() {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
 
                         {/* Botão Adicionar Material */}
                         <button
                             type="button"
                             className="adicionar-btn"
-                            onClick={adicionarBloco}
+                            onClick={adicionarItem}
                         >
                             <span className="material-symbols-outlined btn-icone-adicionar">add_circle</span> Adicionar Material
                         </button>
