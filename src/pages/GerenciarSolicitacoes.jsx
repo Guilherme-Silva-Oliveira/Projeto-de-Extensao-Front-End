@@ -49,6 +49,8 @@ function GerenciarSolicitacoes() {
     const [mostrarFiltroData, setMostrarFiltroData] = useState(false);
     const [dataInicio, setDataInicio] = useState("");
     const [dataFim, setDataFim] = useState("");
+    const [dataInicioSelecionada, setDataInicioSelecionada] = useState("");
+    const [dataFimSelecionada, setDataFimSelecionada] = useState("");
 
     useEffect(() => {
         // buscarSolicitacoes(); // <- descomentar quando a API estiver integrada
@@ -103,6 +105,14 @@ function GerenciarSolicitacoes() {
     function limparFiltroData() {
         setDataInicio("");
         setDataFim("");
+        setDataInicioSelecionada("");
+        setDataFimSelecionada("");
+        setMostrarFiltroData(false);
+    }
+
+    function aplicarFiltroData() {
+        setDataInicio(dataInicioSelecionada);
+        setDataFim(dataFimSelecionada);
         setMostrarFiltroData(false);
     }
 
@@ -169,8 +179,10 @@ function GerenciarSolicitacoes() {
                                             <label>Data início</label>
                                             <input
                                                 type="date"
-                                                value={dataInicio}
-                                                onChange={(e) => setDataInicio(e.target.value)}
+                                                value={dataInicioSelecionada}
+                                                onChange={(e) =>
+                                                    setDataInicioSelecionada(e.target.value)
+                                                }
                                             />
                                         </div>
 
@@ -180,19 +192,30 @@ function GerenciarSolicitacoes() {
                                             <label>Data fim</label>
                                             <input
                                                 type="date"
-                                                value={dataFim}
-                                                onChange={(e) => setDataFim(e.target.value)}
+                                                value={dataFimSelecionada}
+                                                onChange={(e) =>
+                                                    setDataFimSelecionada(e.target.value)
+                                                }
                                             />
                                         </div>
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        className="filtro-data-limpar"
-                                        onClick={limparFiltroData}
-                                    >
-                                        Limpar filtro
-                                    </button>
+                                    <div className="filtro-data-acoes">
+                                        <button
+                                            type="button"
+                                            className="filtro-data-aplicar"
+                                            onClick={aplicarFiltroData}
+                                        >
+                                            Aplicar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="filtro-data-limpar"
+                                            onClick={limparFiltroData}
+                                        >
+                                            Limpar filtro
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>

@@ -113,7 +113,7 @@
     font-family: "Inter", sans-serif;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
     outline: none;
-    min-width: 220px;
+    min-width: 620px;
 }
 
 .busca-input:focus {
@@ -228,13 +228,32 @@
 }
 
 .filtro-data-limpar {
-    margin-top: 12px;
     background: none;
     border: none;
     color: #1e1e6e;
     font-size: 13px;
     cursor: pointer;
     padding: 0;
+}
+
+.filtro-data-acoes {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.filtro-data-aplicar {
+    background: none;
+    border: none;
+    color: #1e1e6e;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.filtro-data-aplicar:hover {
+    text-decoration: underline;
 }
 
 .filtro-data-limpar:hover {

@@ -13,6 +13,7 @@ import Menu from "./pages/Menu";
 import GerenciarAlmoxarifado from "./pages/GerenciarAlmoxarifado";
 import GerenciarSolicitacoes from "./pages/GerenciarSolicitacoes";
 import CadastroAlmoxarifado from "./pages/CadastroAlmoxarifado";
+import CadastroTipoFornecedor from "./pages/CadastroTipoFornecedor";
 
 const routes = createBrowserRouter([
   {
@@ -78,6 +79,11 @@ const routes = createBrowserRouter([
   {
     path: "/gerenciar-almoxarifado",
     element: <GerenciarAlmoxarifado />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/gerenciar-tipofornecedor",
+    element: <CadastroTipoFornecedor />,
     errorElement: <div>erro</div>,
   },
 ]);
