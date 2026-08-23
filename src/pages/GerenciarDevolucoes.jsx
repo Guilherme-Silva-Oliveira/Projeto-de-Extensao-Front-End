@@ -354,15 +354,25 @@ function GerenciarDevolucoes() {
                     </div>
 
                     <div className="devolucoes-tabs">
-                        <button type="button" className="tab-btn tab-ativa">
-                            Gerenciar Devoluções
-                        </button>
+                        <div className="devolucoes-tabs-grupo">
+                            <button type="button" className="tab-btn tab-ativa">
+                                Gerenciar Devoluções
+                            </button>
+                            <button
+                                type="button"
+                                className="tab-btn"
+                                onClick={() => navigate("/gerenciar-solicitacoes")}
+                            >
+                                Gerenciar Solicitações
+                            </button>
+                        </div>
+
                         <button
                             type="button"
-                            className="tab-btn"
-                            onClick={() => navigate("/gerenciar-solicitacoes")}
+                            className="tab-btn tab-reprovadas"
+                            onClick={() => navigate("/gerenciar-solicitacoes-reprovadas")}
                         >
-                            Gerenciar Solicitações
+                            Solicitações Reprovadas
                         </button>
                     </div>
                 </div>
