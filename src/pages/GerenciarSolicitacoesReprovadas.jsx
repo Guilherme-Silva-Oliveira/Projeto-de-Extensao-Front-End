@@ -7,30 +7,31 @@ import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
 
 // ---- MOCK TEMPORÁRIO PARA TESTAR A TELA SEM BACKEND ----
-function gerarSolicitacoesMock() {
+function gerarSolicitacoesReprovadasMock() {
     const materiaisPadrao = () => [
-        { id: 1, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDisponivel: 75 },
-        { id: 2, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDisponivel: 75 },
-        { id: 3, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDisponivel: 75 },
-        { id: 4, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDisponivel: 75 },
+        { id: 1, nome: "Cartolina Vermelha", quantidadeSolicitada: 150, quantidadeDisponivel: 145 },
+        { id: 2, nome: "Giz de Cera", quantidadeSolicitada: 80, quantidadeDisponivel: 57 },
     ];
 
-    const solicitantes = ["Rogério Silva", "Maria Fernanda Souza", "Rogério Silva"];
+    const solicitantes = ["Heloisa Santos", "Pedro Leite", "Vitor Rocha"];
     const datasEntrega = ["08/05/2026 - 13h18", "12/05/2026 - 09h45", "20/05/2026 - 16h00"];
-    const datasEncerramento = ["15/05/2026 - 13h30", "19/05/2026 - 09h45", "27/05/2026 - 16h00"];
+    const motivosReprovacao = [
+        "Quantidade solicitada acima do disponível",
+        "Material não disponível no período",
+        "Solicitação duplicada",
+    ];
 
     return Array.from({ length: 3 }, (_, i) => ({
         id: i + 1,
         solicitante: solicitantes[i],
         dataEntrega: datasEntrega[i],
-        dataEncerramento: datasEncerramento[i],
         motivo: "Atividade Avaliativa",
+        motivoReprovacao: motivosReprovacao[i],
         materiais: materiaisPadrao(),
     }));
 }
 // ---------------------------------------------------------
 
-// Converte "08/05/2026 - 13h18" em um Date real, pra dar pra comparar com o range escolhido
 function parseDataEntrega(dataEntregaStr) {
     if (!dataEntregaStr) return null;
     const [dataParte] = dataEntregaStr.split(" - ");
@@ -39,7 +40,7 @@ function parseDataEntrega(dataEntregaStr) {
     return new Date(ano, mes - 1, dia);
 }
 
-function GerenciarSolicitacoes() {
+function SolicitacoesReprovadas() {
     const navigate = useNavigate();
 
     const [solicitacoes, setSolicitacoes] = useState([]);
@@ -51,53 +52,25 @@ function GerenciarSolicitacoes() {
     const [dataFim, setDataFim] = useState("");
 
     useEffect(() => {
-        // buscarSolicitacoes(); // <- descomentar quando a API estiver integrada
+        // buscarSolicitacoesReprovadas(); // <- descomentar quando a API estiver integrada
 
         setCarregando(true);
         setTimeout(() => {
-            setSolicitacoes(gerarSolicitacoesMock());
+            setSolicitacoes(gerarSolicitacoesReprovadasMock());
             setCarregando(false);
         }, 300);
     }, []);
 
-    async function buscarSolicitacoes() {
+    async function buscarSolicitacoesReprovadas() {
         try {
             setCarregando(true);
-            const response = await api.get("/v1/solicitacoes");
+            const response = await api.get("/v1/solicitacoes/reprovadas");
             setSolicitacoes(response.data);
         } catch (error) {
-            console.error("Erro ao buscar solicitacoes:", error);
+            console.error("Erro ao buscar solicitações reprovadas:", error);
         } finally {
             setCarregando(false);
         }
-    }
-
-    // Finaliza os materiais selecionados (checkboxes) de UMA solicitação.
-    async function finalizarMateriais(solicitacaoId, idsSelecionados) {
-        // MOCK: comentar a chamada de api enquanto não há backend
-        // await api.post(`/v1/solicitacoes/${solicitacaoId}/finalizar`, {
-        //     materiaisIds: idsSelecionados,
-        // });
-
-        setSolicitacoes((prev) =>
-            prev
-                .map((s) => {
-                    if (s.id !== solicitacaoId) return s;
-                    const materiaisRestantes = s.materiais.filter(
-                        (m) => !idsSelecionados.includes(m.id)
-                    );
-                    return { ...s, materiais: materiaisRestantes };
-                })
-                .filter((s) => s.materiais.length > 0)
-        );
-    }
-
-    // Cancela a solicitação inteira e a remove da tela
-    async function cancelarSolicitacao(solicitacaoId) {
-        // MOCK: comentar a chamada de api enquanto não há backend
-        // await api.put(`/v1/solicitacoes/${solicitacaoId}/cancelar`);
-
-        setSolicitacoes((prev) => prev.filter((s) => s.id !== solicitacaoId));
     }
 
     function limparFiltroData() {
@@ -139,12 +112,12 @@ function GerenciarSolicitacoes() {
                 <div className="devolucoes-breadcrumb">
                     <Link to="/dashboard">Menu de opções</Link>
                     <span> &gt; </span>
-                    <span>Gerenciar Solicitações</span>
+                    <span>Solicitações Reprovadas</span>
                 </div>
 
                 <div className="devolucoes-topo">
                     <div className="devolucoes-titulo-area">
-                        <h1 className="titulo-devolucoes">SOLICITAÇÕES</h1>
+                        <h1 className="titulo-devolucoes">SOLICITAÇÕES REPROVADAS</h1>
                         <div className="linha-laranja"></div>
                     </div>
 
@@ -213,36 +186,25 @@ function GerenciarSolicitacoes() {
                     </div>
 
                     <div className="devolucoes-tabs">
-                        <div className="devolucoes-tabs-grupo">
-                            <button
-                                type="button"
-                                className="tab-btn"
-                                onClick={() => navigate("/gerenciar-devolucoes")}
-                            >
-                                Gerenciar Devoluções
-                            </button>
-                            <button type="button" className="tab-btn tab-ativa">
-                                Gerenciar Solicitações
-                            </button>
-                        </div>
-
                         <button
                             type="button"
                             className="tab-btn tab-reprovadas"
-                            onClick={() => navigate("/gerenciar-solicitacoes-reprovadas")}
+                            onClick={() => navigate("/gerenciar-solicitacoes")}
                         >
-                            Solicitações Reprovadas
+                            Solicitações
                         </button>
                     </div>
                 </div>
 
                 <div className="devolucoes-lista">
                     {carregando && (
-                        <p className="devolucoes-status">Carregando solicitações...</p>
+                        <p className="devolucoes-status">Carregando solicitações reprovadas...</p>
                     )}
 
                     {!carregando && solicitacoesFiltradas.length === 0 && (
-                        <p className="devolucoes-status">Nenhuma solicitação encontrada.</p>
+                        <p className="devolucoes-status">
+                            Nenhuma solicitação reprovada encontrada.
+                        </p>
                     )}
 
                     {!carregando &&
@@ -250,10 +212,8 @@ function GerenciarSolicitacoes() {
                             <CardSolicitacao
                                 key={solicitacao.id}
                                 solicitacao={solicitacao}
-                                onFinalizar={(idsSelecionados) =>
-                                    finalizarMateriais(solicitacao.id, idsSelecionados)
-                                }
-                                onCancelar={() => cancelarSolicitacao(solicitacao.id)}
+                                somenteLeitura
+                                className="card-reprovado"
                             />
                         ))}
                 </div>
@@ -262,4 +222,4 @@ function GerenciarSolicitacoes() {
     );
 }
 
-export default GerenciarSolicitacoes;
+export default SolicitacoesReprovadas;

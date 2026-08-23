@@ -112,3 +112,8 @@
     background-color: #d94743;
     color: white;
 }
+
+.card-devolucao.card-reprovado {
+    background-color: #fdecea;
+    border-color: #f5c2c0;
+}
