@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./CardDevolucao.css";
 
-function CardSolicitacao({ solicitacao, onFinalizar, onCancelar }) {
+function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, somenteLeitura }) {
     const [aberto, setAberto] = useState(false);
     const [materiaisSelecionados, setMateriaisSelecionados] = useState([]);
 
@@ -35,7 +35,7 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar }) {
     }
 
     return (
-        <div className="card-devolucao">
+        <div className={`card-devolucao ${className || ""}`}>
             <div
                 className="card-devolucao-header"
                 onClick={() => setAberto((v) => !v)}
@@ -77,11 +77,13 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar }) {
                                 className="card-devolucao-material-linha"
                                 key={material.id}
                             >
-                                <input
-                                    type="checkbox"
-                                    checked={materiaisSelecionados.includes(material.id)}
-                                    onChange={() => alternarSelecao(material.id)}
-                                />
+                                {!somenteLeitura && (
+                                    <input
+                                        type="checkbox"
+                                        checked={materiaisSelecionados.includes(material.id)}
+                                        onChange={() => alternarSelecao(material.id)}
+                                    />
+                                )}
                                 <span>
                                     <span className="card-devolucao-label">
                                         Material:{" "}
@@ -104,28 +106,30 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar }) {
                         ))}
                     </div>
 
-                    <div className="card-devolucao-acoes">
-                        <button
-                            type="button"
-                            className="btn-devolver"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleFinalizar();
-                            }}
-                        >
-                            Finalizar
-                        </button>
-                        <button
-                            type="button"
-                            className="btn-encerrar"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleCancelar();
-                            }}
-                        >
-                            Cancelar
-                        </button>
-                    </div>
+                    {!somenteLeitura && (
+                        <div className="card-devolucao-acoes">
+                            <button
+                                type="button"
+                                className="btn-devolver"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleFinalizar();
+                                }}
+                            >
+                                Finalizar
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-encerrar"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCancelar();
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

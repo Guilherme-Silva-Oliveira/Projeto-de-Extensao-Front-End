@@ -259,3 +259,21 @@
 .filtro-data-limpar:hover {
     text-decoration: underline;
 }
+
+.devolucoes-tabs {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+}
+
+.devolucoes-tabs-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 210px;
+}
+
+.tab-reprovadas {
+    min-width: 210px;
+}
