@@ -15,7 +15,6 @@ import GerenciarAlmoxarifado from "./pages/GerenciarAlmoxarifado";
 import GerenciarSolicitacoes from "./pages/GerenciarSolicitacoes";
 import CadastroAlmoxarifado from "./pages/CadastroAlmoxarifado";
 import CadastroTipoFornecedor from "./pages/CadastroTipoFornecedor";
-import GerenciarSolicitacoesReprovadas from "./pages/GerenciarSolicitacoesReprovadas";
 
 const routes = createBrowserRouter([
   {
@@ -91,6 +90,16 @@ const routes = createBrowserRouter([
   {
     path: "/gerenciar-tipofornecedor",
     element: <CadastroTipoFornecedor />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/gerenciar-almoxarifes",
+    element: <GerenciarAlmoxarifes />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/cadastro-almoxarife",
+    element: <CadastroAlmoxarife />,
     errorElement: <div>erro</div>,
   },
   {
