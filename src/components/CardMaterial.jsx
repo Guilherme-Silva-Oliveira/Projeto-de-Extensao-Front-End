@@ -1,6 +1,9 @@
 import "./CardMaterial.css";
+import { useState } from "react";
+import adicionar from "../assets/adicionar.png";
+import ModalCadastroMaterial from "./ModalCadastroMaterial.jsx";
 
-function CardMaterial({ material }) {
+function CardMaterial({ material, materiaisDisponiveis, onConfirmarEntrada }) {
     const {
         nome,
         quantidade,
@@ -9,6 +12,14 @@ function CardMaterial({ material }) {
         categoria,
         descricao,
     } = material;
+
+    const [modalAberto, setModalAberto] = useState(false);
+
+    function handleConfirmar(dados) {
+        // repassa pro pai lidar com a atualização da lista/estado global
+        onConfirmarEntrada?.(dados, material);
+        setModalAberto(false);
+    }
 
     return (
         <div className="card-material">
@@ -43,6 +54,21 @@ function CardMaterial({ material }) {
                 <span className="card-material-label">Fornecedor:</span>
                 <span className="card-material-valor">{descricao}</span>
             </div>
+
+            <div
+                className="div-botao-adicionar"
+                onClick={() => setModalAberto(true)}
+            >
+                <img src={adicionar} alt="Adicionar entrada" />
+            </div>
+
+            {modalAberto && (
+                <ModalCadastroMaterial
+                    materiaisDisponiveis={materiaisDisponiveis}
+                    onClose={() => setModalAberto(false)}
+                    onConfirmar={handleConfirmar}
+                />
+            )}
         </div>
     );
 }

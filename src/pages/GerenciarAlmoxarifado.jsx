@@ -6,6 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
 import cadastro from "../assets/cadastrar.png"
+import ModalCadastroMaterial from "../components/ModalCadastroMaterial.jsx"
 
 // dados temporarios enquanto a api n ta conectada 
 
@@ -32,6 +33,18 @@ function gerarCategorias() {
     ];
 }
 
+function gerarMateriaisDisponiveis() {
+    // temporario por enquanto pq dps vem do crud
+    return [
+        { id: 1, nome: "Cartolina Azul", categoria: "Papéis" },
+        { id: 2, nome: "Cartolina Verde", categoria: "Papéis" },
+        { id: 3, nome: "Pincel Chato Nº 12", categoria: "Pincéis" },
+        { id: 4, nome: "Pincel Redondo Nº 8", categoria: "Pincéis" },
+        { id: 5, nome: "Tinta Guache Preta", categoria: "Tintas" },
+        { id: 6, nome: "Placa de Isopor", categoria: "Isopor" },
+    ];
+}
+
 function GerenciarAlmoxarifado() {
     const navigate = useNavigate();
     const filtroRef = useRef(null);
@@ -39,10 +52,13 @@ function GerenciarAlmoxarifado() {
     const [materiais, setMateriais] = useState([]);
     const [categorias, setCategorias] = useState([]);
     const [carregando, setCarregando] = useState(true);
+    const [materiaisDisponiveis, setMateriaisDisponiveis] = useState([]);
 
     const [busca, setBusca] = useState("");
     const [mostrarFiltroCategoria, setMostrarFiltroCategoria] = useState(false);
     const [categoriasSelecionadas, setCategoriasSelecionadas] = useState([]);
+
+    const [modalAberto, setModalAberto] = useState(false);
 
     useEffect(() => {
         // buscarMateriais();
@@ -53,6 +69,7 @@ function GerenciarAlmoxarifado() {
         setTimeout(() => {
             setMateriais(gerarMateriais());
             setCategorias(gerarCategorias());
+            setMateriaisDisponiveis(gerarMateriaisDisponiveis());
             setCarregando(false);
         }, 300);
     }, []);
@@ -95,6 +112,45 @@ function GerenciarAlmoxarifado() {
                 ? prev.filter((c) => c !== nomeCategoria)
                 : [...prev, nomeCategoria]
         );
+    }
+
+    function registrarEntradaMaterial({ quantidade }, materialAlvo) {
+    // chamada de api (back), por exemplo:
+    // await api.patch(`/v1/materiais/${materialAlvo.id}/entrada`, { quantidade: Number(quantidade) });
+
+    setMateriais((prev) =>
+        prev.map((m) =>
+            m.id === materialAlvo.id
+                ? { ...m, quantidade: m.quantidade + Number(quantidade || 0) }
+                : m
+        )
+    );
+}
+
+    // registra um novo material e o exibe na tela
+    async function cadastrarMaterial({ nome, categoria, quantidade, validade, fornecedor }) {
+        //chamada de api (back)
+        // const response = await api.post("/v1/materiais", {
+        //     nome,
+        //     categoria,
+        //     quantidade: Number(quantidade),
+        //     dataVencimento: validade || null,
+        //     fornecedor,
+        // });
+
+        const novoMaterial = {
+            id: Date.now(),
+            nome: nome,
+            quantidade: Number(quantidade) || 0,
+            unidadeMedida: "Unidades",
+            dataVencimento: validade || null,
+            categoria: nome,
+            categoriaGrupo: categoria,
+            descricao: `Fornecedor: ${fornecedor || "não informado"}`,
+        };
+
+        setMateriais((prev) => [novoMaterial, ...prev]);
+        setModalAberto(false);
     }
 
     const materiaisFiltrados = materiais.filter((m) => {
@@ -182,16 +238,16 @@ function GerenciarAlmoxarifado() {
                             className="acao-btn acao-ativa"
                             onClick={() => navigate("/cadastro-material")}
                         >
-                            Cadastrar Material
+                            Cadastrar material
                             <img src={cadastro} alt="ícone de cadastro" />
                         </button>
-                        <button
-                            type="button"
-                            className="acao-btn"
-                            onClick={() => navigate("/gerenciar-entradas")}
-                        >
-                            Gerenciar Entradas
-                        </button>
+                        {/* <button
+                                type="button"
+                                className="acao-btn"
+                                onClick={() => setModalAberto(true)}
+                            >
+                                Entrada de material existente
+                            </button> */}
                     </div>
                 </div>
 
@@ -208,10 +264,23 @@ function GerenciarAlmoxarifado() {
 
                     {!carregando &&
                         materiaisFiltrados.map((material) => (
-                            <CardMaterial key={material.id} material={material} />
+                            <CardMaterial
+                                key={material.id}
+                                material={material}
+                                materiaisDisponiveis={materiaisDisponiveis}
+                                onConfirmarEntrada={registrarEntradaMaterial}
+                            />
                         ))}
                 </div>
             </main>
+
+            {/* {modalAberto && (
+                    <ModalCadastroMaterial
+                        materiaisDisponiveis={materiaisDisponiveis}
+                        onClose={() => setModalAberto(false)}
+                        onConfirmar={cadastrarMaterial}
+                    />
+                )} */}
         </div>
     );
 }

@@ -3,13 +3,31 @@ import NavBar from "./NavBar";
 import SelectForm from "./SelectForm";
 import "./ModalCadastroMaterial.css";
 
-function ModalCadastroMaterial({ materiaisDisponiveis, onClose, onConfirmar }) {
+// temporário
+function gerarFornecedoresDisponiveis() {
+    return [
+        { id: 1, nome: "Pais" },
+        { id: 2, nome: "Escola" },
+        { id: 3, nome: "Doação" },
+    ];
+}
+
+function ModalCadastroMaterial({
+    materiaisDisponiveis,
+    fornecedoresDisponiveis,
+    onClose,
+    onConfirmar,
+}) {
     const primeiroMaterial = materiaisDisponiveis?.[0]?.nome || "";
+
+    // usa a lista recebida por prop; se não vier nenhuma, usa a temporária
+    const fornecedores = fornecedoresDisponiveis || gerarFornecedoresDisponiveis();
+    const primeiroFornecedor = fornecedores?.[0]?.nome || "";
 
     const [nomeMaterial, setNomeMaterial] = useState(primeiroMaterial);
     const [quantidade, setQuantidade] = useState("");
     const [validade, setValidade] = useState("");
-    const [fornecedor, setFornecedor] = useState("");
+    const [fornecedor, setFornecedor] = useState(primeiroFornecedor);
     const [enviando, setEnviando] = useState(false);
     const [erro, setErro] = useState("");
 
@@ -53,7 +71,7 @@ function ModalCadastroMaterial({ materiaisDisponiveis, onClose, onConfirmar }) {
                 className="modal-cadastro-material"
                 onClick={(e) => e.stopPropagation()}
             >
-                <NavBar mostrarVoltar={true} onVoltar={onClose} />
+                <NavBar mostrarVoltar={false} onVoltar={onClose} />
 
                 <div className="modal-cadastro-material-conteudo">
                     <h2 className="modal-cadastro-material-titulo">
@@ -62,16 +80,6 @@ function ModalCadastroMaterial({ materiaisDisponiveis, onClose, onConfirmar }) {
                     <p className="modal-cadastro-material-categoria">
                         Categorias: {categoria}
                     </p>
-
-                    <div className="modal-cadastro-material-campo">
-                        <SelectForm
-                            titulo="Selecione o material:"
-                            opcoes={materiaisDisponiveis || []}
-                            valor={nomeMaterial}
-                            onChange={setNomeMaterial}
-                            labelField="nome"
-                        />
-                    </div>
 
                     <div className="modal-cadastro-material-campo">
                         <label className="modal-cadastro-material-label">
@@ -99,14 +107,12 @@ function ModalCadastroMaterial({ materiaisDisponiveis, onClose, onConfirmar }) {
                     </div>
 
                     <div className="modal-cadastro-material-campo">
-                        <label className="modal-cadastro-material-label">
-                            Defina o fornecedor:
-                        </label>
-                        <input
-                            type="text"
-                            className="modal-cadastro-material-input"
-                            value={fornecedor}
-                            onChange={(e) => setFornecedor(e.target.value)}
+                        <SelectForm
+                            titulo="Selecione o fornecedor:"
+                            opcoes={fornecedores}
+                            valor={fornecedor}
+                            onChange={setFornecedor}
+                            labelField="nome"
                         />
                     </div>
 
