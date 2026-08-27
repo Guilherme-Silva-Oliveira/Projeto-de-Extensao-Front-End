@@ -7,6 +7,7 @@ function CardDevolucao({ solicitacao, onDevolver, onEncerrar }) {
     const { solicitante, dataEntrega, dataEncerramento, motivo, materiais } =
         solicitacao;
 
+
     return (
         <div className="card-devolucao">
             <div
@@ -49,6 +50,11 @@ function CardDevolucao({ solicitacao, onDevolver, onEncerrar }) {
                             <div
                                 className="card-devolucao-material-linha"
                                 key={material.id}
+                                style={{
+                                    textDecoration: material.quantidadeDevolvida != null
+                                        ? "line-through"
+                                        : "none",
+                                }}
                             >
                                 <span>
                                     <span className="card-devolucao-label">
