@@ -49,26 +49,26 @@ function DashboardControleAlmoxarifado() {
         { material: "Item Z", quantidade: 310, minimo: 180, diferenca: 130 },
     ];
 
-    useEffect(() => {
-        async function buscarMaterialMaisSolicitado() {
-            try {
-                const response = await api.get("/v1/materiais/mais-solicitado", {
-                    params: {
-                        dataInicio: dataInicio ? `${dataInicio}T00:00:00` : undefined,
-                        dataFim: dataFim ? `${dataFim instanceof Date ? dataFim.toISOString().split("T")[0] : dataFim}T23:59:59` : undefined
-                    }
-                });
-                
-                setMaterialMaisSolicitado(response.data.nomeMaterial);
-                console.log("Material mais solicitado:", response.data.nomeMaterial);
-            } catch (error) {
-                console.error("Erro ao buscar material mais solicitado:", error);
-                setMaterialMaisSolicitado("Erro ao carregar");
-            }
+    const buscarMaterialMaisSolicitado = async () => {
+        try {
+            const response = await api.get("/v1/materiais/mais-solicitado", {
+                params: {
+                    dataInicio: dataInicio ? `${dataInicio}T00:00:00` : undefined,
+                    dataFim: dataFim ? `${dataFim instanceof Date ? dataFim.toISOString().split("T")[0] : dataFim}T23:59:59` : undefined
+                }
+            });
+            
+            setMaterialMaisSolicitado(response.data.nomeMaterial);
+            console.log("Material mais solicitado:", response.data.nomeMaterial);
+        } catch (error) {
+            console.error("Erro ao buscar material mais solicitado:", error);
+            setMaterialMaisSolicitado("Erro ao carregar");
         }
+    };
 
+    useEffect(() => {
         buscarMaterialMaisSolicitado();
-    }, [dataInicio, dataFim]);
+    }, []);
 
     return (
         <div className="dashboard">
@@ -79,35 +79,39 @@ function DashboardControleAlmoxarifado() {
                     <div className="linha-titulo"></div>
                 </div>
                 <div className="kpis">
-                    <CardDashboard>
-                        <p>Material mais solicitado</p>
-                        <h3>{materialMaisSolicitado}</h3>
-                    </CardDashboard>
-                    <CardDashboard>
-                        <p>Gestão de solicitações</p>
-                        <br />
-                        <div className="kpi-divisao">
-                            <div>
-                                <h3>10</h3>
-                                <p>Solicitações em aberto</p>
-                            </div>
-                            <div>
-                                <h3>6</h3>
-                                <p>Solicitações próximas</p>
-                            </div>
-
+                    <CardDashboard className="card-kpi-topo">
+                        <p className="titulo-kpi">Material mais solicitado</p>
+                        <div className="conteudo-kpi">
+                            <h3>{materialMaisSolicitado}</h3>
                         </div>
                     </CardDashboard>
-                    <CardDashboard>
-                        <p>Selecione o período de tempo</p>
-                        <br />
-                        <div className="kpi-divisao">
-                            <SelectData
-                                dataInicio={dataInicio}
-                                dataFim={dataFim}
-                                setDataInicio={setDataInicio}
-                                setDataFim={setDataFim}
-                            />
+                    <CardDashboard className="card-kpi-topo">
+                        <p className="titulo-kpi">Gestão de solicitações</p>
+                        <div className="conteudo-kpi">
+                            <div className="kpi-divisao">
+                                <div>
+                                    <h3>10</h3>
+                                    <p>Solicitações em aberto</p>
+                                </div>
+                                <div>
+                                    <h3>6</h3>
+                                    <p>Solicitações próximas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </CardDashboard>
+                    <CardDashboard className="card-kpi-topo">
+                        <p className="titulo-kpi">Selecione o período de tempo</p>
+                        <div className="conteudo-kpi">
+                            <div className="kpi-divisao">
+                                <SelectData
+                                    dataInicio={dataInicio}
+                                    dataFim={dataFim}
+                                    setDataInicio={setDataInicio}
+                                    setDataFim={setDataFim}
+                                    onBuscar={buscarMaterialMaisSolicitado}
+                                />
+                            </div>
                         </div>
                     </CardDashboard>
                 </div>

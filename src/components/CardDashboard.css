@@ -14,6 +14,26 @@
     width: 25vw;
 }
 
+.card-kpi-topo {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between !important;
+    padding: 8px 20px 12px 20px !important;
+    box-sizing: border-box;
+}
+
+.card-kpi-topo .titulo-kpi {
+    margin: 0 !important;
+}
+
+.conteudo-kpi {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
 hr{
     width: 100%;
     color: black;
