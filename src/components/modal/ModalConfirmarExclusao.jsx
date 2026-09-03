@@ -1,5 +1,5 @@
 import Modal from "./Modal";
-import MainButton from "./MainButton";
+import MainButton from "../forms/MainButton";
 import "./ModalConfirmarExclusao.css";
 
 function ModalConfirmarExclusao({ almoxarife, onConfirmar, onCancelar }) {

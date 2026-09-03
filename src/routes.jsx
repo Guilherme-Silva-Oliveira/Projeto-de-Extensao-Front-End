@@ -1,23 +1,23 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import Login from "./pages/Login";
-import CadastroMaterial from "./pages/CadastroMaterial";
+import CadastroMaterial from "./pages/cadastrar/CadastroMaterial";
 import DashboardControleAlmoxarifado from "./pages/DashboardControleAlmoxarifado";
 import SolicitarMaterial from "./pages/SolicitarMaterial";
-import CadastroProfessor from "./pages/CadastroProfessor";
-import CadastroCategoria from "./pages/CadastroCategoria";
-import CadastroFornecedor from "./pages/CadastroFornecedor";
-import GerenciarDevolucoes from "./pages/GerenciarDevolucoes";
-import GerenciarMovimentacoes from "./pages/GerenciarMovimentacoes";
-import CadastroMotivo from "./pages/CadastroMotivo";
+import CadastroProfessor from "./pages/cadastrar/CadastroProfessor";
+import CadastroCategoria from "./pages/cadastrar/CadastroCategoria";
+import CadastroFornecedor from "./pages/cadastrar/CadastroFornecedor";
+import GerenciarDevolucoes from "./pages/gerenciar/GerenciarDevolucoes";
+import GerenciarMovimentacoes from "./pages/gerenciar/GerenciarMovimentacoes";
+import CadastroMotivo from "./pages/cadastrar/CadastroMotivo";
 import Menu from "./pages/Menu";
-import GerenciarAlmoxarifado from "./pages/GerenciarAlmoxarifado";
-import GerenciarSolicitacoes from "./pages/GerenciarSolicitacoes";
-import CadastroAlmoxarifado from "./pages/CadastroAlmoxarifado";
-import CadastroTipoFornecedor from "./pages/CadastroTipoFornecedor";
-import GerenciarAlmoxarifes from "./pages/GerenciarAlmoxarifes";
-import GerenciarSolicitacoesReprovadas from "./pages/GerenciarSolicitacoesReprovadas";
-import CadastroAlmoxarife from "./pages/CadastroAlmoxarife";
+import GerenciarAlmoxarifado from "./pages/gerenciar/GerenciarAlmoxarifado";
+import GerenciarSolicitacoes from "./pages/gerenciar/GerenciarSolicitacoes";
+import CadastroAlmoxarifado from "./pages/cadastrar/CadastroAlmoxarifado";
+import CadastroTipoFornecedor from "./pages/cadastrar/CadastroTipoFornecedor";
+import GerenciarAlmoxarifes from "./pages/gerenciar/GerenciarAlmoxarifes";
+import GerenciarSolicitacoesReprovadas from "./pages/gerenciar/GerenciarSolicitacoesReprovadas";
+import CadastroAlmoxarife from "./pages/cadastrar/CadastroAlmoxarife";
 
 const routes = createBrowserRouter([
   {

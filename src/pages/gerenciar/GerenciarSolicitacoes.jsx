@@ -1,10 +1,10 @@
 import "./GerenciarSolicitacoes.css";
-import NavBar from "../components/NavBar";
-import CardSolicitacao from "../components/CardSolicitacao";
+import NavBar from "../../components/layout/NavBar";
+import CardSolicitacao from "../../components/layout/CardSolicitacao";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { api } from "../provider/api.js";
-import lupaIcon from "../assets/lupa.png";
+import { api } from "../../provider/api.js";
+import lupaIcon from "../../assets/lupa.png";
 
 // ---- MOCK TEMPORÁRIO PARA TESTAR A TELA SEM BACKEND ----
 function gerarSolicitacoesMock() {

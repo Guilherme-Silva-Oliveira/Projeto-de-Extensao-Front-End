@@ -1,5 +1,5 @@
 import "./SelectData.css";
-import arrow from "../assets/arrow.png";
+import arrow from "../../assets/arrow.png";
 
 function SelectData({
     dataInicio,

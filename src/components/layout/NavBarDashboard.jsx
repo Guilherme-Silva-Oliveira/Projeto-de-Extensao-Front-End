@@ -1,6 +1,6 @@
 import "./NavBarDashboard.css"
-import logo from "../assets/logo_colegio_xingu.png"
-import voltar from "../assets/voltar.png"
+import logo from "../../assets/logo_colegio_xingu.png"
+import voltar from "../../assets/voltar.png"
 import { useNavigate } from "react-router-dom"
 
 function NavBarDashboard() {

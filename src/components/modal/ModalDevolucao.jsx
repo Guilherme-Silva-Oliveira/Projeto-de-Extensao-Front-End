@@ -1,5 +1,5 @@
 import { useState } from "react";
-import NavBar from "./NavBar";
+import NavBar from "../layout/NavBar";
 import "./ModalDevolucao.css";
 
 function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import NavBar from "./NavBar";
-import SelectForm from "./SelectForm";
+import NavBar from "../layout/NavBar";
+import SelectForm from "../forms/SelectForm";
 import "./ModalCadastroMaterial.css";
 
 // temporário

@@ -1,12 +1,12 @@
 import "./GerenciarAlmoxarifado.css";
-import NavBar from "../components/NavBar";
-import CardMaterial from "../components/CardMaterial";
+import NavBar from "../../components/layout/NavBar";
+import CardMaterial from "../../components/layout/CardMaterial";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { api } from "../provider/api.js";
-import lupaIcon from "../assets/lupa.png";
-import cadastro from "../assets/cadastrar.png"
-import ModalCadastroMaterial from "../components/ModalCadastroMaterial.jsx"
+import { api } from "../../provider/api.js";
+import lupaIcon from "../../assets/lupa.png";
+import cadastro from "../../assets/cadastrar.png"
+import ModalCadastroMaterial from "../../components/modal/ModalCadastroMaterial.jsx"
 
 // dados temporarios enquanto a api n ta conectada 
 

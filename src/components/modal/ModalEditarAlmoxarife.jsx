@@ -1,6 +1,6 @@
 import Modal from "./Modal";
-import InputForm from "./InputForm";
-import MainButton from "./MainButton";
+import InputForm from "../forms/InputForm";
+import MainButton from "../forms/MainButton";
 import { useState } from "react";
 
 function ModalEditarAlmoxarife({ almoxarife, onSalvar, onCancelar }) {

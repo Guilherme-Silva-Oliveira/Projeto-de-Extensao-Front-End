@@ -1,6 +1,6 @@
 import "./NavBar.css";
-import logo from "../assets/logo_colegio_xingu.png";
-import saida from "../assets/saida.png";
+import logo from "../../assets/logo_colegio_xingu.png";
+import saida from "../../assets/saida.png";
 import { useNavigate } from "react-router-dom";
 
 function NavBar({ mostrarVoltar, mostrarLinks }) {

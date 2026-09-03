@@ -1,5 +1,5 @@
 import "./GerenciarMovimentacoes.css";
-import NavBar from "../components/NavBar";
+import NavBar from "../../components/layout/NavBar";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 

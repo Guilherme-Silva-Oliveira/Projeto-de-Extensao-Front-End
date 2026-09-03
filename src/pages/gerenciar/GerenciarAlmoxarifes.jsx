@@ -1,13 +1,13 @@
 import "./GerenciarAlmoxarifes.css";
-import NavBar from "../components/NavBar";
-import CardAlmoxarife from "../components/CardAlmoxarife";
-import ModalEditarAlmoxarife from "../components/ModalEditarAlmoxarife";
-import ModalRedefinirSenha from "../components/ModalRedefinirSenha";
-import ModalConfirmarExclusao from "../components/ModalConfirmarExclusao";
+import NavBar from "../../components/layout/NavBar";
+import CardAlmoxarife from "../../components/layout/CardAlmoxarife";
+import ModalEditarAlmoxarife from "../../components/modal/ModalEditarAlmoxarife";
+import ModalRedefinirSenha from "../../components/modal/ModalRedefinirSenha";
+import ModalConfirmarExclusao from "../../components/modal/ModalConfirmarExclusao";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { api } from "../provider/api.js";
-import lupaIcon from "../assets/lupa.png";
+import { api } from "../../provider/api.js";
+import lupaIcon from "../../assets/lupa.png";
 // dados temporarios enquanto a api n ta conectada
 
 function gerarAlmoxarifes() {

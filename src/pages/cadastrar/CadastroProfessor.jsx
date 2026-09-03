@@ -1,8 +1,8 @@
 import "./CadastroProfessor.css";
-import NavBar from "../components/NavBar";
-import InputForm from "../components/InputForm";
-import MainButton from "../components/MainButton";
-import SelectForm from "../components/SelectForm";
+import NavBar from "../../components/layout/NavBar";
+import InputForm from "../../components/forms/InputForm";
+import MainButton from "../../components/forms/MainButton";
+import SelectForm from "../../components/forms/SelectForm";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

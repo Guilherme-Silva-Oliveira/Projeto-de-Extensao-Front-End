@@ -1,37 +1,38 @@
-import "./CadastroTipoFornecedor.css";
-import NavBar from "../components/NavBar";
-import InputForm from "../components/InputForm";
-import MainButton from "../components/MainButton";
-import SelectForm from "../components/SelectForm";
+import "./CadastroProfessor.css";
+import NavBar from "../../components/layout/NavBar";
+import InputForm from "../../components/forms/InputForm";
+import MainButton from "../../components/forms/MainButton";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 
 
-function CadastroTipoFornecedor() {
+function CadastroAlmoxarifado() {
     const navigate = useNavigate();
-    
-    const [nomeTipoFornecedor, setNomeTipoFornecedor] = useState("");
+
+    const [nomeCategoria, setNomeCategoria] = useState("");
 
     return (
         <div className="page-container">
             <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
 
             <main className="cadastro-container">
-                <h1 className="titulo-cadastro">CADASTRO DE TIPO DE FORNECEDOR</h1>
+                <h1 className="titulo-cadastro">CADASTRO DE ALMOXARIFADO</h1>
                 <div className="linha-laranja"></div>
 
                 <div className="cadastro-form">
 
                     <div className="cadastro-field">
                         <InputForm
-                            titulo="Tipo do Fornecedor"
-                            placeholder="Shopee"
+                            titulo="Almoxarifado: "
+                            placeholder="Ex: 204"
                             type="text"
-                            value={nomeTipoFornecedor}
-                            onChange={(e) => setNomeTipoFornecedor(e.target.value)}
+                            value={nomeCategoria}
+                            onChange={(e) => setNomeCategoria(e.target.value)}
                         />
                     </div>
+
+
 
                     <div className="cadastro-actions">
                         <MainButton texto="Cadastrar" cor="#0A086B" />
@@ -44,4 +45,4 @@ function CadastroTipoFornecedor() {
     );
 }
 
-export default CadastroTipoFornecedor;
+export default CadastroAlmoxarifado;

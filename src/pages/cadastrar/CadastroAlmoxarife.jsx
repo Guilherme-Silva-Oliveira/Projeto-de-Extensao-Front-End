@@ -1,10 +1,10 @@
 import "./CadastroAlmoxarife.css";
-import NavBar from "../components/NavBar";
-import InputForm from "../components/InputForm";
-import MainButton from "../components/MainButton";
+import NavBar from "../../components/layout/NavBar";
+import InputForm from "../../components/forms/InputForm";
+import MainButton from "../../components/forms/MainButton";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../provider/api.js";
+import { api } from "../../provider/api.js";
 
 function CadastroAlmoxarife() {
     const navigate = useNavigate();

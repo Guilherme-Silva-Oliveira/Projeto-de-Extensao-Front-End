@@ -1,9 +1,9 @@
 import "../components/App.css";
-import NavBar from "../components/NavBar";
-import InputForm from "../components/InputForm";
-import ButtonFormOption from "../components/ButtonFormOption";
-import LinkText from "../components/LinkText";
-import MainButton from "../components/MainButton";
+import NavBar from "../components/layout/NavBar";
+import InputForm from "../components/forms/InputForm";
+import ButtonFormOption from "../components/forms/ButtonFormOption";
+import LinkText from "../components/forms/LinkText";
+import MainButton from "../components/forms/MainButton";
 import { useNavigate } from "react-router-dom";
 
 function Login() {

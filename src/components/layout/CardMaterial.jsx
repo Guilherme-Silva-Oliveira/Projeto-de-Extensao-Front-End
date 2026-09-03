@@ -1,7 +1,7 @@
 import "./CardMaterial.css";
 import { useState } from "react";
-import adicionar from "../assets/adicionar.png";
-import ModalCadastroMaterial from "./ModalCadastroMaterial.jsx";
+import adicionar from "../../assets/adicionar.png";
+import ModalCadastroMaterial from "../modal/ModalCadastroMaterial.jsx";
 
 function CardMaterial({ material, materiaisDisponiveis, onConfirmarEntrada }) {
     const {

@@ -1,9 +1,9 @@
 import "./Menu.css";
-import NavBar from "../components/NavBar";
-import InputForm from "../components/InputForm";
-import MainButton from "../components/MainButton";
-import SelectForm from "../components/SelectForm";
-import ButtonFormOption from "../components/ButtonFormOption";
+import NavBar from "../components/layout/NavBar";
+import InputForm from "../components/forms/InputForm";
+import MainButton from "../components/forms/MainButton";
+import SelectForm from "../components/forms/SelectForm";
+import ButtonFormOption from "../components/forms/ButtonFormOption";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

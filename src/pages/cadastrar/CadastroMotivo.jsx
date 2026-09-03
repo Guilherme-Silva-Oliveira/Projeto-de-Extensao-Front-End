@@ -1,9 +1,9 @@
 import "./CadastroMotivo.css";
-import NavBar from "../components/NavBar";
-import MainButton from "../components/MainButton";
+import NavBar from "../../components/layout/NavBar";
+import MainButton from "../../components/forms/MainButton";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../provider/api.js";
+import { api } from "../../provider/api.js";
 
 function CadastroMotivo() {
     const navigate = useNavigate();

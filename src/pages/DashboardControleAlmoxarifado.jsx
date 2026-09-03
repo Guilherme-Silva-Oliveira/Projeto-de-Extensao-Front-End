@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import CardDashboard from "../components/CardDashboard";
-import NavBarDashboard from "../components/NavBarDashboard";
-import SelectData from "../components/SelectData";
-import GraficoMovimentacao from "../components/GraficoMovimentacao";
-import ButtonFormOption from "../components/ButtonFormOption";
-import TabelaListagem from "../components/TabelaListagem";
+import CardDashboard from "../components/layout/CardDashboard";
+import NavBarDashboard from "../components/layout/NavBarDashboard";
+import SelectData from "../components/layout/SelectData";
+import GraficoMovimentacao from "../components/layout/GraficoMovimentacao";
+import ButtonFormOption from "../components/forms/ButtonFormOption";
+import TabelaListagem from "../components/layout/TabelaListagem";
 import dashboardIcon from "../assets/dashboardIcon.png";
 import "./DashboardControleAlmoxarifado.css";
 import { api } from "../provider/api";
