@@ -6,7 +6,7 @@
 
 .dashboard-content {
     width: 100%;
-    overflow-y: auto;
+    overflow: hidden;
     padding: 0 2em 2em 2em;
     box-sizing: border-box;
 }

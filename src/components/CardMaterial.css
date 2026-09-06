@@ -41,3 +41,7 @@
     font-weight: 600;
     color: #ff5a1f;
 }
+
+.div-botao-adicionar:hover{
+    cursor: pointer;
+}

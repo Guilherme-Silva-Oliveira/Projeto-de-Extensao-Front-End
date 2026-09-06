@@ -106,7 +106,7 @@ function GerenciarMovimentacoes() {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+            <NavBar mostrarVoltar={true} mostrarLinks={true} onVoltar={() => navigate(-1)} />
 
             <main className="movimentacoes-container">
                 <div className="movimentacoes-breadcrumb">

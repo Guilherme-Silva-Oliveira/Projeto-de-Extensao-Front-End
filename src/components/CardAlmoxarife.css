@@ -1,0 +1,121 @@
+.almoxarife-card {
+    background-color: white;
+    border: 1px solid #e2e2e2;
+    border-radius: 8px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.almoxarife-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+}
+
+.almoxarife-header-esquerda {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.almoxarife-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-ativo {
+    background-color: #3ecf68;
+}
+
+.status-inativo {
+    background-color: #b0b0b0;
+}
+
+.almoxarife-nome {
+    font-size: 16px;
+    color: #333;
+    font-family: "Inter", sans-serif;
+}
+
+.almoxarife-chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s ease;
+}
+
+.almoxarife-chevron.aberto {
+    transform: rotate(180deg);
+}
+
+.almoxarife-detalhes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 40px;
+    padding: 18px 22px 22px 22px;
+    border-top: 1px solid #eee;
+}
+
+.almoxarife-detalhe-item {
+    font-size: 14px;
+    color: #444;
+    font-family: "Inter", sans-serif;
+}
+
+.almoxarife-detalhe-label {
+    color: #888;
+}
+
+.almoxarife-acoes-detalhe {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.almoxarife-acoes-esquerda {
+    display: flex;
+    gap: 12px;
+}
+
+.almoxarife-btn-editar,
+.almoxarife-btn-senha {
+    background-color: white;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-family: "Inter", sans-serif;
+    color: #555;
+    cursor: pointer;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08);
+    transition: 0.2s;
+}
+
+.almoxarife-btn-editar:hover,
+.almoxarife-btn-senha:hover {
+    background-color: #f0f0f0;
+}
+
+.almoxarife-btn-excluir {
+    background-color: #f3a8a3;
+    border: 1px solid #f3a8a3;
+    border-radius: 5px;
+    padding: 9px 24px;
+    font-size: 14px;
+    font-family: "Inter", sans-serif;
+    color: #7a1f1f;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.almoxarife-btn-excluir:hover {
+    background-color: #ee8b85;
+}

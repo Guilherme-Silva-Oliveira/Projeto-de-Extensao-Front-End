@@ -1,25 +1,81 @@
 .periodo-data {
     display: flex;
-    gap: 20px;
+    gap: 14px;
     justify-content: center;
+    align-items: flex-end;
 }
 
-.periodo-data div {
+.campo-data {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    gap: 4px;
 }
 
-.periodo-data input {
+.campo-data label {
     font-family: "Inter", sans-serif;
-    padding: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    width: 100%;
+}
+
+.campo-data input {
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    padding: 5px 8px;
+    height: 32px;
     border: 1px solid #bdbdbd;
     border-radius: 4px;
+    box-sizing: border-box;
 }
 
-.seta-periodo{
-    margin-top: 5%;
-    width: 30px;
-    height: 30px;
+.wrapper-data-fim {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.seta-periodo {
+    margin-bottom: 6px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
+}
+
+.btn-check-data {
+    background-color: #1f1698;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-check-data .material-symbols-outlined {
+    font-size: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+.btn-check-data:hover {
+    background-color: #3425a8;
+}
+
+.btn-check-data:active {
+    transform: scale(0.95);
 }

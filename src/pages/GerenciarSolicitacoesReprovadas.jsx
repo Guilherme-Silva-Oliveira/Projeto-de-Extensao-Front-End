@@ -186,12 +186,29 @@ function SolicitacoesReprovadas() {
                     </div>
 
                     <div className="devolucoes-tabs">
+                        <div className="devolucoes-tabs-grupo">
+                            <button
+                                type="button"
+                                className="tab-btn"
+                                onClick={() => navigate("/gerenciar-devolucoes")}
+                            >
+                                Gerenciar Devoluções
+                            </button>
+
+                            <button
+                                type="button"
+                                className="tab-btn"
+                                onClick={() => navigate("/gerenciar-solicitacoes")}
+                            >
+                                Gerenciar Solicitações
+                            </button>
+                        </div>
+
                         <button
                             type="button"
-                            className="tab-btn tab-reprovadas"
-                            onClick={() => navigate("/gerenciar-solicitacoes")}
+                            className="tab-btn tab-ativa tab-reprovadas"
                         >
-                            Solicitações
+                            Solicitações Reprovadas
                         </button>
                     </div>
                 </div>

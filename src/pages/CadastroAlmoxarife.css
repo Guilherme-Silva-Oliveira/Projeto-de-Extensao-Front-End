@@ -1,0 +1,64 @@
+.cadastro-almoxarife-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 50px 20px 40px 20px;
+}
+
+.titulo-cadastro-almoxarife {
+    color: #333333;
+    font-weight: 400;
+    font-size: 32px;
+    text-align: center;
+    margin: 0;
+    font-family: "Inter", sans-serif;
+}
+
+.linha-laranja {
+    width: 320px;
+    height: 4px;
+    background-color: #ff5a1f;
+    margin: 10px auto 30px auto;
+    border-radius: 10px;
+}
+
+.cadastro-almoxarife-form {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cadastro-almoxarife-field .input-container {
+    width: 100%;
+    margin-top: 0;
+}
+
+.cadastro-almoxarife-field .input-form {
+    width: 100% !important;
+    height: 48px;
+    font-size: 18px;
+    box-sizing: border-box;
+}
+
+.cadastro-almoxarife-erro {
+    color: #d9534f;
+    font-size: 14px;
+    font-family: "Inter", sans-serif;
+    margin: 0;
+    text-align: center;
+}
+
+.cadastro-almoxarife-actions {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.cadastro-almoxarife-actions>* {
+    flex: 1;
+    width: 100%;
+}

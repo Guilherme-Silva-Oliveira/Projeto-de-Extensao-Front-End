@@ -201,9 +201,9 @@ import lupaIcon from "../assets/lupa.png";
 function gerarSolicitacoesMock() {
     const materiaisPadrao = () => [
         { id: 1, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDevolvida: null },
-        { id: 2, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDevolvida: null },
-        { id: 3, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDevolvida: null },
-        { id: 4, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDevolvida: null },
+        { id: 2, nome: "Cartolina Vermelha", quantidadeSolicitada: 50, quantidadeDevolvida: null },
+        { id: 3, nome: "Tinta Preta", quantidadeSolicitada: 50, quantidadeDevolvida: null },
+        { id: 4, nome: "Pincel", quantidadeSolicitada: 50, quantidadeDevolvida: null },
     ];
 
     return Array.from({ length: 6 }, (_, i) => ({
@@ -261,9 +261,7 @@ function GerenciarDevolucoes() {
         setSolicitacaoEmDevolucao(null);
     }
 
-    // Registra a devolução de UM material de UMA solicitação.
-    // Ao confirmar no backend, o material devolvido some do card e,
-    // se não sobrar nenhum material pendente, o card inteiro some da tela.
+    // Registra a devoluçao de um material e mantem o item visivel no card
     async function confirmarDevolucao(solicitacaoId, nomeMaterial, quantidade) {
         // MOCK: comentar a chamada de api enquanto não há backend
         // await api.post(`/v1/devolucoes/${solicitacaoId}/registrar`, {
@@ -272,15 +270,17 @@ function GerenciarDevolucoes() {
         // });
 
         setSolicitacoes((prev) =>
-            prev
-                .map((s) => {
-                    if (s.id !== solicitacaoId) return s;
-                    const materiaisRestantes = s.materiais.filter(
-                        (m) => m.nome.toLowerCase() !== nomeMaterial.toLowerCase()
-                    );
-                    return { ...s, materiais: materiaisRestantes };
-                })
-                .filter((s) => s.materiais.length > 0)
+            prev.map((s) => {
+                if (s.id !== solicitacaoId) return s;
+
+                const materiaisAtualizados = s.materiais.map((m) =>
+                    m.nome.toLowerCase() === nomeMaterial.toLowerCase()
+                        ? { ...m, quantidadeDevolvida: Number(quantidade) }
+                        : m
+                );
+
+                return { ...s, materiais: materiaisAtualizados };
+            })
         );
 
         fecharModal();
@@ -354,15 +354,25 @@ function GerenciarDevolucoes() {
                     </div>
 
                     <div className="devolucoes-tabs">
-                        <button type="button" className="tab-btn tab-ativa">
-                            Gerenciar Devoluções
-                        </button>
+                        <div className="devolucoes-tabs-grupo">
+                            <button type="button" className="tab-btn tab-ativa">
+                                Gerenciar Devoluções
+                            </button>
+                            <button
+                                type="button"
+                                className="tab-btn"
+                                onClick={() => navigate("/gerenciar-solicitacoes")}
+                            >
+                                Gerenciar Solicitações
+                            </button>
+                        </div>
+
                         <button
                             type="button"
-                            className="tab-btn"
-                            onClick={() => navigate("/gerenciar-solicitacoes")}
+                            className="tab-btn tab-reprovadas"
+                            onClick={() => navigate("/gerenciar-solicitacoes-reprovadas")}
                         >
-                            Gerenciar Solicitações
+                            Solicitações Reprovadas
                         </button>
                     </div>
                 </div>
