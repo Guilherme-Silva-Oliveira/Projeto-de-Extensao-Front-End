@@ -84,6 +84,13 @@ body {
   width: 100%;
 }
 
+.login-error {
+  color: #c62828;
+  font-size: 14px;
+  margin: -8px 0 0;
+  text-align: center;
+}
+
 .action-buttons {
   display: flex;
   gap: 15px;
