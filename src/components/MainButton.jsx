@@ -1,10 +1,11 @@
 import "./MainButton.css"
 
-function MainButton({ texto, cor, onClick }) {
+function MainButton({ texto, cor, onClick, type = "button", disabled = false }) {
     return (
         <button 
         
-        type="button"
+        type={type}
+        disabled={disabled}
         className="main-button"
         style={{ 
             backgroundColor: cor,
