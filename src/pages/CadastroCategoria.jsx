@@ -2,16 +2,54 @@ import "./CadastroProfessor.css";
 import NavBar from "../components/NavBar";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
-import SelectForm from "../components/SelectForm";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-
+import { api } from "../provider/api.js";
 
 function CadastroCategoria() {
     const navigate = useNavigate();
     
     const [nomeCategoria, setNomeCategoria] = useState("");
+    const [enviando, setEnviando] = useState(false);
+    const [mensagem, setMensagem] = useState("");
+    const [tipoMensagem, setTipoMensagem] = useState(""); // "sucesso" ou "erro"
+
+    async function handleCadastrar() {
+        if (!nomeCategoria.trim()) {
+            setMensagem("Por favor, preencha o nome da categoria.");
+            setTipoMensagem("erro");
+            return;
+        }
+
+        try {
+            setEnviando(true);
+            setMensagem("");
+
+            await api.post("/v1/categorias", {
+                nomeCategoria: nomeCategoria.trim()
+            });
+
+            setMensagem("Categoria cadastrada com sucesso!");
+            setTipoMensagem("sucesso");
+            setNomeCategoria("");
+
+            setTimeout(() => {
+                navigate(-1);
+            }, 1500);
+        } catch (error) {
+            console.error("Erro ao cadastrar categoria:", error);
+            setTipoMensagem("erro");
+            if (error.response?.status === 401) {
+                setMensagem("Sessão expirada ou não autenticada. Faça login novamente.");
+            } else if (error.response?.data?.message) {
+                setMensagem(error.response.data.message);
+            } else {
+                setMensagem("Não foi possível cadastrar a categoria. Verifique a conexão com o servidor.");
+            }
+        } finally {
+            setEnviando(false);
+        }
+    }
 
     return (
         <div className="page-container">
@@ -33,10 +71,24 @@ function CadastroCategoria() {
                         />
                     </div>
 
-                   
+                    {mensagem && (
+                        <p style={{
+                            color: tipoMensagem === "sucesso" ? "#28a745" : "#d9534f",
+                            fontSize: "14px",
+                            margin: "-5px 0 0 0",
+                            fontFamily: "'Inter', sans-serif",
+                            textAlign: "center"
+                        }}>
+                            {mensagem}
+                        </p>
+                    )}
 
                     <div className="cadastro-actions">
-                        <MainButton texto="Cadastrar" cor="#0A086B" />
+                        <MainButton 
+                            texto={enviando ? "Cadastrando..." : "Cadastrar"} 
+                            cor="#0A086B" 
+                            onClick={handleCadastrar} 
+                        />
                         <MainButton texto="Cancelar" cor="#FF4B09" onClick={() => navigate(-1)} />
                     </div>
 
