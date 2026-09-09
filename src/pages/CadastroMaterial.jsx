@@ -16,7 +16,9 @@ function CadastroMaterial() {
     const [categoriaId, setCategoriaId] = useState("");
     const [categorias, setCategorias] = useState([])
 
-    const [almoxarifadoId, setAlmoxarifadoId] = useState("")
+    const [almoxarifadoId] = useState(
+        () => parseInt(sessionStorage.getItem("almoxarifadoId")) || ""
+    )
  
     const [unidadeMedidaId, setUnidadeMedidaId] = useState("")
     const [unidadesMedida, setUnidadesMedida] = useState([])
@@ -25,22 +27,9 @@ function CadastroMaterial() {
 
 
     useEffect(() => {
-        loginMock()
         getCategorias()
         getUnidadeMedida()
     }, [])
-
-
-    // login mockado p pegar o cookie do back
-    async function loginMock() {
-        const res = await api.post("/v1/almoxarifes/login", {
-            email: "marisa@gmail.com",
-            senha: "xingu1234",
-        });
-        if (res.data.almoxarifado.id) {
-            setAlmoxarifadoId(res.data.almoxarifado.id)
-        }
-    }
 
     async function getCategorias() {
         try {
@@ -67,13 +56,6 @@ function CadastroMaterial() {
     }
 
     async function cadastrar() {
-        console.log("Cadastrar:")
-        console.log("Categoria ID: ", categoriaId)
-        console.log("Almoxarifado ID: ", almoxarifadoId)
-        console.log("Nome Material: ", nomeMaterial)
-        console.log("Unidade Medida ID: ", unidadeMedidaId)
-        console.log("Descricao: ", descricao)
-
         try {
             const res = await api.post("/v1/materiais", { 
                 idCategoria: categoriaId,
@@ -83,7 +65,6 @@ function CadastroMaterial() {
                 idUnidadeMedida: unidadeMedidaId,
                 descricao: descricao
             })
-            console.log("post response: ", res.data)
         } catch (error) {
             console.error("Erro ao cadastrar:", error);
         }
@@ -150,7 +131,7 @@ function CadastroMaterial() {
                 <div className="cadastro-actions">
                     <MainButton texto="Cadastrar" cor="#0A086B" onClick={async () => {
                         await cadastrar()
-                        //navigate(-1)
+                        navigate(-1)
                     }} />
                     <MainButton texto="Cancelar" cor="#FF4B09" onClick={() => navigate(-1)} />
                 </div>
