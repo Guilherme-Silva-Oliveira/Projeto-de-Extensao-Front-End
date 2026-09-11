@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import "./CadastroMaterial.css";
 import NavBar from "../components/NavBar";
 import InputForm from "../components/InputForm";
@@ -162,3 +163,150 @@ function CadastroMaterial() {
 }
 
 export default CadastroMaterial;
+=======
+import "./CadastroMaterial.css";
+import NavBar from "../components/NavBar";
+import InputForm from "../components/InputForm";
+import MainButton from "../components/MainButton";
+import SelectForm from "../components/SelectForm";
+import { useEffect} from "react";
+import { api } from "../provider/api.js"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+function CadastroMaterial() {
+    const navigate = useNavigate();
+
+    const [nomeMaterial, setNomeMaterial] = useState("");
+
+    const [categoriaId, setCategoriaId] = useState("");
+    const [categorias, setCategorias] = useState([])
+
+    const [almoxarifadoId] = useState(
+        () => parseInt(sessionStorage.getItem("almoxarifadoId")) || ""
+    )
+ 
+    const [unidadeMedidaId, setUnidadeMedidaId] = useState("")
+    const [unidadesMedida, setUnidadesMedida] = useState([])
+
+    const [descricao, setDescricao] = useState("");
+
+
+    useEffect(() => {
+        getCategorias()
+        getUnidadeMedida()
+    }, [])
+
+    async function getCategorias() {
+        try {
+            const res = await api.get("/v1/categorias");
+            setCategorias(res.data);
+            if (res.data && res.data.length > 0) {
+                setCategoriaId(res.data[0].id);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar categorias:", error);
+        }
+    }
+
+    async function getUnidadeMedida() {
+        try {
+            const res = await api.get("/v1/unidademedida");
+            if (res.data && res.data.length > 0) {
+                setUnidadesMedida(res.data);
+                setUnidadeMedidaId(res.data[0].id);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar unidades de medida:", error);
+        }
+    }
+
+    async function cadastrar() {
+        try {
+            const res = await api.post("/v1/materiais", { 
+                idCategoria: categoriaId,
+                idAlmoxarifado: almoxarifadoId,
+                nomeMaterial: nomeMaterial,
+                codigoBarras: gerarCodigoBarras(),
+                idUnidadeMedida: unidadeMedidaId,
+                descricao: descricao
+            })
+        } catch (error) {
+            console.error("Erro ao cadastrar:", error);
+        }
+    }
+
+    function gerarCodigoBarras() {
+        return Math.floor(100000000 + Math.random() * 900000000);
+    }
+
+    return (
+        <div className="page-container">
+            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+
+            <main className="cadastro-container">
+                <h1 className="titulo-cadastro">CADASTRO DE MATERIAL</h1>
+                <div className="linha-laranja"></div>
+
+                <div className="cadastro-form">
+
+                <div className="cadastro-field">
+                    <InputForm
+                        titulo="Nome do material:"
+                        placeholder="Pincel B21"
+                        value={nomeMaterial}
+                        onChange={(e) => setNomeMaterial(e.target.value)}
+                    />
+                </div>
+
+                <div className="cadastro-field">
+                    <SelectForm
+                        titulo="Categoria:"
+                         opcoes={categorias}
+                         valor={categoriaId}
+                         onChange={(id) => setCategoriaId(id)}
+                         labelField={"nomeCategoria"}
+                         valueField="id"
+                     />
+                </div>
+
+                <div className="cadastro-field">
+                    <SelectForm
+                        titulo="Unidade de medida:"
+                        opcoes={unidadesMedida}
+                        valor={unidadeMedidaId}
+                        onChange={(id) => setUnidadeMedidaId(id)}
+                        labelField={"nomeUnidade"}
+                        valueField="id"
+                    />
+                </div>
+
+                <div className="descricao-section">
+                    <label className="descricao-label">
+                        Adicione uma descrição ao material (opcional):
+                    </label>
+                    <textarea
+                        className="descricao-textarea"
+                        placeholder="Pincel ideal para acabamento e detalhes."
+                        value={descricao}
+                        onChange={(e) => setDescricao(e.target.value)}
+                        rows={4}
+                    />
+                </div>
+
+                <div className="cadastro-actions">
+                    <MainButton texto="Cadastrar" cor="#0A086B" onClick={async () => {
+                        await cadastrar()
+                        navigate(-1)
+                    }} />
+                    <MainButton texto="Cancelar" cor="#FF4B09" onClick={() => navigate(-1)} />
+                </div>
+
+                </div>
+            </main>
+        </div>
+    );
+}
+
+export default CadastroMaterial;
+>>>>>>> 7d6ffec0ea4e5bbb8abd568a7e90f3581ca35a09

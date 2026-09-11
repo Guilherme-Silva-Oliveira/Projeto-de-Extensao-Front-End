@@ -21,10 +21,15 @@ function Login() {
     setCarregando(true);
 
     try {
-      await api.post("/v1/almoxarifes/login", {
+      const response = await api.post("/v1/almoxarifes/login", {
         email,
         senha,
       });
+
+      sessionStorage.setItem(
+        "almoxarifadoId",
+        response.data.almoxarifado.id
+      );
 
       navigate("/gerenciar-almoxarifado");
     } catch (error) {
