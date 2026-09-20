@@ -4,6 +4,7 @@ import NavBarAdmin from "../components/NavBarAdmin";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import SelectForm from "../components/SelectForm";
+import { api } from "../provider/api.js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -13,6 +14,16 @@ function CadastroTipoFornecedor() {
     const navigate = useNavigate();
     
     const [nomeTipoFornecedor, setNomeTipoFornecedor] = useState("");
+
+    async function cadastrar() {
+        try {
+            await api.post("/v1/fornecedores/tipos", { 
+                nomeTipo: nomeTipoFornecedor
+            })
+        } catch (error) {
+            console.error("Erro ao cadastrar:", error);
+        }
+    }
 
     return (
         <div className="page-container">
@@ -35,7 +46,10 @@ function CadastroTipoFornecedor() {
                     </div>
 
                     <div className="cadastro-actions">
-                        <MainButton texto="Cadastrar" cor="#0A086B" />
+                        <MainButton texto="Cadastrar" cor="#0A086B" onClick={async () => {
+                            await cadastrar()
+                            navigate(-1)
+                        }} />
                         <MainButton texto="Cancelar" cor="#FF4B09" onClick={() => navigate(-1)} />
                     </div>
 
