@@ -8,16 +8,30 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api";
 
+// Mapeia cada botão da tela para a role correspondente no banco
+// (ajuste os valores conforme o que o seu backend retorna)
+const PERFIS = {
+  almoxarife: { role: "ALMOXARIFE", rota: "/gerenciar-almoxarifado" },
+  administrador: { role: "ADMIN", rota: "/gerenciar-almoxarifes" },
+};
+
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [perfilSelecionado, setPerfilSelecionado] = useState(""); // "almoxarife" | "administrador"
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
     setErro("");
+
+    if (!perfilSelecionado) {
+      setErro("Selecione uma opção: Almoxarife ou Administrador.");
+      return;
+    }
+
     setCarregando(true);
 
     try {
@@ -26,14 +40,26 @@ function Login() {
         senha,
       });
 
-      sessionStorage.setItem(
-        "almoxarifadoId",
-        response.data.almoxarifado.id
-      );
+      const roleBanco = String(
+        response.data.role ?? response.data.almoxarife?.role ?? ""
+      ).toUpperCase();
 
-      navigate("/gerenciar-almoxarifado");
+      const perfil = PERFIS[perfilSelecionado];
+
+      if (roleBanco !== perfil.role) {
+        setErro("O perfil selecionado não corresponde ao seu tipo de acesso.");
+        return;
+      }
+
+      if (response.data.almoxarifado?.id) {
+        sessionStorage.setItem("almoxarifadoId", response.data.almoxarifado.id);
+      }
+      sessionStorage.setItem("role", roleBanco);
+
+      navigate(perfil.rota);
     } catch (error) {
-      const mensagem = error.response?.data?.message || "Email ou senha inválidos.";
+      const mensagem =
+        error.response?.data?.message || "Email ou senha inválidos.";
       setErro(mensagem);
     } finally {
       setCarregando(false);
@@ -68,8 +94,16 @@ function Login() {
           <div className="options-section">
             <label className="label-opcao">Escolha uma Opção:</label>
             <div className="options-buttons">
-              <ButtonFormOption texto="Almoxarife" />
-              <ButtonFormOption texto="Administrador" />
+              <ButtonFormOption
+                texto="Almoxarife"
+                selecionado={perfilSelecionado === "almoxarife"}
+                onClick={() => setPerfilSelecionado("almoxarife")}
+              />
+              <ButtonFormOption
+                texto="Administrador"
+                selecionado={perfilSelecionado === "administrador"}
+                onClick={() => setPerfilSelecionado("administrador")}
+              />
             </div>
           </div>
 

@@ -32,3 +32,9 @@ button:focus {
     justify-content: center;
     text-align: center;
 }
+
+.button-form-option.selecionado {
+  background-color: #0A086B;
+  color: #fff;
+  border-color: #0A086B;
+}
