@@ -1,5 +1,5 @@
 import "./CadastroAlmoxarife.css";
-import NavBar from "../components/NavBar";
+import NavBarAdmin from "../components/NavBarAdmin";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import { useState } from "react";
@@ -33,8 +33,7 @@ function CadastroAlmoxarife() {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
-
+            <NavBarAdmin mostrarLinks={true} mostrarVoltar={true} onVoltar={() => navigate(-1)} />
             <main className="cadastro-almoxarife-container">
                 <h1 className="titulo-cadastro-almoxarife">CADASTRO DE ALMOXARIFE</h1>
                 <div className="linha-laranja"></div>

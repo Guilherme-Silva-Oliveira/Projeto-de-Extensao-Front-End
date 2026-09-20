@@ -1,5 +1,5 @@
 import "./CadastroFornecedor.css";
-import NavBar from "../components/NavBar";
+import NavBarAdmin from "../components/NavBarAdmin";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import SelectForm from "../components/SelectForm";
@@ -20,7 +20,7 @@ function CadastroFornecedor() {
     const [erro, setErro] = useState("");
     const [carregando, setCarregando] = useState(false);
 
-   
+
     useEffect(() => {
         async function carregarTipos() {
             try {
@@ -72,8 +72,8 @@ function CadastroFornecedor() {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
-
+            <NavBarAdmin mostrarLinks={true} mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+                
             <main className="cadastro-container">
                 <h1 className="titulo-cadastro">CADASTRO DE FORNECEDOR</h1>
                 <div className="linha-laranja"></div>

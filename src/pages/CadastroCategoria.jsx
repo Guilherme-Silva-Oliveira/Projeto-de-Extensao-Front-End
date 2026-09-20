@@ -1,5 +1,5 @@
 import "./CadastroProfessor.css";
-import NavBar from "../components/NavBar";
+import NavBarAdmin from "../components/NavBarAdmin";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import { useState } from "react";
@@ -8,7 +8,7 @@ import { api } from "../provider/api.js";
 
 function CadastroCategoria() {
     const navigate = useNavigate();
-    
+
     const [nomeCategoria, setNomeCategoria] = useState("");
     const [enviando, setEnviando] = useState(false);
     const [mensagem, setMensagem] = useState("");
@@ -53,8 +53,8 @@ function CadastroCategoria() {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
-
+            <NavBarAdmin mostrarLinks={true} mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+                
             <main className="cadastro-container">
                 <h1 className="titulo-cadastro">CADASTRO DE CATEGORIA</h1>
                 <div className="linha-laranja"></div>
@@ -84,10 +84,10 @@ function CadastroCategoria() {
                     )}
 
                     <div className="cadastro-actions">
-                        <MainButton 
-                            texto={enviando ? "Cadastrando..." : "Cadastrar"} 
-                            cor="#0A086B" 
-                            onClick={handleCadastrar} 
+                        <MainButton
+                            texto={enviando ? "Cadastrando..." : "Cadastrar"}
+                            cor="#0A086B"
+                            onClick={handleCadastrar}
                         />
                         <MainButton texto="Cancelar" cor="#FF4B09" onClick={() => navigate(-1)} />
                     </div>

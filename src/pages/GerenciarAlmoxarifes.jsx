@@ -1,5 +1,5 @@
 import "./GerenciarAlmoxarifes.css";
-import NavBar from "../components/NavBar";
+import NavBarAdmin from "../components/NavBarAdmin.jsx";
 import CardAlmoxarife from "../components/CardAlmoxarife";
 import ModalEditarAlmoxarife from "../components/ModalEditarAlmoxarife";
 import ModalRedefinirSenha from "../components/ModalRedefinirSenha";
@@ -154,7 +154,7 @@ function GerenciarAlmoxarifes() {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} mostrarLinks={true} />
+            <NavBarAdmin mostrarVoltar={true} mostrarLinks={true} />
 
             <main className="almoxarifes-container">
                 <div className="almoxarifes-breadcrumb">

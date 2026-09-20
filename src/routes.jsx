@@ -91,7 +91,7 @@ const routes = createBrowserRouter([
     errorElement: <div>erro</div>,
   },
   {
-    path: "/gerenciar-tipofornecedor",
+    path: "/cadastro-tipo-fornecedor",
     element: <CadastroTipoFornecedor />,
     errorElement: <div>erro</div>,
   },

@@ -67,3 +67,62 @@
 .navbar-links button:hover {
     opacity: 0.8;
 }
+
+/* ===== Dropdown de Cadastro ===== */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 420px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    text-align: left;
+}
+
+/* Faixa de destaque no topo */
+.dropdown-menu .dropdown-destaque {
+    display: block;
+    background: #09075c;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+    text-decoration: none;
+    padding: 14px 12px;
+    cursor: pointer;
+}
+
+.dropdown-menu .dropdown-destaque:hover {
+    background: #0A086B;
+    opacity: 0.9;
+}
+
+/* Itens em 2 colunas */
+.dropdown-itens {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.dropdown-menu .dropdown-link {
+    display: block;
+    background: transparent;
+    color: black;
+    text-align: left;
+    text-decoration: none;
+    padding: 14px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.dropdown-menu .dropdown-link:hover,
+.dropdown-menu .dropdown-link:focus-visible {
+    background: #373668;
+    color: #fff;
+    outline: none;
+}

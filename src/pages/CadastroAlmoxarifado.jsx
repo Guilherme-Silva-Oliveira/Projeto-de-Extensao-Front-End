@@ -1,5 +1,5 @@
 import "./CadastroProfessor.css";
-import NavBar from "../components/NavBar";
+import NavBarAdmin from "../components/NavBarAdmin";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import { api } from "../provider/api.js"
@@ -26,7 +26,7 @@ function CadastroAlmoxarifado() {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+            <NavBarAdmin mostrarLinks={true} mostrarVoltar={true} onVoltar={() => navigate(-1)} />
 
             <main className="cadastro-container">
                 <h1 className="titulo-cadastro">CADASTRO DE ALMOXARIFADO</h1>

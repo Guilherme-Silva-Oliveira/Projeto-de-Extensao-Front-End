@@ -1,5 +1,5 @@
 import "./CadastroMotivo.css";
-import NavBar from "../components/NavBar";
+import NavBarAdmin from "../components/NavBarAdmin";
 import MainButton from "../components/MainButton";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -34,8 +34,8 @@ function CadastroMotivo() {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
-
+            <NavBarAdmin mostrarLinks={true} mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+                
             <main className="cadastro-container">
                 <h1 className="titulo-cadastro">CADASTRO DE MOTIVO</h1>
                 <div className="linha-laranja"></div>
