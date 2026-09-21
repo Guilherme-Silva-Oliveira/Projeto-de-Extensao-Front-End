@@ -50,11 +50,6 @@ function CardMaterial({ material, materiaisDisponiveis, onConfirmarEntrada }) {
                 <span className="card-material-valor">{categoria}</span>
             </div>
 
-            <div className="card-material-info card-material-descricao">
-                <span className="card-material-label">Fornecedor:</span>
-                <span className="card-material-valor">{descricao}</span>
-            </div>
-
             <div
                 className="div-botao-adicionar"
                 onClick={() => setModalAberto(true)}

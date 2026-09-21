@@ -33,6 +33,14 @@
     color: #777;
 }
 
+.card-devolucao-input {
+    width: 80px;
+    padding: 4px 6px;
+    border: 1px solid #d3d3d3;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
 .card-devolucao-valor {
     font-size: 15px;
     color: #333;

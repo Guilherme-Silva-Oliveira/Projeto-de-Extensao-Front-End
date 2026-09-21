@@ -6,43 +6,19 @@ import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
 import cadastro from "../assets/cadastrar.png"
-import ModalCadastroMaterial from "../components/ModalCadastroMaterial.jsx"
 
-// dados temporarios enquanto a api n ta conectada 
+function normalizarMaterial(material) {
+    const categoria = material.categoria?.nomeCategoria ?? material.categoria?.nome ?? "";
+    const unidadeMedida =
+        material.unidadeMedida?.nomeUnidade ?? material.unidadeMedida?.nome ?? "";
 
-function gerarMateriais() {
-    return Array.from({ length: 6 }, (_, i) => ({
-        id: i + 1,
-        nome: "Cartolina Azul",
-        quantidade: 732,
-        unidadeMedida: "Folhas",
-        dataVencimento: null,
-        categoria: "Cartolina",
-        categoriaGrupo: "Papéis",
-        descricao: "Jeferson",
-    }));
-}
-
-function gerarCategorias() {
-    // (banco de dados)
-    return [
-        { id: 1, nome: "Papéis" },
-        { id: 2, nome: "Pincéis" },
-        { id: 3, nome: "Tintas" },
-        { id: 4, nome: "Isopor" },
-    ];
-}
-
-function gerarMateriaisDisponiveis() {
-    // temporario por enquanto pq dps vem do crud
-    return [
-        { id: 1, nome: "Cartolina Azul", categoria: "Papéis" },
-        { id: 2, nome: "Cartolina Verde", categoria: "Papéis" },
-        { id: 3, nome: "Pincel Chato Nº 12", categoria: "Pincéis" },
-        { id: 4, nome: "Pincel Redondo Nº 8", categoria: "Pincéis" },
-        { id: 5, nome: "Tinta Guache Preta", categoria: "Tintas" },
-        { id: 6, nome: "Placa de Isopor", categoria: "Isopor" },
-    ];
+    return {
+        ...material,
+        nome: material.nomeMaterial ?? "",
+        categoria,
+        categoriaGrupo: categoria,
+        unidadeMedida,
+    };
 }
 
 function GerenciarAlmoxarifado() {
@@ -58,20 +34,36 @@ function GerenciarAlmoxarifado() {
     const [mostrarFiltroCategoria, setMostrarFiltroCategoria] = useState(false);
     const [categoriasSelecionadas, setCategoriasSelecionadas] = useState([]);
 
-    const [modalAberto, setModalAberto] = useState(false);
-
     useEffect(() => {
-        // buscarMateriais();
-        // buscarCategorias();
+        async function carregarDados() {
+            try {
+                setCarregando(true);
+                const [materiaisResponse, categoriasResponse] = await Promise.all([
+                    api.get("/v1/materiais"),
+                    api.get("/v1/categorias"),
+                ]);
+                const materiaisRecebidos = Array.isArray(materiaisResponse.data)
+                    ? materiaisResponse.data.map(normalizarMaterial)
+                    : [];
 
-        //simula um carregamento e popula a lista
-        setCarregando(true);
-        setTimeout(() => {
-            setMateriais(gerarMateriais());
-            setCategorias(gerarCategorias());
-            setMateriaisDisponiveis(gerarMateriaisDisponiveis());
-            setCarregando(false);
-        }, 300);
+                setMateriais(materiaisRecebidos);
+                setMateriaisDisponiveis(materiaisRecebidos);
+                setCategorias(
+                    Array.isArray(categoriasResponse.data)
+                        ? categoriasResponse.data.map((categoria) => ({
+                            ...categoria,
+                            nome: categoria.nomeCategoria ?? categoria.nome ?? "",
+                        }))
+                        : []
+                );
+            } catch (error) {
+                console.error("Erro ao buscar dados do almoxarifado:", error);
+            } finally {
+                setCarregando(false);
+            }
+        }
+
+        carregarDados();
     }, []);
 
     // fecha o dropdown de categorias ao clicar fora dele
@@ -84,27 +76,6 @@ function GerenciarAlmoxarifado() {
         document.addEventListener("mousedown", handleClickFora);
         return () => document.removeEventListener("mousedown", handleClickFora);
     }, []);
-
-    async function buscarMateriais() {
-        try {
-            setCarregando(true);
-            const response = await api.get("/v1/materiais");
-            setMateriais(response.data);
-        } catch (error) {
-            console.error("Erro ao buscar materiais:", error);
-        } finally {
-            setCarregando(false);
-        }
-    }
-
-    async function buscarCategorias() {
-        try {
-            const response = await api.get("/v1/categorias");
-            setCategorias(response.data);
-        } catch (error) {
-            console.error("Erro ao buscar categorias:", error);
-        }
-    }
 
     function alternarCategoria(nomeCategoria) {
         setCategoriasSelecionadas((prev) =>
@@ -126,32 +97,6 @@ function GerenciarAlmoxarifado() {
         )
     );
 }
-
-    // registra um novo material e o exibe na tela
-    async function cadastrarMaterial({ nome, categoria, quantidade, validade, fornecedor }) {
-        //chamada de api (back)
-        // const response = await api.post("/v1/materiais", {
-        //     nome,
-        //     categoria,
-        //     quantidade: Number(quantidade),
-        //     dataVencimento: validade || null,
-        //     fornecedor,
-        // });
-
-        const novoMaterial = {
-            id: Date.now(),
-            nome: nome,
-            quantidade: Number(quantidade) || 0,
-            unidadeMedida: "Unidades",
-            dataVencimento: validade || null,
-            categoria: nome,
-            categoriaGrupo: categoria,
-            descricao: `Fornecedor: ${fornecedor || "não informado"}`,
-        };
-
-        setMateriais((prev) => [novoMaterial, ...prev]);
-        setModalAberto(false);
-    }
 
     const materiaisFiltrados = materiais.filter((m) => {
         const nomeCombina = m.nome.toLowerCase().includes(busca.toLowerCase());

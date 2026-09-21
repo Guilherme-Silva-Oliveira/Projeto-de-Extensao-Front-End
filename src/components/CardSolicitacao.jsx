@@ -5,7 +5,7 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
     const [aberto, setAberto] = useState(false);
     const [materiaisSelecionados, setMateriaisSelecionados] = useState([]);
 
-    const { solicitante, dataEntrega, dataEncerramento, motivo, materiais } =
+    const { solicitante, dataEntrega, dataEncerramento, motivo, alerta, materiais = [] } =
         solicitacao;
 
     function alternarSelecao(materialId) {
@@ -64,6 +64,11 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
                     <span className="card-devolucao-valor">{motivo}</span>
                 </div>
 
+                <div className="card-devolucao-info">
+                    <span className="card-devolucao-label">Alerta:</span>
+                    <span className="card-devolucao-valor">{alerta || "--"}</span>
+                </div>
+
                 <span className={`card-devolucao-seta ${aberto ? "seta-aberta" : ""}`}>
                     ⌄
                 </span>
@@ -71,42 +76,46 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
 
             {aberto && (
                 <div className="card-devolucao-corpo">
-                    <div className="card-devolucao-materiais">
-                        {materiais.map((material) => (
-                            <div
-                                className="card-devolucao-material-linha"
-                                key={material.id}
-                            >
-                                {!somenteLeitura && (
-                                    <input
-                                        type="checkbox"
-                                        checked={materiaisSelecionados.includes(material.id)}
-                                        onChange={() => alternarSelecao(material.id)}
-                                    />
-                                )}
-                                <span>
-                                    <span className="card-devolucao-label">
-                                        Material:{" "}
+                    {materiais.length > 0 ? (
+                        <div className="card-devolucao-materiais">
+                            {materiais.map((material) => (
+                                <div
+                                    className="card-devolucao-material-linha"
+                                    key={material.id}
+                                >
+                                    {!somenteLeitura && (
+                                        <input
+                                            type="checkbox"
+                                            checked={materiaisSelecionados.includes(material.id)}
+                                            onChange={() => alternarSelecao(material.id)}
+                                        />
+                                    )}
+                                    <span>
+                                        <span className="card-devolucao-label">
+                                            Material:{" "}
+                                        </span>
+                                        {material.nome}
                                     </span>
-                                    {material.nome}
-                                </span>
-                                <span>
-                                    <span className="card-devolucao-label">
-                                        Quantidade Solicitada:{" "}
+                                    <span>
+                                        <span className="card-devolucao-label">
+                                            Quantidade Solicitada:{" "}
+                                        </span>
+                                        {material.quantidadeSolicitada}
                                     </span>
-                                    {material.quantidadeSolicitada}
-                                </span>
-                                <span>
-                                    <span className="card-devolucao-label">
-                                        Quantidade Disponível:{" "}
+                                    <span>
+                                        <span className="card-devolucao-label">
+                                            Quantidade Disponível:{" "}
+                                        </span>
+                                        {material.quantidadeDisponivel ?? "--"}
                                     </span>
-                                    {material.quantidadeDisponivel ?? "--"}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="devolucoes-status">Detalhes de materiais não disponíveis.</p>
+                    )}
 
-                    {!somenteLeitura && (
+                    {!somenteLeitura && materiais.length > 0 && (
                         <div className="card-devolucao-acoes">
                             <button
                                 type="button"
