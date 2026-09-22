@@ -12,7 +12,7 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
 
             {mostrarLinks && (
                 <div className="navbar-links">
-                    <button onClick={() => navigate("/dashboard")}>Dashboard</button>
+                    <button onClick={() => navigate("/dashboard")}>Dashboard </button>
                     <button onClick={() => navigate("/gerenciar-almoxarifado")}>Almoxarifado</button>
                     <button onClick={() => navigate("/gerenciar-solicitacoes")}>Solicitações</button>
                     <button onClick={() => navigate("/gerenciar-devolucoes")}>Devoluções</button>
