@@ -3,9 +3,8 @@ import NavBar from "../components/NavBar";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import SelectForm from "../components/SelectForm";
-import { useEffect} from "react";
-import { api } from "../provider/api.js"
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../provider/api.js";
 import { useNavigate } from "react-router-dom";
 
 function CadastroMaterial() {
@@ -23,50 +22,90 @@ function CadastroMaterial() {
     const [unidadeMedidaId, setUnidadeMedidaId] = useState("")
     const [unidadesMedida, setUnidadesMedida] = useState([])
 
+    const [setorId, setSetorId] = useState("");
+    const [setores, setSetores] = useState([]);
+
     const [descricao, setDescricao] = useState("");
+    const [erro, setErro] = useState("");
+    const [enviando, setEnviando] = useState(false);
 
 
     useEffect(() => {
-        getCategorias()
-        getUnidadeMedida()
-    }, [])
+        async function carregarOpcoes() {
+            try {
+                const [categoriasResponse, unidadesResponse, setoresResponse] = await Promise.all([
+                    api.get("/v1/categorias"),
+                    api.get("/v1/unidademedida"),
+                    api.get("/v1/setores"),
+                ]);
 
-    async function getCategorias() {
-        try {
-            const res = await api.get("/v1/categorias");
-            setCategorias(res.data);
-            if (res.data && res.data.length > 0) {
-                setCategoriaId(res.data[0].id);
-            }
-        } catch (error) {
-            console.error("Erro ao buscar categorias:", error);
-        }
-    }
+                const categoriasRecebidas = Array.isArray(categoriasResponse.data)
+                    ? categoriasResponse.data
+                    : [];
+                const unidadesRecebidas = Array.isArray(unidadesResponse.data)
+                    ? unidadesResponse.data
+                    : [];
+                const setoresRecebidos = Array.isArray(setoresResponse.data)
+                    ? setoresResponse.data.map((setor) => ({
+                        ...setor,
+                        id: setor.almoxarifadoId,
+                        nome: setor.identificadorSetor,
+                    }))
+                    : [];
 
-    async function getUnidadeMedida() {
-        try {
-            const res = await api.get("/v1/unidademedida");
-            if (res.data && res.data.length > 0) {
-                setUnidadesMedida(res.data);
-                setUnidadeMedidaId(res.data[0].id);
+                setCategorias(categoriasRecebidas);
+                setUnidadesMedida(unidadesRecebidas);
+                setSetores(setoresRecebidos);
+                setCategoriaId(categoriasRecebidas[0]?.id ?? "");
+                setUnidadeMedidaId(unidadesRecebidas[0]?.id ?? "");
+                setSetorId(setoresRecebidos[0]?.id ?? "");
+            } catch (error) {
+                console.error("Erro ao buscar opções do material:", error);
+                setErro("Não foi possível carregar categorias, unidades de medida e setores.");
             }
-        } catch (error) {
-            console.error("Erro ao buscar unidades de medida:", error);
         }
-    }
+
+        carregarOpcoes();
+    }, []);
 
     async function cadastrar() {
+        const idCategoria = Number(categoriaId);
+        const idAlmoxarifado = Number(almoxarifadoId);
+        const idUnidadeMedida = Number(unidadeMedidaId);
+        const idSetor = Number(setorId);
+
+        if (!nomeMaterial.trim()) {
+            setErro("Informe o nome do material.");
+            return false;
+        }
+
+        if (!idCategoria || !idAlmoxarifado || !idUnidadeMedida || !idSetor) {
+            setErro("Não foi possível identificar os dados obrigatórios do material.");
+            return false;
+        }
+
         try {
-            const res = await api.post("/v1/materiais", { 
-                idCategoria: categoriaId,
-                idAlmoxarifado: almoxarifadoId,
-                nomeMaterial: nomeMaterial,
-                codigoBarras: gerarCodigoBarras(),
-                idUnidadeMedida: unidadeMedidaId,
-                descricao: descricao
-            })
+            setEnviando(true);
+            setErro("");
+            await api.post("/v1/materiais", {
+                idCategoria,
+                idAlmoxarifado,
+                nomeMaterial: nomeMaterial.trim(),
+                codigoBarras: String(gerarCodigoBarras()),
+                idUnidadeMedida,
+                descricao: descricao.trim(),
+                setorId: idSetor,
+            });
+            return true;
         } catch (error) {
             console.error("Erro ao cadastrar:", error);
+            setErro(
+                error.response?.data?.message ||
+                "Não foi possível cadastrar o material. Tente novamente."
+            );
+            return false;
+        } finally {
+            setEnviando(false);
         }
     }
 
@@ -115,6 +154,17 @@ function CadastroMaterial() {
                     />
                 </div>
 
+                <div className="cadastro-field">
+                    <SelectForm
+                        titulo="Setor:"
+                        opcoes={setores}
+                        valor={setorId}
+                        onChange={setSetorId}
+                        labelField="nome"
+                        valueField="id"
+                    />
+                </div>
+
                 <div className="descricao-section">
                     <label className="descricao-label">
                         Adicione uma descrição ao material (opcional):
@@ -128,12 +178,24 @@ function CadastroMaterial() {
                     />
                 </div>
 
+                {erro && <p className="cadastro-error">{erro}</p>}
+
                 <div className="cadastro-actions">
-                    <MainButton texto="Cadastrar" cor="#0A086B" onClick={async () => {
-                        await cadastrar()
-                        navigate(-1)
-                    }} />
-                    <MainButton texto="Cancelar" cor="#FF4B09" onClick={() => navigate(-1)} />
+                    <MainButton
+                        texto={enviando ? "Cadastrando..." : "Cadastrar"}
+                        cor="#0A086B"
+                        disabled={enviando}
+                        onClick={async () => {
+                            const cadastrado = await cadastrar();
+                            if (cadastrado) navigate(-1);
+                        }}
+                    />
+                    <MainButton
+                        texto="Cancelar"
+                        cor="#FF4B09"
+                        disabled={enviando}
+                        onClick={() => navigate(-1)}
+                    />
                 </div>
 
                 </div>

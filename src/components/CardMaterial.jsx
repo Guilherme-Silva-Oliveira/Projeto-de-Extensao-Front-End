@@ -3,7 +3,7 @@ import { useState } from "react";
 import adicionar from "../assets/adicionar.png";
 import ModalCadastroMaterial from "./ModalCadastroMaterial.jsx";
 
-function CardMaterial({ material, materiaisDisponiveis, onConfirmarEntrada }) {
+function CardMaterial({ material, onConfirmarEntrada }) {
     const {
         nome,
         quantidade,
@@ -15,9 +15,9 @@ function CardMaterial({ material, materiaisDisponiveis, onConfirmarEntrada }) {
 
     const [modalAberto, setModalAberto] = useState(false);
 
-    function handleConfirmar(dados) {
+    async function handleConfirmar(dados) {
         // repassa pro pai lidar com a atualização da lista/estado global
-        onConfirmarEntrada?.(dados, material);
+        await onConfirmarEntrada?.(dados, material);
         setModalAberto(false);
     }
 
@@ -59,7 +59,7 @@ function CardMaterial({ material, materiaisDisponiveis, onConfirmarEntrada }) {
 
             {modalAberto && (
                 <ModalCadastroMaterial
-                    materiaisDisponiveis={materiaisDisponiveis}
+                    materiaisDisponiveis={[material]}
                     onClose={() => setModalAberto(false)}
                     onConfirmar={handleConfirmar}
                 />
