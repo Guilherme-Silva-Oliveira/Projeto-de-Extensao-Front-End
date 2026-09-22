@@ -196,26 +196,16 @@ import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
 
-// ---- MOCK TEMPORÁRIO PARA TESTAR A TELA SEM BACKEND ----
-// Quando a API estiver pronta, é só remover isso e voltar a usar buscarDevolucoes()
-function gerarSolicitacoesMock() {
-    const materiaisPadrao = () => [
-        { id: 1, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDevolvida: null },
-        { id: 2, nome: "Cartolina Vermelha", quantidadeSolicitada: 50, quantidadeDevolvida: null },
-        { id: 3, nome: "Tinta Preta", quantidadeSolicitada: 50, quantidadeDevolvida: null },
-        { id: 4, nome: "Pincel", quantidadeSolicitada: 50, quantidadeDevolvida: null },
-    ];
+function normalizarMateriais(materiais, solicitacaoId) {
+    if (!Array.isArray(materiais)) return [];
 
-    return Array.from({ length: 6 }, (_, i) => ({
-        id: i + 1,
-        solicitante: "Rogério Silva",
-        dataEntrega: "08/05/2026 - 13h30",
-        dataEncerramento: "15/05/2026 - 13h30",
-        motivo: "Atividade Avaliativa",
-        materiais: materiaisPadrao(),
+    return materiais.map((material, index) => ({
+        ...material,
+        id: `${solicitacaoId}-${index}`,
+        nome: material.material ?? "--",
+        quantidadeDevolvida: null,
     }));
 }
-// ---------------------------------------------------------
 
 function GerenciarDevolucoes() {
     const navigate = useNavigate();
@@ -231,27 +221,59 @@ function GerenciarDevolucoes() {
     const [solicitacaoEmDevolucao, setSolicitacaoEmDevolucao] = useState(null);
 
     useEffect(() => {
-        // buscarDevolucoes(); // <- descomentar quando a API tiver integrada
+        async function carregarDevolucoes() {
+            try {
+                setCarregando(true);
+                const response = await api.get("/v1/solicitacoes/devolucoes");
+                const alertas = Array.isArray(response.data) ? response.data : [];
 
-        //simula um carregamento e popula a lista
-        setCarregando(true);
-        setTimeout(() => {
-            setSolicitacoes(gerarSolicitacoesMock());
-            setCarregando(false);
-        }, 300);
-    }, []);
+                const solicitacoesComMateriais = await Promise.all(
+                    alertas.map(async (alerta) => {
+                        const solicitacaoId = alerta.solicitacao;
 
-    async function buscarDevolucoes() {
-        try {
-            setCarregando(true);
-            const response = await api.get("/v1/devolucoes");
-            setSolicitacoes(response.data);
-        } catch (error) {
-            console.error("Erro ao buscar devoluções:", error);
-        } finally {
-            setCarregando(false);
+                        try {
+                            const materiaisResponse = await api.get(
+                                `/v1/solicitacoes/materiais/${solicitacaoId}`
+                            );
+
+                            return {
+                                id: solicitacaoId,
+                                solicitante: `Solicitação #${solicitacaoId}`,
+                                dataEntrega: "--",
+                                dataEncerramento: "--",
+                                motivo: "--",
+                                materiais: normalizarMateriais(
+                                    materiaisResponse.data,
+                                    solicitacaoId
+                                ),
+                            };
+                        } catch (error) {
+                            console.error(
+                                `Erro ao buscar materiais da solicitação ${solicitacaoId}:`,
+                                error
+                            );
+                            return {
+                                id: solicitacaoId,
+                                solicitante: `Solicitação #${solicitacaoId}`,
+                                dataEntrega: "--",
+                                dataEncerramento: "--",
+                                motivo: "--",
+                                materiais: [],
+                            };
+                        }
+                    })
+                );
+
+                setSolicitacoes(solicitacoesComMateriais);
+            } catch (error) {
+                console.error("Erro ao buscar devoluções:", error);
+            } finally {
+                setCarregando(false);
+            }
         }
-    }
+
+        carregarDevolucoes();
+    }, []);
 
     function abrirModalDevolucao(solicitacao) {
         setSolicitacaoEmDevolucao(solicitacao);

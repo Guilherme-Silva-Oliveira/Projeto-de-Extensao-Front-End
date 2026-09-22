@@ -8,51 +8,27 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
-// dados temporarios enquanto a api n ta conectada
+function formatarData(data) {
+    if (!data) return "Não informado";
 
-function gerarAlmoxarifes() {
-    return [
-        {
-            id: 1,
-            nome: "Marisa da Silva Furtado",
-            matricula: "M489254",
-            dataCriacao: "08/05/2026 - 13h18",
-            ultimoAcesso: "22/08/2026 - 16h40",
-            email: "marisa.sf@xingu.com",
-            telefone: "(11) 95846-5469",
-            status: "Ativo",
-        },
-        {
-            id: 2,
-            nome: "João Vitoriano Liralvez",
-            matricula: "M489255",
-            dataCriacao: "10/05/2026 - 09h02",
-            ultimoAcesso: "21/08/2026 - 10h12",
-            email: "joao.vl@xingu.com",
-            telefone: "(11) 94512-3387",
-            status: "Ativo",
-        },
-        {
-            id: 3,
-            nome: "Pedro Luizaldo Giraldino",
-            matricula: "M489256",
-            dataCriacao: "12/05/2026 - 14h45",
-            ultimoAcesso: "20/08/2026 - 08h55",
-            email: "pedro.lg@xingu.com",
-            telefone: "(11) 93321-7789",
-            status: "Ativo",
-        },
-        {
-            id: 4,
-            nome: "Fernando Henrique Brandão",
-            matricula: "M489257",
-            dataCriacao: "15/05/2026 - 11h30",
-            ultimoAcesso: "02/07/2026 - 17h20",
-            email: "fernando.hb@xingu.com",
-            telefone: "(11) 92210-4456",
-            status: "Inativo",
-        },
-    ];
+    const dataFormatada = new Date(data);
+    if (Number.isNaN(dataFormatada.getTime())) return "Não informado";
+
+    return dataFormatada.toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short",
+    }).replace(", ", " - ");
+}
+
+function adaptarAlmoxarife(almoxarife) {
+    return {
+        ...almoxarife,
+        email: almoxarife.email,
+        telefone: almoxarife.telefone,
+        dataCriacao: formatarData(almoxarife.dataCriacao),
+        ultimoAcesso: formatarData(almoxarife.ultimoAcesso),
+        status: almoxarife.statusUsuario ? "Ativo" : "Inativo",
+    };
 }
 
 function GerenciarAlmoxarifes() {
@@ -72,11 +48,24 @@ function GerenciarAlmoxarifes() {
     const [almoxarifeExcluindo, setAlmoxarifeExcluindo] = useState(null);
 
     useEffect(() => {
-        setCarregando(true);
-        setTimeout(() => {
-            setAlmoxarifes(gerarAlmoxarifes());
-            setCarregando(false);
-        }, 300);
+        async function carregarAlmoxarifes() {
+            try {
+                setCarregando(true);
+                const response = await api.get("/v1/almoxarifes");
+                const dados = Array.isArray(response.data)
+                    ? response.data
+                    : response.data.content || [];
+
+                setAlmoxarifes(dados.map(adaptarAlmoxarife));
+            } catch (error) {
+                console.error("Erro ao buscar almoxarifes:", error);
+                setAlmoxarifes([]);
+            } finally {
+                setCarregando(false);
+            }
+        }
+
+        carregarAlmoxarifes();
     }, []);
 
     useEffect(() => {
@@ -89,17 +78,6 @@ function GerenciarAlmoxarifes() {
         return () => document.removeEventListener("mousedown", handleClickFora);
     }, []);
 
-    async function buscarAlmoxarifes() {
-        try {
-            setCarregando(true);
-            const response = await api.get("/v1/almoxarifes");
-            setAlmoxarifes(response.data);
-        } catch (error) {
-            console.error("Erro ao buscar almoxarifes:", error);
-        } finally {
-            setCarregando(false);
-        }
-    }
     function alternarStatus(status) {
         setStatusSelecionados((prev) =>
             prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]

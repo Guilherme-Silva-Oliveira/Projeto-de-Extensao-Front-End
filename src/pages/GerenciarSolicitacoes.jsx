@@ -6,34 +6,41 @@ import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
 
-// ---- MOCK TEMPORÁRIO PARA TESTAR A TELA SEM BACKEND ----
-function gerarSolicitacoesMock() {
-    const materiaisPadrao = () => [
-        { id: 1, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDisponivel: 75 },
-        { id: 2, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDisponivel: 75 },
-        { id: 3, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDisponivel: 75 },
-        { id: 4, nome: "Cartolina Azul", quantidadeSolicitada: 50, quantidadeDisponivel: 75 },
-    ];
+function formatarData(data) {
+    if (!data) return "--";
+    const dataFormatada = new Date(data);
+    if (Number.isNaN(dataFormatada.getTime())) return "--";
 
-    const solicitantes = ["Rogério Silva", "Maria Fernanda Souza", "Rogério Silva"];
-    const datasEntrega = ["08/05/2026 - 13h18", "12/05/2026 - 09h45", "20/05/2026 - 16h00"];
-    const datasEncerramento = ["15/05/2026 - 13h30", "19/05/2026 - 09h45", "27/05/2026 - 16h00"];
+    return dataFormatada.toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short",
+    });
+}
 
-    return Array.from({ length: 3 }, (_, i) => ({
-        id: i + 1,
-        solicitante: solicitantes[i],
-        dataEntrega: datasEntrega[i],
-        dataEncerramento: datasEncerramento[i],
-        motivo: "Atividade Avaliativa",
-        materiais: materiaisPadrao(),
+function normalizarSolicitacao(solicitacao) {
+    return {
+        ...solicitacao,
+        solicitante: solicitacao.descricao ?? "--",
+        dataEntrega: formatarData(solicitacao.dataSolicitacao),
+        dataEncerramento: formatarData(solicitacao.dataParaEnvio),
+        materiais: [],
+    };
+}
+
+async function buscarMateriaisSolicitacao(solicitacaoId) {
+    const response = await api.get(`/v1/solicitacoes/materiais/${solicitacaoId}`);
+    const materiais = Array.isArray(response.data) ? response.data : [];
+
+    return materiais.map((material, index) => ({
+        ...material,
+        id: `${solicitacaoId}-${index}`,
+        nome: material.material ?? "--",
     }));
 }
-// ---------------------------------------------------------
 
-// Converte "08/05/2026 - 13h18" em um Date real, pra dar pra comparar com o range escolhido
 function parseDataEntrega(dataEntregaStr) {
-    if (!dataEntregaStr) return null;
-    const [dataParte] = dataEntregaStr.split(" - ");
+    if (!dataEntregaStr || dataEntregaStr === "--") return null;
+    const [dataParte] = dataEntregaStr.split(", ");
     const [dia, mes, ano] = dataParte.split("/").map(Number);
     if (!dia || !mes || !ano) return null;
     return new Date(ano, mes - 1, dia);
@@ -53,26 +60,41 @@ function GerenciarSolicitacoes() {
     const [dataFimSelecionada, setDataFimSelecionada] = useState("");
 
     useEffect(() => {
-        // buscarSolicitacoes(); // <- descomentar quando a API estiver integrada
+        async function carregarSolicitacoes() {
+            try {
+                setCarregando(true);
+                const response = await api.get("/v1/solicitacoes");
+                const solicitacoesRecebidas = Array.isArray(response.data)
+                    ? response.data.map(normalizarSolicitacao)
+                    : [];
 
-        setCarregando(true);
-        setTimeout(() => {
-            setSolicitacoes(gerarSolicitacoesMock());
-            setCarregando(false);
-        }, 300);
-    }, []);
+                const solicitacoesComMateriais = await Promise.all(
+                    solicitacoesRecebidas.map(async (solicitacao) => {
+                        try {
+                            const materiais = await buscarMateriaisSolicitacao(
+                                solicitacao.id
+                            );
+                            return { ...solicitacao, materiais };
+                        } catch (error) {
+                            console.error(
+                                `Erro ao buscar materiais da solicitação ${solicitacao.id}:`,
+                                error
+                            );
+                            return solicitacao;
+                        }
+                    })
+                );
 
-    async function buscarSolicitacoes() {
-        try {
-            setCarregando(true);
-            const response = await api.get("/v1/solicitacoes");
-            setSolicitacoes(response.data);
-        } catch (error) {
-            console.error("Erro ao buscar solicitacoes:", error);
-        } finally {
-            setCarregando(false);
+                setSolicitacoes(solicitacoesComMateriais);
+            } catch (error) {
+                console.error("Erro ao buscar solicitacoes:", error);
+            } finally {
+                setCarregando(false);
+            }
         }
-    }
+
+        carregarSolicitacoes();
+    }, []);
 
     // Finaliza os materiais selecionados (checkboxes) de UMA solicitação.
     async function finalizarMateriais(solicitacaoId, idsSelecionados) {
@@ -117,7 +139,7 @@ function GerenciarSolicitacoes() {
     }
 
     const solicitacoesFiltradas = solicitacoes.filter((s) => {
-        const nomeCombina = s.solicitante
+        const nomeCombina = (s.descricao ?? "")
             .toLowerCase()
             .includes(busca.toLowerCase());
 

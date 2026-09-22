@@ -35,10 +35,6 @@ function CardAlmoxarife({ almoxarife, onEditar, onRedefinirSenha, onExcluir }) {
                         {almoxarife.nome}
                     </div>
                     <div className="almoxarife-detalhe-item">
-                        <span className="almoxarife-detalhe-label">Matrícula: </span>
-                        {almoxarife.matricula}
-                    </div>
-                    <div className="almoxarife-detalhe-item">
                         <span className="almoxarife-detalhe-label">Data e Hora da Criação: </span>
                         {almoxarife.dataCriacao}
                     </div>

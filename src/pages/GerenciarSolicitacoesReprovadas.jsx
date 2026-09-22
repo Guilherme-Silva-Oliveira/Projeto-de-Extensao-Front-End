@@ -6,31 +6,37 @@ import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
 
-// ---- MOCK TEMPORÁRIO PARA TESTAR A TELA SEM BACKEND ----
-function gerarSolicitacoesReprovadasMock() {
-    const materiaisPadrao = () => [
-        { id: 1, nome: "Cartolina Vermelha", quantidadeSolicitada: 150, quantidadeDisponivel: 145 },
-        { id: 2, nome: "Giz de Cera", quantidadeSolicitada: 80, quantidadeDisponivel: 57 },
-    ];
+function formatarData(data) {
+    if (!data) return "--";
+    const dataFormatada = new Date(data);
+    if (Number.isNaN(dataFormatada.getTime())) return "--";
 
-    const solicitantes = ["Heloisa Santos", "Pedro Leite", "Vitor Rocha"];
-    const datasEntrega = ["08/05/2026 - 13h18", "12/05/2026 - 09h45", "20/05/2026 - 16h00"];
-    const motivosReprovacao = [
-        "Quantidade solicitada acima do disponível",
-        "Material não disponível no período",
-        "Solicitação duplicada",
-    ];
+    return dataFormatada.toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short",
+    });
+}
 
-    return Array.from({ length: 3 }, (_, i) => ({
-        id: i + 1,
-        solicitante: solicitantes[i],
-        dataEntrega: datasEntrega[i],
-        motivo: "Atividade Avaliativa",
-        motivoReprovacao: motivosReprovacao[i],
-        materiais: materiaisPadrao(),
+function normalizarSolicitacao(solicitacao) {
+    return {
+        ...solicitacao,
+        solicitante: solicitacao.descricao ?? "--",
+        dataEntrega: formatarData(solicitacao.dataSolicitacao),
+        dataEncerramento: formatarData(solicitacao.dataParaEnvio),
+        materiais: [],
+    };
+}
+
+async function buscarMateriaisSolicitacao(solicitacaoId) {
+    const response = await api.get(`/v1/solicitacoes/materiais/${solicitacaoId}`);
+    const materiais = Array.isArray(response.data) ? response.data : [];
+
+    return materiais.map((material, index) => ({
+        ...material,
+        id: `${solicitacaoId}-${index}`,
+        nome: material.material ?? "--",
     }));
 }
-// ---------------------------------------------------------
 
 function parseDataEntrega(dataEntregaStr) {
     if (!dataEntregaStr) return null;
@@ -52,26 +58,41 @@ function SolicitacoesReprovadas() {
     const [dataFim, setDataFim] = useState("");
 
     useEffect(() => {
-        // buscarSolicitacoesReprovadas(); // <- descomentar quando a API estiver integrada
+        async function carregarSolicitacoesReprovadas() {
+            try {
+                setCarregando(true);
+                const response = await api.get("/v1/solicitacoes/rejeitadas");
+                const solicitacoesRecebidas = Array.isArray(response.data)
+                    ? response.data.map(normalizarSolicitacao)
+                    : [];
 
-        setCarregando(true);
-        setTimeout(() => {
-            setSolicitacoes(gerarSolicitacoesReprovadasMock());
-            setCarregando(false);
-        }, 300);
-    }, []);
+                const solicitacoesComMateriais = await Promise.all(
+                    solicitacoesRecebidas.map(async (solicitacao) => {
+                        try {
+                            const materiais = await buscarMateriaisSolicitacao(
+                                solicitacao.id
+                            );
+                            return { ...solicitacao, materiais };
+                        } catch (error) {
+                            console.error(
+                                `Erro ao buscar materiais da solicitação ${solicitacao.id}:`,
+                                error
+                            );
+                            return solicitacao;
+                        }
+                    })
+                );
 
-    async function buscarSolicitacoesReprovadas() {
-        try {
-            setCarregando(true);
-            const response = await api.get("/v1/solicitacoes/reprovadas");
-            setSolicitacoes(response.data);
-        } catch (error) {
-            console.error("Erro ao buscar solicitações reprovadas:", error);
-        } finally {
-            setCarregando(false);
+                setSolicitacoes(solicitacoesComMateriais);
+            } catch (error) {
+                console.error("Erro ao buscar solicitações reprovadas:", error);
+            } finally {
+                setCarregando(false);
+            }
         }
-    }
+
+        carregarSolicitacoesReprovadas();
+    }, []);
 
     function limparFiltroData() {
         setDataInicio("");
@@ -80,7 +101,7 @@ function SolicitacoesReprovadas() {
     }
 
     const solicitacoesFiltradas = solicitacoes.filter((s) => {
-        const nomeCombina = s.solicitante
+        const nomeCombina = (s.descricao ?? "")
             .toLowerCase()
             .includes(busca.toLowerCase());
 
