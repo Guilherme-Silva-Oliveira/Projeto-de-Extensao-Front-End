@@ -68,16 +68,6 @@ function CardDevolucao({ solicitacao, onDevolver, onEncerrar }) {
                                     </span>
                                     {material.quantidadeSolicitada}
                                 </span>
-                                <span>
-                                    <span className="card-devolucao-label">
-                                        Adicionar Devolução:{" "}
-                                    </span>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        className="card-devolucao-input"
-                                    />
-                                </span>
                             </div>
                         ))}
                     </div>

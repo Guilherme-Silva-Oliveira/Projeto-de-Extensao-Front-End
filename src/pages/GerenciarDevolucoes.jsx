@@ -199,12 +199,24 @@ import lupaIcon from "../assets/lupa.png";
 function normalizarMateriais(materiais, solicitacaoId) {
     if (!Array.isArray(materiais)) return [];
 
-    return materiais.map((material, index) => ({
-        ...material,
-        id: `${solicitacaoId}-${index}`,
-        nome: material.material ?? "--",
-        quantidadeDevolvida: null,
-    }));
+    return materiais.map((material, index) => {
+        const materialRelacionado = material.material;
+        const materialId =
+            material.materialId ??
+            material.idMaterial ??
+            (typeof materialRelacionado === "object"
+                ? materialRelacionado?.id
+                : materialRelacionado) ??
+            material.id;
+
+        return {
+            ...material,
+            id: `${solicitacaoId}-${index}`,
+            materialId,
+            nome: materialRelacionado?.nome ?? materialRelacionado ?? "--",
+            quantidadeDevolvida: null,
+        };
+    });
 }
 
 function GerenciarDevolucoes() {
@@ -283,20 +295,28 @@ function GerenciarDevolucoes() {
         setSolicitacaoEmDevolucao(null);
     }
 
-    // Registra a devoluçao de um material e mantem o item visivel no card
-    async function confirmarDevolucao(solicitacaoId, nomeMaterial, quantidade) {
-        // MOCK: comentar a chamada de api enquanto não há backend
-        // await api.post(`/v1/devolucoes/${solicitacaoId}/registrar`, {
-        //     material: nomeMaterial,
-        //     quantidade: Number(quantidade),
-        // });
+    async function confirmarDevolucao(solicitacaoId, materialId, quantidade) {
+        const material = solicitacoes
+            .find((solicitacao) => solicitacao.id === solicitacaoId)
+            ?.materiais.find(
+                (item) => String(item.materialId) === String(materialId)
+            );
+
+        await api.post("/v1/entradas", {
+            fornecedorId: 1,
+            materialId,
+            codigo: material?.codigo ?? material?.codigoBarras ?? "",
+            quantidade: Number(quantidade),
+            dataEntrada: new Date().toISOString().slice(0, 19),
+            isDevolucao: true,
+        });
 
         setSolicitacoes((prev) =>
             prev.map((s) => {
                 if (s.id !== solicitacaoId) return s;
 
                 const materiaisAtualizados = s.materiais.map((m) =>
-                    m.nome.toLowerCase() === nomeMaterial.toLowerCase()
+                    String(m.materialId) === String(materialId)
                         ? { ...m, quantidadeDevolvida: Number(quantidade) }
                         : m
                 );
@@ -424,10 +444,10 @@ function GerenciarDevolucoes() {
                 <ModalDevolucao
                     solicitacao={solicitacaoEmDevolucao}
                     onClose={fecharModal}
-                    onConfirmar={(nomeMaterial, quantidade) =>
+                    onConfirmar={(materialId, quantidade) =>
                         confirmarDevolucao(
                             solicitacaoEmDevolucao.id,
-                            nomeMaterial,
+                            materialId,
                             quantidade
                         )
                     }

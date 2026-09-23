@@ -3,9 +3,9 @@ import NavBar from "./NavBar";
 import "./ModalDevolucao.css";
 
 function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {
-    const primeiroMaterial = solicitacao.materiais?.[0]?.nome || "";
+    const materiais = solicitacao.materiais ?? [];
 
-    const [material, setMaterial] = useState(primeiroMaterial);
+    const [materialId, setMaterialId] = useState("");
     const [quantidade, setQuantidade] = useState("");
     const [enviando, setEnviando] = useState(false);
     const [erro, setErro] = useState("");
@@ -13,8 +13,8 @@ function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {
     async function handleDevolver() {
         setErro("");
 
-        if (!material.trim()) {
-            setErro("Informe o material.");
+        if (!materialId) {
+            setErro("Selecione o material.");
             return;
         }
         if (!quantidade || Number(quantidade) <= 0) {
@@ -24,7 +24,7 @@ function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {
 
         try {
             setEnviando(true);
-            await onConfirmar(material, quantidade);
+            await onConfirmar(Number(materialId), quantidade);
             // o próprio pai fecha o modal e remove o item da tela após o sucesso
         } catch (error) {
             console.error("Erro ao registrar devolução:", error);
@@ -44,7 +44,7 @@ function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {
 
                 <div className="modal-devolucao-conteudo">
                     <h2 className="modal-devolucao-titulo">
-                        Devolução de {material || primeiroMaterial}
+                        Devolução de material
                     </h2>
                     <p className="modal-devolucao-solicitante">
                         Solicitante: {solicitacao.solicitante}
@@ -54,17 +54,18 @@ function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {
                         <label className="modal-devolucao-label">
                             Insira o Material:
                         </label>
-                        <input
-                            list="materiais-solicitacao"
+                        <select
                             className="modal-devolucao-input"
-                            value={material}
-                            onChange={(e) => setMaterial(e.target.value)}
-                        />
-                        <datalist id="materiais-solicitacao">
-                            {solicitacao.materiais?.map((m) => (
-                                <option key={m.id} value={m.nome} />
+                            value={materialId}
+                            onChange={(e) => setMaterialId(e.target.value)}
+                        >
+                            <option value="">Selecione um material</option>
+                            {materiais.map((m) => (
+                                <option key={m.id} value={m.materialId}>
+                                    {m.nome}
+                                </option>
                             ))}
-                        </datalist>
+                        </select>
                     </div>
 
                     <div className="modal-devolucao-campo">
