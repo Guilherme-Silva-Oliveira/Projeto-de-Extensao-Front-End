@@ -7,6 +7,14 @@ function CardDevolucao({ solicitacao, onDevolver, onEncerrar }) {
     const { solicitante, dataEntrega, dataEncerramento, motivo, materiais } =
         solicitacao;
 
+    function abrirDevolucao() {
+        localStorage.setItem(
+            `devolucao-solicitacao-${solicitacao.id}`,
+            JSON.stringify({ id: solicitacao.id, materiais: materiais ?? [] })
+        );
+        onDevolver(solicitacao);
+    }
+
 
     return (
         <div className="card-devolucao">
@@ -76,7 +84,7 @@ function CardDevolucao({ solicitacao, onDevolver, onEncerrar }) {
                         <button
                             type="button"
                             className="btn-devolver"
-                            onClick={onDevolver}
+                            onClick={abrirDevolucao}
                         >
                             Devolver
                         </button>

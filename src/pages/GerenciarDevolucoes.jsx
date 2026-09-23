@@ -110,16 +110,12 @@
 //                             {mostrarFiltroData && (
 //                                 <input
 //                                     type="date"
-//                                     className="filtro-data-input"
-//                                     value={filtroData}
 //                                     onChange={(e) => setFiltroData(e.target.value)}
 //                                 />
 //                             )}
 //                         </div>
 
-//                         <div className="busca-wrapper">
 //                             <label className="busca-label">Buscar</label>
-//                             <div className="busca-input-wrapper">
 //                                 <input
 //                                     type="text"
 //                                     className="busca-input"
@@ -196,24 +192,51 @@ import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
 
-function normalizarMateriais(materiais, solicitacaoId) {
+function normalizarMateriais(materiais, solicitacaoId, catalogoMateriais = []) {
     if (!Array.isArray(materiais)) return [];
 
     return materiais.map((material, index) => {
         const materialRelacionado = material.material;
+        const nomeMaterial =
+            materialRelacionado?.nomeMaterial ??
+            materialRelacionado?.nome ??
+            material.nomeMaterial ??
+            material.nome ??
+            (typeof materialRelacionado === "string" ? materialRelacionado : "");
+        const nomeNormalizado = nomeMaterial.trim().toLowerCase();
+        const materialDoCatalogo = catalogoMateriais.find(
+            (item) => {
+                const nomeCatalogo = String(
+                    item.nomeMaterial ?? item.nome ?? ""
+                )
+                    .trim()
+                    .toLowerCase();
+                return nomeCatalogo === nomeNormalizado;
+            }
+        );
         const materialId =
             material.materialId ??
             material.idMaterial ??
+            material.idMaterialSolicitado ??
             (typeof materialRelacionado === "object"
                 ? materialRelacionado?.id
-                : materialRelacionado) ??
-            material.id;
+                : Number.isInteger(Number(materialRelacionado)
+                    ? Number(materialRelacionado)
+                    : null)) ??
+            (Number.isInteger(Number(material.id)) ? Number(material.id) : null) ??
+            materialDoCatalogo?.id;
 
         return {
             ...material,
             id: `${solicitacaoId}-${index}`,
             materialId,
-            nome: materialRelacionado?.nome ?? materialRelacionado ?? "--",
+            nome: nomeMaterial || materialDoCatalogo?.nomeMaterial || "--",
+            codigo:
+                material.codigo ??
+                material.codigoBarras ??
+                materialDoCatalogo?.codigo ??
+                materialDoCatalogo?.codigoBarras ??
+                "",
             quantidadeDevolvida: null,
         };
     });
@@ -223,6 +246,7 @@ function GerenciarDevolucoes() {
     const navigate = useNavigate();
 
     const [solicitacoes, setSolicitacoes] = useState([]);
+    const [catalogoMateriais, setCatalogoMateriais] = useState([]);
     const [carregando, setCarregando] = useState(true);
 
     const [busca, setBusca] = useState("");
@@ -238,6 +262,19 @@ function GerenciarDevolucoes() {
                 setCarregando(true);
                 const response = await api.get("/v1/solicitacoes/devolucoes");
                 const alertas = Array.isArray(response.data) ? response.data : [];
+                let catalogoMateriais = [];
+
+                try {
+                    const materiaisResponse = await api.get("/v1/materiais");
+                    catalogoMateriais = Array.isArray(materiaisResponse.data)
+                        ? materiaisResponse.data
+                        : Array.isArray(materiaisResponse.data?.content)
+                            ? materiaisResponse.data.content
+                            : [];
+                    setCatalogoMateriais(catalogoMateriais);
+                } catch (error) {
+                    console.error("Erro ao buscar catálogo de materiais:", error);
+                }
 
                 const solicitacoesComMateriais = await Promise.all(
                     alertas.map(async (alerta) => {
@@ -256,7 +293,8 @@ function GerenciarDevolucoes() {
                                 motivo: "--",
                                 materiais: normalizarMateriais(
                                     materiaisResponse.data,
-                                    solicitacaoId
+                                    solicitacaoId,
+                                    catalogoMateriais
                                 ),
                             };
                         } catch (error) {
@@ -295,34 +333,58 @@ function GerenciarDevolucoes() {
         setSolicitacaoEmDevolucao(null);
     }
 
-    async function confirmarDevolucao(solicitacaoId, materialId, quantidade) {
-        const material = solicitacoes
-            .find((solicitacao) => solicitacao.id === solicitacaoId)
-            ?.materiais.find(
-                (item) => String(item.materialId) === String(materialId)
-            );
+    async function confirmarDevolucao(solicitacaoId, itensDevolucao) {
+        const solicitacao = solicitacoes.find((item) => item.id === solicitacaoId);
 
-        await api.post("/v1/entradas", {
-            fornecedorId: 1,
-            materialId,
-            codigo: material?.codigo ?? material?.codigoBarras ?? "",
-            quantidade: Number(quantidade),
-            dataEntrada: new Date().toISOString().slice(0, 19),
-            isDevolucao: true,
-        });
+        if (!solicitacao || !Array.isArray(itensDevolucao) || itensDevolucao.length === 0) {
+            throw new Error("Dados da devolução inválidos.");
+        }
+
+        await Promise.all(
+            itensDevolucao.map((itemDevolucao) => {
+                const material = solicitacao?.materiais.find(
+                    (item) =>
+                        String(item.materialId) === String(itemDevolucao.materialId) ||
+                        item.nome?.trim().toLowerCase() ===
+                            itemDevolucao.materialNome?.trim().toLowerCase()
+                );
+                const materialDoCatalogo = catalogoMateriais.find(
+                    (item) =>
+                        String(item.id) === String(itemDevolucao.materialId) ||
+                        String(item.nomeMaterial ?? item.nome ?? "")
+                            .trim()
+                            .toLowerCase() ===
+                            itemDevolucao.materialNome?.trim().toLowerCase()
+                );
+                const materialIdInformado = Number(itemDevolucao.materialId);
+                const materialId = Number.isInteger(materialIdInformado) && materialIdInformado > 0
+                    ? materialIdInformado
+                    : Number(materialDoCatalogo?.id ?? material?.materialId);
+                const quantidade = Number(itemDevolucao.quantidade);
+
+                if (!Number.isInteger(materialId) || materialId <= 0) {
+                    throw new Error("Material sem ID válido.");
+                }
+                if (!Number.isInteger(quantidade) || quantidade <= 0) {
+                    throw new Error("Quantidade inválida.");
+                }
+
+                return api.post("/v1/entradas", {
+                    fornecedorId: 1,
+                    materialId,
+                    quantidade,
+                    dataEntrada: new Date().toISOString().slice(0, 19),
+                    isDevolucao: true,
+                });
+            })
+        );
+
+        await api.post(
+            `/v1/solicitacoes/atualizarStatus/${solicitacaoId}/7`
+        );
 
         setSolicitacoes((prev) =>
-            prev.map((s) => {
-                if (s.id !== solicitacaoId) return s;
-
-                const materiaisAtualizados = s.materiais.map((m) =>
-                    String(m.materialId) === String(materialId)
-                        ? { ...m, quantidadeDevolvida: Number(quantidade) }
-                        : m
-                );
-
-                return { ...s, materiais: materiaisAtualizados };
-            })
+            prev.filter((item) => item.id !== solicitacaoId)
         );
 
         fecharModal();
@@ -444,11 +506,10 @@ function GerenciarDevolucoes() {
                 <ModalDevolucao
                     solicitacao={solicitacaoEmDevolucao}
                     onClose={fecharModal}
-                    onConfirmar={(materialId, quantidade) =>
+                    onConfirmar={(itensDevolucao) =>
                         confirmarDevolucao(
                             solicitacaoEmDevolucao.id,
-                            materialId,
-                            quantidade
+                            itensDevolucao
                         )
                     }
                 />

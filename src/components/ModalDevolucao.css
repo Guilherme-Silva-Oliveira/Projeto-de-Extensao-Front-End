@@ -38,6 +38,37 @@
     margin: -8px 0 4px 0;
 }
 
+.modal-devolucao-navegacao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: #555;
+    font-size: 14px;
+}
+
+.modal-devolucao-navegacao button,
+.btn-adicionar-material,
+.btn-remover-material {
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+}
+
+.modal-devolucao-navegacao button {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+}
+
+.modal-devolucao-navegacao button:disabled,
+.btn-remover-material:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
 .modal-devolucao-campo {
     display: flex;
     flex-direction: column;
@@ -70,6 +101,24 @@
     color: #d9534f;
     font-size: 14px;
     margin: -8px 0 0 0;
+}
+
+.modal-devolucao-materiais-acoes {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-adicionar-material,
+.btn-remover-material {
+    padding: 9px 12px;
+    font-size: 13px;
+}
+
+.btn-adicionar-material:hover,
+.btn-remover-material:hover:not(:disabled) {
+    background-color: #f5f5f5;
 }
 
 .btn-confirmar-devolucao {
