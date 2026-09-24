@@ -4,7 +4,7 @@ import InputForm from "../components/InputForm";
 import ButtonFormOption from "../components/ButtonFormOption";
 import LinkText from "../components/LinkText";
 import MainButton from "../components/MainButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api";
 
@@ -22,6 +22,19 @@ function Login() {
   const [perfilSelecionado, setPerfilSelecionado] = useState(""); // "almoxarife" | "administrador"
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
+
+  useEffect(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+
+    document.cookie.split(";").forEach((cookie) => {
+      const nome = cookie.split("=")[0].trim();
+
+      if (nome) {
+        document.cookie = `${nome}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      }
+    });
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();

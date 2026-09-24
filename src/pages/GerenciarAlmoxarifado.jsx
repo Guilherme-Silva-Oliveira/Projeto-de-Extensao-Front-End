@@ -28,7 +28,6 @@ function GerenciarAlmoxarifado() {
     const [materiais, setMateriais] = useState([]);
     const [categorias, setCategorias] = useState([]);
     const [carregando, setCarregando] = useState(true);
-    const [materiaisDisponiveis, setMateriaisDisponiveis] = useState([]);
 
     const [busca, setBusca] = useState("");
     const [mostrarFiltroCategoria, setMostrarFiltroCategoria] = useState(false);
@@ -47,7 +46,6 @@ function GerenciarAlmoxarifado() {
                     : [];
 
                 setMateriais(materiaisRecebidos);
-                setMateriaisDisponiveis(materiaisRecebidos);
                 setCategorias(
                     Array.isArray(categoriasResponse.data)
                         ? categoriasResponse.data.map((categoria) => ({
@@ -85,18 +83,29 @@ function GerenciarAlmoxarifado() {
         );
     }
 
-    function registrarEntradaMaterial({ quantidade }, materialAlvo) {
-    // chamada de api (back), por exemplo:
-    // await api.patch(`/v1/materiais/${materialAlvo.id}/entrada`, { quantidade: Number(quantidade) });
+    async function registrarEntradaMaterial({ quantidade }, materialAlvo) {
+        const quantidadeAdicionada = Number(quantidade);
+        const quantidadeAtual = Number(materialAlvo.quantidade) || 0;
 
-    setMateriais((prev) =>
-        prev.map((m) =>
-            m.id === materialAlvo.id
-                ? { ...m, quantidade: m.quantidade + Number(quantidade || 0) }
-                : m
-        )
-    );
-}
+        const response = await api.patch(`/v1/materiais/${materialAlvo.id}`, {
+            nomeMaterial: materialAlvo.nomeMaterial ?? materialAlvo.nome,
+            quantidade: quantidadeAtual + quantidadeAdicionada,
+            descricao: materialAlvo.descricao ?? "",
+        });
+
+        const materialAtualizado = response.data ?? {
+            ...materialAlvo,
+            quantidade: quantidadeAtual + quantidadeAdicionada,
+        };
+
+        setMateriais((prev) =>
+            prev.map((material) =>
+                material.id === materialAlvo.id
+                    ? normalizarMaterial({ ...material, ...materialAtualizado })
+                    : material
+            )
+        );
+    }
 
     const materiaisFiltrados = materiais.filter((m) => {
         const nomeCombina = m.nome.toLowerCase().includes(busca.toLowerCase());
@@ -212,7 +221,6 @@ function GerenciarAlmoxarifado() {
                             <CardMaterial
                                 key={material.id}
                                 material={material}
-                                materiaisDisponiveis={materiaisDisponiveis}
                                 onConfirmarEntrada={registrarEntradaMaterial}
                             />
                         ))}
@@ -220,11 +228,7 @@ function GerenciarAlmoxarifado() {
             </main>
 
             {/* {modalAberto && (
-                    <ModalCadastroMaterial
-                        materiaisDisponiveis={materiaisDisponiveis}
-                        onClose={() => setModalAberto(false)}
-                        onConfirmar={cadastrarMaterial}
-                    />
+                    <ModalCadastroMaterial />
                 )} */}
         </div>
     );

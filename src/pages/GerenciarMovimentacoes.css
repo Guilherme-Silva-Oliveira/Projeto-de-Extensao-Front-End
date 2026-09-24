@@ -153,10 +153,21 @@
     gap: 4px;
 }
 
+.movimentacoes-status {
+    margin: 20px 0;
+    color: #858585;
+    font-size: 16px;
+    text-align: center;
+}
+
+.movimentacoes-erro {
+    color: #f01515;
+}
+
 .card-movimentacao {
     display: grid;
-    grid-template-columns: 135px 180px 135px 1.55fr 155px 1.25fr;
-    gap: 26px;
+    grid-template-columns: 135px 180px 135px 155px 155px;
+    justify-content: space-between;
     min-height: 98px;
     padding: 20px 43px;
     border: 1px solid #adadad;
@@ -198,6 +209,7 @@
     color: #087cff;
 }
 
-.movimentacao-campo .acao-retirada {
+.movimentacao-campo .acao-retirada,
+.movimentacao-campo .acao-saida {
     color: #f01515;
 }
