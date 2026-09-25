@@ -3,6 +3,7 @@ import NavBar from "../components/NavBar";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api.js";
+import Pagination from "../components/Pagination";
 
 function formatarData(dataMovimentacao) {
     if (!dataMovimentacao) return "-";
@@ -28,13 +29,19 @@ function GerenciarMovimentacoes() {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState("");
 
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
     useEffect(() => {
         async function carregarMovimentacoes() {
             try {
                 setCarregando(true);
                 setErro("");
-                const response = await api.get("/v1/frontend/movimentacoes");
-                setMovimentacoes(Array.isArray(response.data) ? response.data : []);
+                const response = await api.get("/v1/frontend/movimentacoes", {
+                    params: { page, size: 10 }
+                });
+                setMovimentacoes(Array.isArray(response.data) ? response.data : response.data.content || []);
+                setTotalPages(response.data.totalPages || 1);
             } catch (error) {
                 console.error("Erro ao buscar movimentações:", error);
                 setErro("Não foi possível carregar as movimentações.");
@@ -44,7 +51,7 @@ function GerenciarMovimentacoes() {
         }
 
         carregarMovimentacoes();
-    }, []);
+    }, [page]);
 
     const movimentacoesFiltradas = movimentacoes.filter((movimentacao) =>
         !filtroData || movimentacao.dataMovimentacao?.startsWith(filtroData)
@@ -123,6 +130,14 @@ function GerenciarMovimentacoes() {
                             </div>
                         </article>
                     ))}
+                    
+                    {!carregando && !erro && movimentacoesFiltradas.length > 0 && (
+                        <Pagination 
+                            currentPage={page} 
+                            totalPages={totalPages} 
+                            onPageChange={setPage} 
+                        />
+                    )}
                 </div>
             </main>
         </div>

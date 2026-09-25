@@ -4,6 +4,7 @@ import CardSolicitacao from "../components/CardSolicitacao";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
+import Pagination from "../components/Pagination";
 import lupaIcon from "../assets/lupa.png";
 
 function formatarData(data) {
@@ -59,14 +60,19 @@ function GerenciarSolicitacoes() {
     const [dataInicioSelecionada, setDataInicioSelecionada] = useState("");
     const [dataFimSelecionada, setDataFimSelecionada] = useState("");
 
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
     useEffect(() => {
         async function carregarSolicitacoes() {
             try {
                 setCarregando(true);
-                const response = await api.get("/v1/solicitacoes");
-                const solicitacoesRecebidas = Array.isArray(response.data)
-                    ? response.data.map(normalizarSolicitacao)
-                    : [];
+                const response = await api.get("/v1/solicitacoes", {
+                    params: { page, size: 10 }
+                });
+                
+                const dataArray = Array.isArray(response.data) ? response.data : response.data.content || [];
+                const solicitacoesRecebidas = dataArray.map(normalizarSolicitacao);
 
                 const solicitacoesComMateriais = await Promise.all(
                     solicitacoesRecebidas.map(async (solicitacao) => {
@@ -86,6 +92,7 @@ function GerenciarSolicitacoes() {
                 );
 
                 setSolicitacoes(solicitacoesComMateriais);
+                setTotalPages(response.data.totalPages || 1);
             } catch (error) {
                 console.error("Erro ao buscar solicitacoes:", error);
             } finally {
@@ -94,7 +101,7 @@ function GerenciarSolicitacoes() {
         }
 
         carregarSolicitacoes();
-    }, []);
+    }, [page]);
 
     // Finaliza os materiais selecionados (checkboxes) de UMA solicitação.
     async function finalizarMateriais(solicitacaoId, idsSelecionados) {
@@ -301,6 +308,14 @@ function GerenciarSolicitacoes() {
                                 onCancelar={() => cancelarSolicitacao(solicitacao.id)}
                             />
                         ))}
+                    
+                    {!carregando && solicitacoesFiltradas.length > 0 && (
+                        <Pagination 
+                            currentPage={page} 
+                            totalPages={totalPages} 
+                            onPageChange={setPage} 
+                        />
+                    )}
                 </div>
             </main>
         </div>

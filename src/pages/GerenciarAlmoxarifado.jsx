@@ -4,6 +4,7 @@ import CardMaterial from "../components/CardMaterial";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
+import Pagination from "../components/Pagination";
 import lupaIcon from "../assets/lupa.png";
 import cadastro from "../assets/cadastrar.png"
 
@@ -33,19 +34,14 @@ function GerenciarAlmoxarifado() {
     const [mostrarFiltroCategoria, setMostrarFiltroCategoria] = useState(false);
     const [categoriasSelecionadas, setCategoriasSelecionadas] = useState([]);
 
-    useEffect(() => {
-        async function carregarDados() {
-            try {
-                setCarregando(true);
-                const [materiaisResponse, categoriasResponse] = await Promise.all([
-                    api.get("/v1/materiais"),
-                    api.get("/v1/categorias"),
-                ]);
-                const materiaisRecebidos = Array.isArray(materiaisResponse.data)
-                    ? materiaisResponse.data.map(normalizarMaterial)
-                    : [];
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
-                setMateriais(materiaisRecebidos);
+    // Carregar categorias apenas uma vez
+    useEffect(() => {
+        async function carregarCategorias() {
+            try {
+                const categoriasResponse = await api.get("/v1/categorias");
                 setCategorias(
                     Array.isArray(categoriasResponse.data)
                         ? categoriasResponse.data.map((categoria) => ({
@@ -55,14 +51,37 @@ function GerenciarAlmoxarifado() {
                         : []
                 );
             } catch (error) {
-                console.error("Erro ao buscar dados do almoxarifado:", error);
+                console.error("Erro ao buscar categorias:", error);
+            }
+        }
+        carregarCategorias();
+    }, []);
+
+    // Carregar materiais sempre que a página mudar
+    useEffect(() => {
+        async function carregarMateriais() {
+            try {
+                setCarregando(true);
+                const materiaisResponse = await api.get("/v1/materiais", {
+                    params: { page, size: 10 }
+                });
+                
+                const content = materiaisResponse.data.content || materiaisResponse.data;
+                const materiaisRecebidos = Array.isArray(content)
+                    ? content.map(normalizarMaterial)
+                    : [];
+
+                setMateriais(materiaisRecebidos);
+                setTotalPages(materiaisResponse.data.totalPages || 1);
+            } catch (error) {
+                console.error("Erro ao buscar materiais:", error);
             } finally {
                 setCarregando(false);
             }
         }
 
-        carregarDados();
-    }, []);
+        carregarMateriais();
+    }, [page]);
 
     // fecha o dropdown de categorias ao clicar fora dele
     useEffect(() => {
@@ -224,6 +243,14 @@ function GerenciarAlmoxarifado() {
                                 onConfirmarEntrada={registrarEntradaMaterial}
                             />
                         ))}
+                    
+                    {!carregando && materiaisFiltrados.length > 0 && (
+                        <Pagination 
+                            currentPage={page} 
+                            totalPages={totalPages} 
+                            onPageChange={setPage} 
+                        />
+                    )}
                 </div>
             </main>
 

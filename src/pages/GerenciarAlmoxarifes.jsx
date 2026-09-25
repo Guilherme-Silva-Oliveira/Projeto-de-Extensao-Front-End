@@ -7,6 +7,7 @@ import ModalConfirmarExclusao from "../components/ModalConfirmarExclusao";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
+import Pagination from "../components/Pagination";
 import lupaIcon from "../assets/lupa.png";
 function formatarData(data) {
     if (!data) return "Não informado";
@@ -47,16 +48,22 @@ function GerenciarAlmoxarifes() {
     const [almoxarifeRedefinindoSenha, setAlmoxarifeRedefinindoSenha] = useState(null);
     const [almoxarifeExcluindo, setAlmoxarifeExcluindo] = useState(null);
 
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
     useEffect(() => {
         async function carregarAlmoxarifes() {
             try {
                 setCarregando(true);
-                const response = await api.get("/v1/almoxarifes");
+                const response = await api.get("/v1/almoxarifes", {
+                    params: { page, size: 10 }
+                });
                 const dados = Array.isArray(response.data)
                     ? response.data
                     : response.data.content || [];
 
                 setAlmoxarifes(dados.map(adaptarAlmoxarife));
+                setTotalPages(response.data.totalPages || 1);
             } catch (error) {
                 console.error("Erro ao buscar almoxarifes:", error);
                 setAlmoxarifes([]);
@@ -66,7 +73,7 @@ function GerenciarAlmoxarifes() {
         }
 
         carregarAlmoxarifes();
-    }, []);
+    }, [page]);
 
     useEffect(() => {
         function handleClickFora(e) {
@@ -215,6 +222,14 @@ function GerenciarAlmoxarifes() {
                                 onExcluir={setAlmoxarifeExcluindo}
                             />
                         ))}
+                    
+                    {!carregando && almoxarifesFiltrados.length > 0 && (
+                        <Pagination 
+                            currentPage={page} 
+                            totalPages={totalPages} 
+                            onPageChange={setPage} 
+                        />
+                    )}
                 </div>
             </main>
 

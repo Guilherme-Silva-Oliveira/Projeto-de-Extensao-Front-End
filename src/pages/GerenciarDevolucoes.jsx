@@ -190,6 +190,7 @@ import ModalDevolucao from "../components/ModalDevolucao";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
+import Pagination from "../components/Pagination";
 import lupaIcon from "../assets/lupa.png";
 
 function normalizarMateriais(materiais, solicitacaoId, catalogoMateriais = []) {
@@ -253,6 +254,9 @@ function GerenciarDevolucoes() {
     const [filtroData, setFiltroData] = useState("");
     const [mostrarFiltroData, setMostrarFiltroData] = useState(false);
 
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
     // guarda a solicitação (com seus materiais) que está sendo devolvida no momento
     const [solicitacaoEmDevolucao, setSolicitacaoEmDevolucao] = useState(null);
 
@@ -260,8 +264,11 @@ function GerenciarDevolucoes() {
         async function carregarDevolucoes() {
             try {
                 setCarregando(true);
-                const response = await api.get("/v1/solicitacoes/devolucoes");
-                const alertas = Array.isArray(response.data) ? response.data : [];
+                const response = await api.get("/v1/solicitacoes/devolucoes", {
+                    params: { page, size: 10 }
+                });
+                const alertas = Array.isArray(response.data) ? response.data : response.data.content || [];
+                setTotalPages(response.data.totalPages || 1);
                 let catalogoMateriais = [];
 
                 try {
@@ -323,7 +330,7 @@ function GerenciarDevolucoes() {
         }
 
         carregarDevolucoes();
-    }, []);
+    }, [page]);
 
     function abrirModalDevolucao(solicitacao) {
         setSolicitacaoEmDevolucao(solicitacao);
@@ -499,6 +506,14 @@ function GerenciarDevolucoes() {
                                 onEncerrar={() => encerrarSolicitacao(solicitacao.id)}
                             />
                         ))}
+                    
+                    {!carregando && solicitacoesFiltradas.length > 0 && (
+                        <Pagination 
+                            currentPage={page} 
+                            totalPages={totalPages} 
+                            onPageChange={setPage} 
+                        />
+                    )}
                 </div>
             </main>
 
