@@ -1,10 +1,11 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-.navbar{
+/* ===== Navbar padrão (usada em todas as telas, comportamento original) ===== */
+.navbar {
     width: 100%;
     height: 70px;
 
@@ -17,7 +18,7 @@
     padding: 0 30px;
 }
 
-.navbar-logo{
+.navbar-logo {
     width: 200px;
 }
 
@@ -73,6 +74,44 @@
     opacity: 0.8;
 }
 
+/* ===== Variante flutuante (hover-reveal) — SOMENTE quando <NavBar flutuante /> ===== */
+
+/* Zona sensora fixa no topo da tela: hoverar aqui revela a navbar */
+.navbar-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    z-index: 1000;
+}
+
+/* Fio fino sempre visível, indicando que há algo pra revelar ali */
+.navbar-wrapper::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #ff5a1f;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.navbar.navbar--flutuante {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(-100%);
+    transition: transform 0.25s ease-in-out;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.navbar-wrapper:hover .navbar--flutuante {
+    transform: translateY(0);
+}
+
 /* ===== Dropdown de Cadastro ===== */
 .dropdown {
     position: relative;
@@ -90,7 +129,6 @@
     text-align: left;
 }
 
-/* Faixa de destaque no topo */
 .dropdown-menu .dropdown-destaque {
     display: block;
     background: #09075c;
@@ -107,7 +145,6 @@
     opacity: 0.9;
 }
 
-/* Itens em 2 colunas */
 .dropdown-itens {
     display: grid;
     grid-template-columns: 1fr 1fr;
