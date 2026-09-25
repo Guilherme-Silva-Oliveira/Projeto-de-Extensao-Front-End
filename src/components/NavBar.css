@@ -74,9 +74,7 @@
     opacity: 0.8;
 }
 
-/* ===== Variante flutuante (hover-reveal) — SOMENTE quando <NavBar flutuante /> ===== */
 
-/* Zona sensora fixa no topo da tela: hoverar aqui revela a navbar */
 .navbar-wrapper {
     position: fixed;
     top: 0;
@@ -86,7 +84,7 @@
     z-index: 1000;
 }
 
-/* Fio fino sempre visível, indicando que há algo pra revelar ali */
+
 .navbar-wrapper::before {
     content: "";
     position: absolute;
@@ -112,7 +110,7 @@
     transform: translateY(0);
 }
 
-/* ===== Dropdown de Cadastro ===== */
+
 .dropdown {
     position: relative;
 }
