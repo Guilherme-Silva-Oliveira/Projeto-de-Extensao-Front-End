@@ -1,29 +1,36 @@
 .card-dashboard {
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
     font-size: 22px;
     text-align: center;
-    background-color: #f5f5f5;
-    border: 1px solid #bdbdbd;
-    border-radius: 4px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    background-color: #ffffff;
+    border: 1px solid #e3e5ec;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(10, 8, 107, 0.06);
     padding: 20px;
-    height: 14.5vh; /* troque height por min-height */
-    width: 25vw;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.card-dashboard:hover {
+    box-shadow: 0 4px 12px rgba(10, 8, 107, 0.08);
 }
 
 .card-kpi-topo {
-    display: flex;
-    flex-direction: column;
     justify-content: space-between !important;
-    padding: 8px 20px 12px 20px !important;
-    box-sizing: border-box;
+    align-items: center;
+    padding: 14px 20px !important;
+    height: 14.5vh;
+    width: 25vw;
+    border-top: 3px solid #0a086b;
 }
 
 .card-kpi-topo .titulo-kpi {
     margin: 0 !important;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #6e7391;
 }
 
 .conteudo-kpi {
@@ -34,36 +41,26 @@
     width: 100%;
 }
 
-hr{
+.conteudo-kpi h3 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #0a086b;
+    margin: 0;
+}
+
+.conteudo-kpi p {
+    font-size: 0.8rem;
+    color: #6e7391;
+    margin: 4px 0 0 0;
+}
+
+hr {
     width: 100%;
-    color: black;
+    color: #e3e5ec;
     margin: 0.5em;
 }
 
-.kpi-divisao{
+.kpi-divisao {
     display: flex;
     justify-content: space-around;
-}
-
-.grafico-movimentacao{
-    width: 45vw;
-}
-
-.listagem-vencimento{
-    width: 32vw;
-}
-
-.listagem-minimo{
-    width: 50vw;
-}
-
-.coluna-esquerda {
-    flex: 2;
-}
-
-.coluna-direita {
-    flex: 1;
-    display: flex;
-    gap: 1em;
-    align-items: flex-start;
 }

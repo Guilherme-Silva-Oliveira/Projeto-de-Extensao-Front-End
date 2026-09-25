@@ -1,42 +1,64 @@
+:root {
+    --color-navy: #0a086b;
+    --color-blue: #094d92;
+    --color-orange: #ff5a1f;
+    --color-red: #96031a;
+    --color-bg: #f5f6fa;
+    --color-surface: #ffffff;
+    --color-border: #e3e5ec;
+    --color-text: #232640;
+    --color-text-muted: #6e7391;
+}
+
 .dashboard {
     display: flex;
     height: 100vh;
     overflow: hidden;
+    background-color: var(--color-bg);
+    color: var(--color-text);
 }
 
 .dashboard-content {
     width: 100%;
+    height: 100vh;
     overflow: hidden;
     padding: 0 2em 2em 2em;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg);
 }
 
 .titulo-dashboard {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
-    margin-bottom: 10px;
+    margin-top: 28px;
+    margin-bottom: 6px;
 }
 
 .titulo-dashboard h1 {
     margin: 0;
-    font-size: 2.2rem;
-    font-weight: 300;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--color-navy);
+    letter-spacing: -0.01em;
 }
 
 .linha-titulo {
-    width: 550px;
-    height: 4px;
-    background-color: #ff5a1f;
-    margin-top: 10px;
+    width: 220px;
+    height: 3px;
+    background-color: var(--color-orange);
+    margin-top: 12px;
+    border-radius: 2px;
 }
 
 .kpis {
     display: flex;
     justify-content: space-around;
     gap: 0.3em;
-    margin: 1.5em 0;
+    margin: 1.75em 0;
+    flex-shrink: 0;
 }
 
 .kpi-divisao {
@@ -46,41 +68,143 @@
     margin: 0 3em;
 }
 
-.grafico-movimentacao {
-    flex: 2;
-    min-height: 380px;
+.conteudo-dashboard {
     display: flex;
-    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25em;
+    margin: 0 3em;
+    flex: 1;
+    min-height: 0;
 }
 
-.listagem-vencimento {
+
+
+.grafico-movimentacao {
+    flex: 2 1 0;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    border-top: 3px solid var(--color-blue);
+}
+
+.grafico-movimentacao>p:first-child {
+    margin: 0 0 1em 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.grafico-movimentacao>*:last-child {
     flex: 1;
-    min-height: 380px;
+    min-height: 0;
+}
+
+
+
+.coluna-direita {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25em;
 }
 
 .listagem-minimo {
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    height: 28vh;
-    width: 55vw;
+    align-items: stretch;
+    text-align: left;
+    overflow: auto;
+    border-top: 3px solid var(--color-navy);
 }
 
-.coluna-esquerda {
-    flex: 2;
+.listagem-minimo>p:first-child {
+    margin: 0 0 1em 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
 }
 
-.coluna-direita {
-    flex: 1;
+
+.listagem-minimo table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.listagem-minimo thead th {
+    background-color: var(--color-navy);
+    color: #ffffff;
+    text-align: left;
+    font-weight: 500;
+    padding: 10px 12px;
+    position: sticky;
+    top: 0;
+}
+
+.listagem-minimo tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+
+.listagem-minimo tbody tr:nth-child(even) {
+    background-color: #f7f8fc;
+}
+
+.listagem-minimo tbody tr:hover {
+    background-color: #eef1fb;
+}
+
+
+.listagem-minimo::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.listagem-minimo::-webkit-scrollbar-thumb {
+    background-color: #c7cbe0;
+    border-radius: 4px;
+}
+
+.listagem-minimo::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+
+
+.botao-solicitacoes {
+    flex-shrink: 0;
+    width: 100% !important;
+    height: 10vh !important;
     display: flex;
-    gap: 1em;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    background-color: var(--color-navy) !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 500;
+    letter-spacing: 0.01em;
 }
 
-.botoes-dashboard {
-    display: flex;
-    text-align: center;
-    justify-content: center;
-    height: 15vh;
-    gap: 1em;
+.botao-solicitacoes:hover,
+.botao-solicitacoes:focus {
+    background-color: var(--color-orange) !important;
+    color: #ffffff !important;
+}
+
+.botao-solicitacoes img {
+    filter: invert(1);
+    width: 28px;
+    height: 28px;
 }

@@ -12,30 +12,13 @@ import { api } from "../provider/api";
 
 function DashboardControleAlmoxarifado() {
     const navigate = useNavigate();
-    const hoje = new Date().toLocaleDateString("en-CA");
+    const hoje = new Date();
 
     const [dataInicio, setDataInicio] = useState("");
     const [dataFim, setDataFim] = useState(hoje);
     const [materialMaisSolicitado, setMaterialMaisSolicitado] = useState("Carregando...");
-    const [carregandoMaterial, setCarregandoMaterial] = useState(true);
 
-    const [gestaoSolicitacoes, setGestaoSolicitacoes] = useState({ emAberto: 0, proximas: 0 });
-    const [carregandoGestao, setCarregandoGestao] = useState(true);
-
-    const colunasVencimento = [
-        { label: "Material", key: "material" },
-        { label: "GTIN", key: "gtin" },
-        { label: "Data Vencimento", key: "vencimento" },
-    ];
-
-    const dadosVencimento = [
-        { material: "Papel", gtin: "0123456789213", vencimento: "12/04/2026" },
-        { material: "Cola", gtin: "0123456029213", vencimento: "10/05/2026" },
-        { material: "Tinta", gtin: "0123726789213", vencimento: "12/05/2026" },
-        { material: "EVA", gtin: "9023456789213", vencimento: "25/06/2026" },
-        { material: "Papelão", gtin: "0129256789213", vencimento: "12/07/2026" },
-    ];
-
+    //Listagem minimo
     const colunasMinimo = [
         { label: "Material", key: "material" },
         { label: "Quantidade Total", key: "quantidade" },
@@ -51,47 +34,25 @@ function DashboardControleAlmoxarifado() {
         { material: "Item Z", quantidade: 310, minimo: 180, diferenca: 130 },
     ];
 
-    async function buscarMaterialMaisSolicitado() {
+    const buscarMaterialMaisSolicitado = async () => {
         try {
-            setCarregandoMaterial(true);
-
             const response = await api.get("/v1/materiais/mais-solicitado", {
                 params: {
                     dataInicio: dataInicio ? `${dataInicio}T00:00:00` : undefined,
-                    dataFim: dataFim ? `${dataFim}T23:59:59` : undefined,
-                },
+                    dataFim: dataFim ? `${dataFim instanceof Date ? dataFim.toISOString().split("T")[0] : dataFim}T23:59:59` : undefined
+                }
             });
 
-            setMaterialMaisSolicitado(response.data.nomeMaterial || "Nenhuma solicitação no período");
+            setMaterialMaisSolicitado(response.data.nomeMaterial);
+            console.log("Material mais solicitado:", response.data.nomeMaterial);
         } catch (error) {
             console.error("Erro ao buscar material mais solicitado:", error);
             setMaterialMaisSolicitado("Erro ao carregar");
-        } finally {
-            setCarregandoMaterial(false);
         }
-    }
-
-    async function buscarGestaoSolicitacoes() {
-        try {
-            setCarregandoGestao(true);
-
-            const response = await api.get("/v1/solicitacoes/kpi-gestao");
-
-            setGestaoSolicitacoes({
-                emAberto: response.data.emAberto ?? 0,
-                proximas: response.data.proximas ?? 0,
-            });
-        } catch (error) {
-            console.error("Erro ao buscar gestão de solicitações:", error);
-            setGestaoSolicitacoes({ emAberto: 0, proximas: 0 });
-        } finally {
-            setCarregandoGestao(false);
-        }
-    }
+    };
 
     useEffect(() => {
         buscarMaterialMaisSolicitado();
-        buscarGestaoSolicitacoes();
     }, []);
 
     return (
@@ -106,7 +67,7 @@ function DashboardControleAlmoxarifado() {
                     <CardDashboard className="card-kpi-topo">
                         <p className="titulo-kpi">Material mais solicitado</p>
                         <div className="conteudo-kpi">
-                            <h3>{carregandoMaterial ? "Carregando..." : materialMaisSolicitado}</h3>
+                            <h3>{materialMaisSolicitado}</h3>
                         </div>
                     </CardDashboard>
                     <CardDashboard className="card-kpi-topo">
@@ -114,11 +75,11 @@ function DashboardControleAlmoxarifado() {
                         <div className="conteudo-kpi">
                             <div className="kpi-divisao">
                                 <div>
-                                    <h3>{carregandoGestao ? "..." : gestaoSolicitacoes.emAberto}</h3>
+                                    <h3>10</h3>
                                     <p>Solicitações em aberto</p>
                                 </div>
                                 <div>
-                                    <h3>{carregandoGestao ? "..." : gestaoSolicitacoes.proximas}</h3>
+                                    <h3>6</h3>
                                     <p>Solicitações próximas</p>
                                 </div>
                             </div>
@@ -139,31 +100,24 @@ function DashboardControleAlmoxarifado() {
                         </div>
                     </CardDashboard>
                 </div>
-                <div className="kpi-divisao">
+
+                <div className="conteudo-dashboard">
                     <CardDashboard className="grafico-movimentacao">
                         <p>10 materiais com mais movimentações (Entradas e Saídas) no Almoxarifado</p>
                         <GraficoMovimentacao />
                     </CardDashboard>
-                    <CardDashboard className="listagem-vencimento">
-                        <p>Os 5 materiais que estão mais próximos de vencer</p>
-                        <TabelaListagem colunas={colunasVencimento} dados={dadosVencimento} />
-                    </CardDashboard>
-                </div>
-                <div className="kpi-divisao" style={{ marginTop: "1em" }}>
-                    <div className="coluna-esquerda">
+
+                    <div className="coluna-direita">
                         <CardDashboard className="listagem-minimo">
                             <p>Materiais mais próximos ou abaixo do mínimo</p>
                             <TabelaListagem colunas={colunasMinimo} dados={dadosMinimo} />
                         </CardDashboard>
-                    </div>
-                    <div className="coluna-direita">
-                        <ButtonFormOption className="botoes-dashboard" texto="Visualizar Solicitações" onClick={() => navigate("/gerenciar-solicitacoes")}>
-                            <img src={dashboardIcon} alt="" />
-                        </ButtonFormOption>
-                        <ButtonFormOption className="botoes-dashboard" texto="Em desenvolvimento">
-                            <img src={dashboardIcon} alt="" />
-                        </ButtonFormOption>
-                        <ButtonFormOption className="botoes-dashboard" texto="Em desenvolvimento">
+
+                        <ButtonFormOption
+                            className="botao-solicitacoes"
+                            texto="Visualizar Solicitações"
+                            onClick={() => navigate("/gerenciar-solicitacoes")}
+                        >
                             <img src={dashboardIcon} alt="" />
                         </ButtonFormOption>
                     </div>
