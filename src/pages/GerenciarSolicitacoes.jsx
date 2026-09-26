@@ -104,7 +104,7 @@ function GerenciarSolicitacoes() {
     // "Finalizar" no CardSolicitacao = entregar os materiais marcados no checkbox.
     // O back não tem endpoint de entrega parcial por item ainda: hoje só existe
     // POST /v1/solicitacoes/finalizarSolicitacao/{id}, que fecha a solicitação inteira.
-    // Por isso: a remoção parcial continua local (igual já era), e só chamamos o
+    // remoção parcial continua local (igual já era), e só chama o
     // back quando o ÚLTIMO material pendente daquela solicitação for marcado —
     // nesse momento a solicitação é de fato finalizada no servidor.
     async function finalizarMateriais(solicitacaoId, idsSelecionados) {
@@ -130,9 +130,7 @@ function GerenciarSolicitacoes() {
                 alert("Os materiais foram marcados como entregues, mas houve um erro ao finalizar a solicitação no servidor.");
             }
         }
-        // TODO backend: quando existir um endpoint de entrega parcial
-        // (ex: PATCH /v1/solicitacoes/{id}/materiais/entregar com os IDs da lista_material),
-        // essa função deve chamá-lo a cada leva entregue, não só na última.
+        // solicitações parciaisi!!!
     }
 
     // "Cancelar" cancela a solicitação inteira (ignora os checkbox),
