@@ -20,7 +20,8 @@ function formatarData(data) {
 function normalizarSolicitacao(solicitacao) {
     return {
         ...solicitacao,
-        solicitante: solicitacao.descricao ?? "--",
+        solicitante: solicitacao.professor ?? "--",
+        motivo: solicitacao.motivo ?? "--",
         dataEntrega: formatarData(solicitacao.dataSolicitacao),
         dataEncerramento: formatarData(solicitacao.dataParaEnvio),
         materiais: [],
@@ -38,9 +39,10 @@ async function buscarMateriaisSolicitacao(solicitacaoId) {
     }));
 }
 
+
 function parseDataEntrega(dataEntregaStr) {
-    if (!dataEntregaStr) return null;
-    const [dataParte] = dataEntregaStr.split(" - ");
+    if (!dataEntregaStr || dataEntregaStr === "--") return null;
+    const [dataParte] = dataEntregaStr.split(", ");
     const [dia, mes, ano] = dataParte.split("/").map(Number);
     if (!dia || !mes || !ano) return null;
     return new Date(ano, mes - 1, dia);
@@ -101,7 +103,7 @@ function SolicitacoesReprovadas() {
     }
 
     const solicitacoesFiltradas = solicitacoes.filter((s) => {
-        const nomeCombina = (s.descricao ?? "")
+        const nomeCombina = (s.solicitante ?? "")
             .toLowerCase()
             .includes(busca.toLowerCase());
 
@@ -230,6 +232,14 @@ function SolicitacoesReprovadas() {
                             className="tab-btn tab-ativa tab-reprovadas"
                         >
                             Solicitações Reprovadas
+                        </button>
+
+                        <button
+                            type="button"
+                            className="tab-btn tab-reprovadas"
+                            onClick={() => navigate("/gerenciar-solicitacoes-finalizadas")}
+                        >
+                            Solicitações Finalizadas
                         </button>
                     </div>
                 </div>
