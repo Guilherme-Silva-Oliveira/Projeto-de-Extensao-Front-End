@@ -3,58 +3,83 @@ import NavBar from "../components/NavBar";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import SelectForm from "../components/SelectForm";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../provider/api.js";
 
-const catalogoMateriais = [
-    { id: 1, nome: "Cartolina Verde Claro", codigo: "1029479012", qtdEstoque: 60 },
-    { id: 2, nome: "Papel Sulfite A4 (Pacote 500fls)", codigo: "1029479013", qtdEstoque: 500 },
-    { id: 3, nome: "Pincel Atômico Azul", codigo: "1029479014", qtdEstoque: 45 },
-    { id: 4, nome: "Cola Branca Escola 500g", codigo: "1029479015", qtdEstoque: 20 },
-    { id: 5, nome: "Tesoura Sem Ponta", codigo: "1029479016", qtdEstoque: 35 },
-    { id: 6, nome: "Tinta Guache Sortida 250ml", codigo: "1029479017", qtdEstoque: 18 },
-];
-
-const listaProfessores = [
-    { id: 1, nome: "Matheus Torres" },
-    { id: 2, nome: "Ricardo Amaral" },
-    { id: 3, nome: "Ana Paula Silva" },
-    { id: 4, nome: "Carlos Eduardo" },
-    { id: 5, nome: "Fernanda Lima" },
-];
-
-const listaMotivos = [
-    { id: 1, nome: "Atividade Avaliativa" },
-    { id: 2, nome: "Aula Prática" },
-    { id: 3, nome: "Projeto Escolar" },
-    { id: 4, nome: "Reposição de Estoque" },
-    { id: 5, nome: "Evento Escolar" },
-    { id: 6, nome: "Outros" },
-];
-
-const criarItemVazio = () => ({
+const criarItemVazio = (materialIdPadrao) => ({
     id: Date.now() + Math.random(),
-    materialId: catalogoMateriais[0].id,
+    materialId: materialIdPadrao,
     qtdSolicitada: "",
+    deveDevolver: false,
 });
 
 function SolicitarMaterial() {
     const navigate = useNavigate();
     const [modoAtivo, setModoAtivo] = useState("Automático");
 
+    // Dados vindos do back-end
+    const [listaProfessores, setListaProfessores] = useState([]);
+    const [listaMotivos, setListaMotivos] = useState([]);
+    const [catalogoMateriais, setCatalogoMateriais] = useState([]);
+    const [carregando, setCarregando] = useState(true);
+    const [erroCarregamento, setErroCarregamento] = useState(null);
+
     // Modo Automático State
     const [mensagemAuto, setMensagemAuto] = useState("");
 
-    // Dados Gerais da Solicitação (Único para toda a solicitação)
-    const [nomeProfessor, setNomeProfessor] = useState(listaProfessores[0].nome);
+    // Dados Gerais da Solicitação (guardam o ID, não o nome)
+    const [professorId, setProfessorId] = useState(null);
     const [prazo, setPrazo] = useState("");
-    const [motivo, setMotivo] = useState(listaMotivos[0].nome);
+    const [motivoId, setMotivoId] = useState(null);
 
     // Lista de Materiais Solicitados
-    const [itens, setItens] = useState([criarItemVazio()]);
+    const [itens, setItens] = useState([]);
+    const [enviando, setEnviando] = useState(false);
+
+    // Carrega professores, motivos e materiais assim que a tela abre
+    useEffect(() => {
+        async function carregarDadosIniciais() {
+            try {
+                setCarregando(true);
+                const [respProfessores, respMotivos, respMateriais] = await Promise.all([
+                    api.get("/v1/professores"),
+                    api.get("/v1/motivos"),
+                    api.get("/v1/materiais", { params: { page: 0, size: 100 } }),
+                ]);
+
+                const professores = respProfessores.data ?? [];
+                const motivos = respMotivos.data ?? [];
+                const materiaisPage = respMateriais.data;
+                const materiais = Array.isArray(materiaisPage)
+                    ? materiaisPage
+                    : materiaisPage?.content ?? [];
+
+                setListaProfessores(professores);
+                setListaMotivos(motivos);
+                setCatalogoMateriais(materiais);
+
+                if (professores.length > 0) setProfessorId(professores[0].id);
+                if (motivos.length > 0) setMotivoId(motivos[0].id);
+                if (materiais.length > 0) {
+                    setItens([criarItemVazio(materiais[0].id)]);
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados iniciais:", error);
+                setErroCarregamento(
+                    "Não foi possível carregar professores, motivos ou materiais. Verifique se os endpoints /v1/professores, /v1/motivos e /v1/materiais estão disponíveis."
+                );
+            } finally {
+                setCarregando(false);
+            }
+        }
+
+        carregarDadosIniciais();
+    }, []);
 
     function adicionarItem() {
-        setItens((prev) => [...prev, criarItemVazio()]);
+        const materialPadrao = catalogoMateriais[0]?.id ?? null;
+        setItens((prev) => [...prev, criarItemVazio(materialPadrao)]);
     }
 
     function removerItem(id) {
@@ -71,13 +96,93 @@ function SolicitarMaterial() {
         );
     }
 
-    function handleRegistrar() {
-        alert("Solicitação registrada com sucesso!");
-        navigate(-1);
+    async function handleRegistrar() {
+        const itensValidos = itens.filter((item) => Number(item.qtdSolicitada) > 0);
+
+        if (itensValidos.length === 0) {
+            alert("Adicione ao menos um material com quantidade válida.");
+            return;
+        }
+        if (!professorId || !motivoId) {
+            alert("Selecione o professor e o motivo.");
+            return;
+        }
+        if (!prazo) {
+            alert("Informe o prazo para a solicitação.");
+            return;
+        }
+
+        // o back espera 3 strings separadas por virgula:
+        // materiais="nome a,nome b" | quantidade="10,5" | deveDevolver="false,true"
+        const nomesMateriais = itensValidos
+            .map((item) => {
+                const material = catalogoMateriais.find((m) => m.id === item.materialId);
+                return material?.nomeMaterial ?? material?.nome ?? "";
+            })
+            .join(",");
+
+        const quantidades = itensValidos.map((item) => item.qtdSolicitada).join(",");
+
+        
+        const deveDevolver = itensValidos
+            .map((item) => String(Boolean(item.deveDevolver)))
+            .join(",");
+
+        const motivoSelecionado = listaMotivos.find((m) => m.id === motivoId);
+
+        const payload = {
+            idProfessor: professorId,
+            idMotivo: motivoId,
+            materiais: nomesMateriais,
+            quantidade: quantidades,
+            deveDevolver,
+            inteligenciaArtificialId: modoAtivo === "Automático" ? 1 : null,
+            descricao: motivoSelecionado?.descricao ?? motivoSelecionado?.nome ?? "Solicitação de material",
+            dataSolicitacao: new Date().toISOString(),
+            dataParaEnvio: `${prazo}T00:00:00`,
+            alerta: null,
+        };
+
+        try {
+            setEnviando(true);
+            await api.post("/v1/solicitacoes", payload);
+            alert("Solicitação registrada com sucesso!");
+            navigate(-1);
+        } catch (error) {
+            console.error("Erro ao registrar solicitação:", error);
+            const mensagemErro =
+                error?.response?.data?.message ||
+                "Erro ao registrar a solicitação. Verifique os dados e tente novamente.";
+            alert(mensagemErro);
+        } finally {
+            setEnviando(false);
+        }
     }
 
     function handleCancelar() {
         navigate(-1);
+    }
+
+    if (carregando) {
+        return (
+            <div className="page-container">
+                <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+                <main className="solicitar-container">
+                    <p>Carregando dados...</p>
+                </main>
+            </div>
+        );
+    }
+
+    if (erroCarregamento) {
+        return (
+            <div className="page-container">
+                <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+                <main className="solicitar-container">
+                    <p>{erroCarregamento}</p>
+                </main>
+            </div>
+        );
     }
 
     return (
@@ -109,7 +214,6 @@ function SolicitarMaterial() {
                 {/* Área de Formulário com Rolagem */}
                 <div className="solicitar-scroll-area">
                     <div className="solicitar-form">
-                        {/* Campo de Mensagem IA no Modo Automático */}
                         {modoAtivo === "Automático" && (
                             <div className="automatico-section">
                                 <label className="input-label">Mensagem de Solicitação:</label>
@@ -123,15 +227,16 @@ function SolicitarMaterial() {
                             </div>
                         )}
 
-                        {/* Dados Gerais da Solicitação (Linha Única) */}
+                        {/* Dados Gerais da Solicitação */}
                         <div className="dados-gerais-section">
                             <div className="campos-linha">
                                 <SelectForm
                                     titulo="Nome do Professor:"
                                     opcoes={listaProfessores}
-                                    valor={nomeProfessor}
-                                    onChange={(val) => setNomeProfessor(val)}
+                                    valor={professorId ?? ""}
+                                    onChange={(val) => setProfessorId(Number(val))}
                                     labelField="nome"
+                                    valueField="id"
                                 />
 
                                 <InputForm
@@ -145,24 +250,27 @@ function SolicitarMaterial() {
                                 <SelectForm
                                     titulo="Motivo:"
                                     opcoes={listaMotivos}
-                                    valor={motivo}
-                                    onChange={(val) => setMotivo(val)}
-                                    labelField="nome"
+                                    valor={motivoId ?? ""}
+                                    onChange={(val) => setMotivoId(Number(val))}
+                                    labelField="descricao"
+                                    valueField="id"
                                 />
                             </div>
                         </div>
 
-                        {/* Seção de Itens da Solicitação */}
+                        {/* Itens da Solicitação */}
                         <div className="itens-solicitacao-section">
                             {itens.map((item, index) => {
                                 const materialAtual =
                                     catalogoMateriais.find((m) => m.id === item.materialId) ||
-                                    catalogoMateriais[0];
+                                    catalogoMateriais[0] ||
+                                    {};
 
+                                const estoqueDisponivel = materialAtual.quantidade ?? 0;
                                 const qtdNum = Number(item.qtdSolicitada);
                                 const temEstoqueSuficiente =
                                     item.qtdSolicitada === "" ||
-                                    (qtdNum > 0 && qtdNum <= materialAtual.qtdEstoque);
+                                    (qtdNum > 0 && qtdNum <= estoqueDisponivel);
 
                                 return (
                                     <div key={item.id} className="item-linha-wrapper">
@@ -185,14 +293,14 @@ function SolicitarMaterial() {
                                                 <label className="input-label">Material Solicitado:</label>
                                                 <select
                                                     className="select-material-form"
-                                                    value={item.materialId}
+                                                    value={item.materialId ?? ""}
                                                     onChange={(e) =>
                                                         atualizarItem(item.id, "materialId", Number(e.target.value))
                                                     }
                                                 >
                                                     {catalogoMateriais.map((mat) => (
                                                         <option key={mat.id} value={mat.id}>
-                                                            {mat.nome}
+                                                            {mat.nomeMaterial ?? mat.nome}
                                                         </option>
                                                     ))}
                                                 </select>
@@ -203,7 +311,7 @@ function SolicitarMaterial() {
                                                 <input
                                                     type="text"
                                                     className="input-form input-read-only"
-                                                    value={materialAtual.qtdEstoque}
+                                                    value={estoqueDisponivel}
                                                     disabled
                                                     readOnly
                                                 />
@@ -239,26 +347,39 @@ function SolicitarMaterial() {
                                                     )}
                                                 </div>
                                             </div>
+
+                                            <div className="input-container">
+                                                <label className="input-label">Deve ser devolvido?</label>
+                                                <label style={{ display: "flex", alignItems: "center", gap: "8px", height: "42px" }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={item.deveDevolver}
+                                                        onChange={(e) =>
+                                                            atualizarItem(item.id, "deveDevolver", e.target.checked)
+                                                        }
+                                                    />
+                                                    Sim, é um material de devolução
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
 
-                        {/* Botão Adicionar Material */}
-                        <button
-                            type="button"
-                            className="adicionar-btn"
-                            onClick={adicionarItem}
-                        >
+                        <button type="button" className="adicionar-btn" onClick={adicionarItem}>
                             <span className="material-symbols-outlined btn-icone-adicionar">add_circle</span> Adicionar Material
                         </button>
                     </div>
                 </div>
 
-                {/* Botões de Ação Finais */}
                 <div className="solicitar-actions">
-                    <MainButton texto="Registrar Solicitação" cor="#0A086B" onClick={handleRegistrar} />
+                    <MainButton
+                        texto={enviando ? "Enviando..." : "Registrar Solicitação"}
+                        cor="#0A086B"
+                        onClick={handleRegistrar}
+                        disabled={enviando}
+                    />
                     <MainButton texto="Cancelar Solicitação" cor="#FF4B09" onClick={handleCancelar} />
                 </div>
             </main>
