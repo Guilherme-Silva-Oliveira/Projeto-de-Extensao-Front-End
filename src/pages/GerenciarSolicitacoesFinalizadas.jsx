@@ -37,8 +37,6 @@ async function buscarMateriaisSolicitacao(solicitacaoId) {
         ...material,
         id: `${solicitacaoId}-${index}`,
         nome: material.material ?? "--",
-        quantidadeSolicitada: material.quantidadeSolicitada,
-        quantidadeDisponivel: material.quantidadeDisponivel,
     }));
 }
 
@@ -50,7 +48,7 @@ function parseDataEntrega(dataEntregaStr) {
     return new Date(ano, mes - 1, dia);
 }
 
-function GerenciarSolicitacoes() {
+function SolicitacoesFinalizadas() {
     const navigate = useNavigate();
 
     const [solicitacoes, setSolicitacoes] = useState([]);
@@ -67,10 +65,10 @@ function GerenciarSolicitacoes() {
     const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        async function carregarSolicitacoes() {
+        async function carregarFinalizadas() {
             try {
                 setCarregando(true);
-                const response = await api.get("/v1/solicitacoes", {
+                const response = await api.get("/v1/solicitacoes/finalizadas", {
                     params: { page, size: 10 },
                 });
 
@@ -92,58 +90,14 @@ function GerenciarSolicitacoes() {
                 setSolicitacoes(solicitacoesComMateriais);
                 setTotalPages(response.data.totalPages || 1);
             } catch (error) {
-                console.error("Erro ao buscar solicitacoes:", error);
+                console.error("Erro ao buscar solicitações finalizadas:", error);
             } finally {
                 setCarregando(false);
             }
         }
 
-        carregarSolicitacoes();
+        carregarFinalizadas();
     }, [page]);
-
-    // "Finalizar" no CardSolicitacao = entregar os materiais marcados no checkbox.
-    // O back não tem endpoint de entrega parcial por item ainda: hoje só existe
-    // POST /v1/solicitacoes/finalizarSolicitacao/{id}, que fecha a solicitação inteira.
-    // remoção parcial continua local (igual já era), e só chama o
-    // back quando o ÚLTIMO material pendente daquela solicitação for marcado —
-    // nesse momento a solicitação é de fato finalizada no servidor.
-    async function finalizarMateriais(solicitacaoId, idsSelecionados) {
-        const solicitacaoAtual = solicitacoes.find((s) => s.id === solicitacaoId);
-        if (!solicitacaoAtual) return;
-
-        const materiaisRestantes = solicitacaoAtual.materiais.filter(
-            (m) => !idsSelecionados.includes(m.id)
-        );
-        const eraUltimaLeva = materiaisRestantes.length === 0;
-
-        setSolicitacoes((prev) =>
-            prev
-                .map((s) => (s.id === solicitacaoId ? { ...s, materiais: materiaisRestantes } : s))
-                .filter((s) => s.materiais.length > 0)
-        );
-
-        if (eraUltimaLeva) {
-            try {
-                await api.post(`/v1/solicitacoes/finalizarSolicitacao/${solicitacaoId}`);
-            } catch (error) {
-                console.error("Erro ao finalizar solicitação:", error);
-                alert("Os materiais foram marcados como entregues, mas houve um erro ao finalizar a solicitação no servidor.");
-            }
-        }
-        // solicitações parciaisi!!!
-    }
-
-    // "Cancelar" cancela a solicitação inteira (ignora os checkbox),
-    // usando o mesmo endpoint de decisão que rejeita a solicitação.
-    async function cancelarSolicitacao(solicitacaoId) {
-        try {
-            await api.patch(`/v1/solicitacoes/${solicitacaoId}/decisao`, { aceita: false });
-            setSolicitacoes((prev) => prev.filter((s) => s.id !== solicitacaoId));
-        } catch (error) {
-            console.error("Erro ao cancelar solicitação:", error);
-            alert("Não foi possível cancelar a solicitação.");
-        }
-    }
 
     function limparFiltroData() {
         setDataInicio("");
@@ -190,12 +144,12 @@ function GerenciarSolicitacoes() {
                 <div className="devolucoes-breadcrumb">
                     <Link to="/dashboard">Menu de opções</Link>
                     <span> &gt; </span>
-                    <span>Gerenciar Solicitações</span>
+                    <span>Solicitações Finalizadas</span>
                 </div>
 
                 <div className="devolucoes-topo">
                     <div className="devolucoes-titulo-area">
-                        <h1 className="titulo-devolucoes">SOLICITAÇÕES</h1>
+                        <h1 className="titulo-devolucoes">SOLICITAÇÕES FINALIZADAS</h1>
                         <div className="linha-laranja"></div>
                     </div>
 
@@ -267,7 +221,7 @@ function GerenciarSolicitacoes() {
                             <button type="button" className="tab-btn" onClick={() => navigate("/gerenciar-devolucoes")}>
                                 Gerenciar Devoluções
                             </button>
-                            <button type="button" className="tab-btn tab-ativa">
+                            <button type="button" className="tab-btn" onClick={() => navigate("/gerenciar-solicitacoes")}>
                                 Gerenciar Solicitações
                             </button>
                         </div>
@@ -280,21 +234,17 @@ function GerenciarSolicitacoes() {
                             Solicitações Reprovadas
                         </button>
 
-                        <button
-                            type="button"
-                            className="tab-btn tab-reprovadas"
-                            onClick={() => navigate("/gerenciar-solicitacoes-finalizadas")}
-                        >
+                        <button type="button" className="tab-btn tab-ativa tab-reprovadas">
                             Solicitações Finalizadas
                         </button>
                     </div>
                 </div>
 
                 <div className="devolucoes-lista">
-                    {carregando && <p className="devolucoes-status">Carregando solicitações...</p>}
+                    {carregando && <p className="devolucoes-status">Carregando solicitações finalizadas...</p>}
 
                     {!carregando && solicitacoesFiltradas.length === 0 && (
-                        <p className="devolucoes-status">Nenhuma solicitação encontrada.</p>
+                        <p className="devolucoes-status">Nenhuma solicitação finalizada encontrada.</p>
                     )}
 
                     {!carregando &&
@@ -302,8 +252,8 @@ function GerenciarSolicitacoes() {
                             <CardSolicitacao
                                 key={solicitacao.id}
                                 solicitacao={solicitacao}
-                                onFinalizar={(idsSelecionados) => finalizarMateriais(solicitacao.id, idsSelecionados)}
-                                onCancelar={() => cancelarSolicitacao(solicitacao.id)}
+                                somenteLeitura
+                                className="card-finalizado"
                             />
                         ))}
 
@@ -316,4 +266,4 @@ function GerenciarSolicitacoes() {
     );
 }
 
-export default GerenciarSolicitacoes;
+export default SolicitacoesFinalizadas;
