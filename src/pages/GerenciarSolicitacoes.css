@@ -264,10 +264,10 @@
 }
 
 .devolucoes-tabs {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 40px;
+    display: grid;
+    grid-template-columns: repeat(2, 210px);
+    align-items: start;
+    gap: 6px 40px;
 }
 
 .devolucoes-tabs-grupo {
@@ -275,6 +275,8 @@
     flex-direction: column;
     gap: 6px;
     min-width: 210px;
+    grid-column: 1;
+    grid-row: 1 / span 2;
 }
 
 .tab-reprovadas {
