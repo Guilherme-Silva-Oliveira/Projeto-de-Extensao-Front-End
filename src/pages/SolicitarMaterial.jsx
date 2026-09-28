@@ -5,7 +5,7 @@ import MainButton from "../components/MainButton";
 import SelectForm from "../components/SelectForm";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../provider/api.js";
+import { api, iaApi } from "../provider/api.js"; // ======= ALTERADO: importa iaApi também =======
 
 const criarItemVazio = (materialIdPadrao) => ({
     id: Date.now() + Math.random(),
@@ -14,30 +14,36 @@ const criarItemVazio = (materialIdPadrao) => ({
     deveDevolver: false,
 });
 
+// ======= NOVO: helper para achar item de uma lista pelo nome (case-insensitive) =======
+function encontrarPorNome(lista, nomeAlvo, campoNome) {
+    if (!nomeAlvo) return null;
+    const alvo = nomeAlvo.trim().toLowerCase();
+    return lista.find((item) => (item[campoNome] ?? "").trim().toLowerCase() === alvo) ?? null;
+}
+
 function SolicitarMaterial() {
     const navigate = useNavigate();
     const [modoAtivo, setModoAtivo] = useState("Automático");
 
-    // Dados vindos do back-end
     const [listaProfessores, setListaProfessores] = useState([]);
     const [listaMotivos, setListaMotivos] = useState([]);
     const [catalogoMateriais, setCatalogoMateriais] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erroCarregamento, setErroCarregamento] = useState(null);
 
-    // Modo Automático State
     const [mensagemAuto, setMensagemAuto] = useState("");
+    // ======= NOVO: states do fluxo de análise por IA =======
+    const [analisandoIA, setAnalisandoIA] = useState(false);
+    const [modeloIAId, setModeloIAId] = useState(null);
+    const [alertaIA, setAlertaIA] = useState(null);
 
-    // Dados Gerais da Solicitação (guardam o ID, não o nome)
     const [professorId, setProfessorId] = useState(null);
     const [prazo, setPrazo] = useState("");
     const [motivoId, setMotivoId] = useState(null);
 
-    // Lista de Materiais Solicitados
     const [itens, setItens] = useState([]);
     const [enviando, setEnviando] = useState(false);
 
-    // Carrega professores, motivos e materiais assim que a tela abre
     useEffect(() => {
         async function carregarDadosIniciais() {
             try {
@@ -77,6 +83,61 @@ function SolicitarMaterial() {
         carregarDadosIniciais();
     }, []);
 
+    // ======= NOVO: chama a IA e preenche os campos existentes (professor, motivo, prazo, itens) =======
+    async function handleAnalisarComIA() {
+        if (!mensagemAuto.trim()) {
+            alert("Digite a mensagem de solicitação antes de analisar.");
+            return;
+        }
+
+        try {
+            setAnalisandoIA(true);
+            const { data } = await iaApi.post("/ia/talk", mensagemAuto, {
+                headers: { "Content-Type": "text/plain" },
+            });
+
+            const professorEncontrado = encontrarPorNome(listaProfessores, data.nome_professor, "nome");
+            if (!professorEncontrado) {
+                alert(`A IA não conseguiu identificar o professor ("${data.nome_professor}"). Selecione manualmente.`);
+            } else {
+                setProfessorId(professorEncontrado.id);
+            }
+
+            const motivoEncontrado = encontrarPorNome(listaMotivos, data.motivo, "descricao");
+            setMotivoId(motivoEncontrado ? motivoEncontrado.id : listaMotivos[0]?.id ?? null);
+
+            if (data.data_solicitacao) {
+                setPrazo(data.data_solicitacao.slice(0, 10));
+            }
+
+            const nomesMateriais = (data.nome_material ?? "").split(",").map((s) => s.trim());
+            const quantidades = (data.quantidade ?? "").split(",").map((s) => s.trim());
+            const devolucoes = (data.deveDevolver ?? "").split(",").map((s) => s.trim());
+
+            const novosItens = nomesMateriais.map((nomeMat, i) => {
+                const materialEncontrado = encontrarPorNome(catalogoMateriais, nomeMat, "nomeMaterial");
+                if (!materialEncontrado) {
+                    alert(`Material "${nomeMat}" sugerido pela IA não foi encontrado no catálogo. Ajuste manualmente.`);
+                }
+                return {
+                    id: Date.now() + Math.random() + i,
+                    materialId: materialEncontrado?.id ?? catalogoMateriais[0]?.id ?? null,
+                    qtdSolicitada: quantidades[i] ?? "",
+                    deveDevolver: devolucoes[i]?.toLowerCase() === "true",
+                };
+            });
+
+            if (novosItens.length > 0) setItens(novosItens);
+            setModeloIAId(data.modeloId ?? null);
+            setAlertaIA(data.alerta ?? null);
+        } catch (error) {
+            console.error("Erro ao consultar IA:", error);
+            alert("Não foi possível analisar a mensagem com a IA. Preencha manualmente ou tente novamente.");
+        } finally {
+            setAnalisandoIA(false);
+        }
+    }
+
     function adicionarItem() {
         const materialPadrao = catalogoMateriais[0]?.id ?? null;
         setItens((prev) => [...prev, criarItemVazio(materialPadrao)]);
@@ -112,8 +173,6 @@ function SolicitarMaterial() {
             return;
         }
 
-        // o back espera 3 strings separadas por virgula:
-        // materiais="nome a,nome b" | quantidade="10,5" | deveDevolver="false,true"
         const nomesMateriais = itensValidos
             .map((item) => {
                 const material = catalogoMateriais.find((m) => m.id === item.materialId);
@@ -123,7 +182,6 @@ function SolicitarMaterial() {
 
         const quantidades = itensValidos.map((item) => item.qtdSolicitada).join(",");
 
-        
         const deveDevolver = itensValidos
             .map((item) => String(Boolean(item.deveDevolver)))
             .join(",");
@@ -136,7 +194,7 @@ function SolicitarMaterial() {
             materiais: nomesMateriais,
             quantidade: quantidades,
             deveDevolver,
-            inteligenciaArtificialId: modoAtivo === "Automático" ? 1 : null,
+            inteligenciaArtificialId: modoAtivo === "Automático" ? modeloIAId : null, // ======= ALTERADO: era hardcoded 1 =======
             descricao: motivoSelecionado?.descricao ?? motivoSelecionado?.nome ?? "Solicitação de material",
             dataSolicitacao: new Date().toISOString(),
             dataParaEnvio: `${prazo}T00:00:00`,
@@ -193,7 +251,6 @@ function SolicitarMaterial() {
                 <h1 className="titulo-solicitar">SOLICITE UM MATERIAL</h1>
                 <div className="linha-laranja"></div>
 
-                {/* Alternador de Modos */}
                 <div className="modo-buttons">
                     <button
                         type="button"
@@ -211,7 +268,6 @@ function SolicitarMaterial() {
                     </button>
                 </div>
 
-                {/* Área de Formulário com Rolagem */}
                 <div className="solicitar-scroll-area">
                     <div className="solicitar-form">
                         {modoAtivo === "Automático" && (
@@ -224,10 +280,23 @@ function SolicitarMaterial() {
                                     rows={3}
                                     placeholder="Eu Matheus Torres, gostaria de 50 cartolinas de cor verde claro para o dia 10/05/2026 para uma atividade avaliativa."
                                 />
+                                {/* ======= NOVO: botão de análise + feedback do alerta da IA ======= */}
+                                <button
+                                    type="button"
+                                    className="adicionar-btn"
+                                    onClick={handleAnalisarComIA}
+                                    disabled={analisandoIA}
+                                >
+                                    {analisandoIA ? "Analisando..." : "Analisar com IA"}
+                                </button>
+                                {alertaIA && (
+                                    <p className="cadastro-almoxarife-erro" style={{ color: "#0A086B" }}>
+                                        {alertaIA}
+                                    </p>
+                                )}
                             </div>
                         )}
 
-                        {/* Dados Gerais da Solicitação */}
                         <div className="dados-gerais-section">
                             <div className="campos-linha">
                                 <SelectForm
@@ -258,7 +327,6 @@ function SolicitarMaterial() {
                             </div>
                         </div>
 
-                        {/* Itens da Solicitação */}
                         <div className="itens-solicitacao-section">
                             {itens.map((item, index) => {
                                 const materialAtual =
