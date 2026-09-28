@@ -23,11 +23,17 @@ function CadastroAlmoxarife() {
 
         try {
             setErro("");
-            await api.post("/v1/almoxarifes", { nome, email, telefone, senha });
+            await api.post("/v1/almoxarifes", {
+                nome,
+                email,
+                telefone,
+                senha,
+                idAlmoxarifado: 1, // TODO: trocar por um select quando houver mais de 1 almoxarifado
+            });
             navigate("/gerenciar-almoxarifado");
         } catch (error) {
             console.error("Erro ao cadastrar almoxarife:", error);
-            setErro("Não foi possível cadastrar o almoxarife.");
+            setErro(error?.response?.data?.message ?? "Não foi possível cadastrar o almoxarife.");
         }
     }
 
@@ -78,9 +84,9 @@ function CadastroAlmoxarife() {
                             onChange={(e) => setSenha(e.target.value)}
                         />
                     </div>
-
                     {erro && <p className="cadastro-almoxarife-erro">{erro}</p>}
 
+                
                     <div className="cadastro-almoxarife-actions">
                         <MainButton texto="Cadastrar" cor="#0A086B" onClick={handleCadastrar} />
                         <MainButton texto="Cancelar" cor="#FF4B09" onClick={() => navigate(-1)} />
