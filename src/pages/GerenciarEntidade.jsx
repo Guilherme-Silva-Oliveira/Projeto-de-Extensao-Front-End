@@ -1,123 +1,71 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
+import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
 import "./GerenciarEntidade.css";
 
 const entidades = {
     categorias: {
         titulo: "CATEGORIAS",
+        endpoint: "/v1/categorias",
         colunas: [
             { chave: "nomeCategoria", titulo: "Nome da Categoria" },
-        ],
-        dados: [
-            { id: 1, nomeCategoria: "Material de limpeza" },
-            { id: 2, nomeCategoria: "Papelaria" },
-            { id: 3, nomeCategoria: "Equipamentos" },
-            { id: 4, nomeCategoria: "Alimentos" },
         ],
     },
     "tipos-fornecedor": {
         titulo: "TIPOS DE FORNECEDOR",
+        endpoint: "/v1/fornecedores/tipos",
         colunas: [
             { chave: "nomeTipo", titulo: "Tipo de Fornecedor" },
-        ],
-        dados: [
-            { id: 1, nomeTipo: "Material de consumo" },
-            { id: 2, nomeTipo: "Material permanente" },
-            { id: 3, nomeTipo: "Alimentação" },
         ],
     },
     fornecedores: {
         titulo: "FORNECEDORES",
+        endpoint: "/v1/fornecedores",
         colunas: [
             { chave: "nome", titulo: "Nome" },
             { chave: "email", titulo: "Email" },
             { chave: "telefone", titulo: "Telefone" },
             { chave: "tipoFornecedor.nomeTipo", titulo: "Tipo de Fornecedor" },
         ],
-        dados: [
-            {
-                id: 1,
-                nome: "Papelaria Central",
-                email: "contato@papelariacentral.com.br",
-                telefone: "(11) 3456-7890",
-                tipoFornecedor: { id: 2, nomeTipo: "Material permanente" },
-            },
-            {
-                id: 2,
-                nome: "Suprimentos Escolar",
-                email: "vendas@suprimentosescolar.com.br",
-                telefone: "(11) 2345-6789",
-                tipoFornecedor: { id: 1, nomeTipo: "Material de consumo" },
-            },
-            {
-                id: 3,
-                nome: "Alimentos do Vale",
-                email: "pedidos@alimentosdovale.com.br",
-                telefone: "(11) 4567-8901",
-                tipoFornecedor: { id: 3, nomeTipo: "Alimentação" },
-            },
-        ],
     },
     "setores-estoque": {
         titulo: "SETORES DE ESTOQUE",
+        endpoint: "/v1/setores",
         colunas: [
             { chave: "identificadorSetor", titulo: "Identificador do Setor" },
-        ],
-        dados: [
-            { almoxarifadoId: 1, identificadorSetor: "A-01" },
-            { almoxarifadoId: 1, identificadorSetor: "A-02" },
-            { almoxarifadoId: 2, identificadorSetor: "B-01" },
         ],
     },
     "unidades-medida": {
         titulo: "UNIDADES DE MEDIDA",
+        endpoint: "/v1/unidademedida",
         colunas: [
             { chave: "nomeUnidade", titulo: "Unidade de Medida" },
-        ],
-        dados: [
-            { id: 1, nomeUnidade: "Unidade" },
-            { id: 2, nomeUnidade: "Caixa" },
-            { id: 3, nomeUnidade: "Pacote" },
-            { id: 4, nomeUnidade: "Litro" },
         ],
     },
     professores: {
         titulo: "PROFESSORES",
+        endpoint: "/v1/professores",
         colunas: [
             { chave: "nome", titulo: "Nome" },
             { chave: "email", titulo: "Email" },
             { chave: "telefone", titulo: "Telefone" },
         ],
-        dados: [
-            { id: 1, nome: "Ana Martins", email: "ana.martins@escola.edu.br", telefone: "(11) 91234-5678" },
-            { id: 2, nome: "Bruno Costa", email: "bruno.costa@escola.edu.br", telefone: "(11) 92345-6789" },
-            { id: 3, nome: "Carla Souza", email: "carla.souza@escola.edu.br", telefone: "(11) 93456-7890" },
-        ],
     },
     motivos: {
         titulo: "MOTIVOS",
+        endpoint: "/v1/motivos",
         colunas: [
             { chave: "descricao", titulo: "Descrição" },
-        ],
-        dados: [
-            { id: 1, descricao: "Reposição de material" },
-            { id: 2, descricao: "Aula prática" },
-            { id: 3, descricao: "Projeto escolar" },
-            { id: 4, descricao: "Manutenção" },
         ],
     },
     limites: {
         titulo: "LIMITES",
+        endpoint: "/v1/limites",
         colunas: [
             { chave: "limite", titulo: "Limite" },
             { chave: "tipoLimite.nomeTipo", titulo: "Tipo de Limite" },
-        ],
-        dados: [
-            { id: 1, limite: "10", tipoLimite: { id: 1, nomeTipo: "Estoque mínimo" } },
-            { id: 2, limite: "50", tipoLimite: { id: 2, nomeTipo: "Estoque máximo" } },
-            { id: 3, limite: "5", tipoLimite: { id: 3, nomeTipo: "Alerta de reposição" } },
         ],
     },
 };
@@ -141,18 +89,69 @@ function GerenciarEntidade() {
     const { entidade: chaveEntidade } = useParams();
     const [busca, setBusca] = useState("");
     const [secaoAtual, setSecaoAtual] = useState(() => encontrarSecao(chaveEntidade));
+    const [dadosEntidades, setDadosEntidades] = useState({});
+    const [carregandoEntidades, setCarregandoEntidades] = useState({});
+    const [errosEntidades, setErrosEntidades] = useState({});
 
     useEffect(() => {
         setSecaoAtual(encontrarSecao(chaveEntidade));
         setBusca("");
     }, [chaveEntidade]);
 
-    const entidadesVisiveis = secoes[secaoAtual].map((chave) => entidades[chave]);
+    useEffect(() => {
+        const controller = new AbortController();
+        const chavesSecao = secoes[secaoAtual];
+
+        setCarregandoEntidades((atuais) => ({
+            ...atuais,
+            ...Object.fromEntries(chavesSecao.map((chave) => [chave, true])),
+        }));
+        setErrosEntidades((atuais) => ({
+            ...atuais,
+            ...Object.fromEntries(chavesSecao.map((chave) => [chave, ""])),
+        }));
+
+        async function carregarEntidades() {
+            await Promise.all(chavesSecao.map(async (chave) => {
+                try {
+                    const response = await api.get(entidades[chave].endpoint, {
+                        signal: controller.signal,
+                    });
+                    const dados = Array.isArray(response.data)
+                        ? response.data
+                        : Array.isArray(response.data?.content)
+                            ? response.data.content
+                            : [];
+
+                    setDadosEntidades((atuais) => ({ ...atuais, [chave]: dados }));
+                } catch (error) {
+                    if (controller.signal.aborted) return;
+                    console.error(`Erro ao carregar ${entidades[chave].titulo.toLowerCase()}:`, error);
+                    setErrosEntidades((atuais) => ({
+                        ...atuais,
+                        [chave]: "Não foi possível carregar esta listagem.",
+                    }));
+                } finally {
+                    if (!controller.signal.aborted) {
+                        setCarregandoEntidades((atuais) => ({ ...atuais, [chave]: false }));
+                    }
+                }
+            }));
+        }
+
+        carregarEntidades();
+        return () => controller.abort();
+    }, [secaoAtual]);
+
+    const entidadesVisiveis = secoes[secaoAtual].map((chave) => ({
+        chave,
+        ...entidades[chave],
+    }));
     const secaoFornecedoresEProfessores = secoes[secaoAtual].includes("fornecedores");
     const buscaNormalizada = busca.trim().toLocaleLowerCase("pt-BR");
 
-    function filtrarRegistros(entidade) {
-        return entidade.dados.filter((registro) =>
+    function filtrarRegistros(entidade, dados) {
+        return dados.filter((registro) =>
             entidade.colunas.some((coluna) =>
                 String(obterValor(registro, coluna.chave))
                     .toLocaleLowerCase("pt-BR")
@@ -188,15 +187,21 @@ function GerenciarEntidade() {
 
                 <div className={`gerenciar-entidade-secoes${secaoFornecedoresEProfessores ? " gerenciar-entidade-secoes-dupla" : ""}`}>
                     {entidadesVisiveis.map((entidade) => {
-                        const registros = filtrarRegistros(entidade);
+                        const registros = filtrarRegistros(entidade, dadosEntidades[entidade.chave] ?? []);
+                        const carregando = carregandoEntidades[entidade.chave];
+                        const erro = errosEntidades[entidade.chave];
 
                         return (
-                            <section className="gerenciar-entidade-secao" key={entidade.titulo}>
+                            <section className="gerenciar-entidade-secao" key={entidade.chave}>
                                 <div className="gerenciar-entidade-secao-titulo">
                                     <h2>{entidade.titulo}</h2>
                                     <span>{registros.length} registros</span>
                                 </div>
-                                {registros.length > 0 ? (
+                                {carregando ? (
+                                    <p className="gerenciar-entidade-vazio">Carregando...</p>
+                                ) : erro ? (
+                                    <p className="gerenciar-entidade-vazio gerenciar-entidade-erro">{erro}</p>
+                                ) : registros.length > 0 ? (
                                     <div className="gerenciar-entidade-lista">
                                         {registros.map((registro) => (
                                             <article

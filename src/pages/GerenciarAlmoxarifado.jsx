@@ -4,7 +4,6 @@ import CardMaterial from "../components/CardMaterial";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../provider/api.js";
-import Pagination from "../components/Pagination";
 import lupaIcon from "../assets/lupa.png";
 import cadastro from "../assets/cadastrar.png"
 
@@ -242,15 +241,30 @@ function GerenciarAlmoxarifado() {
                             />
                         ))}
                     
-                    {!carregando && materiaisFiltrados.length > 0 && (
-                        <Pagination 
-                            currentPage={page} 
-                            totalPages={totalPages} 
-                            onPageChange={setPage} 
-                        />
-                    )}
                 </div>
             </main>
+
+            {!carregando && totalPages > 1 && (
+                <nav className="almoxarifado-paginacao" aria-label="Paginação dos materiais">
+                    <button
+                        type="button"
+                        aria-label="Página anterior"
+                        onClick={() => setPage((paginaAtual) => Math.max(0, paginaAtual - 1))}
+                        disabled={page === 0}
+                    >
+                        ‹
+                    </button>
+                    <span>Página {page + 1} de {totalPages}</span>
+                    <button
+                        type="button"
+                        aria-label="Próxima página"
+                        onClick={() => setPage((paginaAtual) => Math.min(totalPages - 1, paginaAtual + 1))}
+                        disabled={page >= totalPages - 1}
+                    >
+                        ›
+                    </button>
+                </nav>
+            )}
 
             {/* {modalAberto && (
                     <ModalCadastroMaterial />
