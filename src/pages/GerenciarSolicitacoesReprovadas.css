@@ -192,6 +192,10 @@
     font-size: 14px;
 }
 
+#linha-laranja-reprovadas{
+    width: 430px;
+}
+
 @media (max-width: 640px) {
     .menu-reprovadas-abrir {
         right: 18px;

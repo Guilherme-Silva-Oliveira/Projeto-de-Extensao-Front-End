@@ -81,7 +81,7 @@ function GerenciarMovimentacoes() {
                                 className="filtro-movimentacoes filtro-data-btn"
                                 onClick={() => setMostrarFiltroData((valorAtual) => !valorAtual)}
                             >
-                                Filtrar por<br />Data
+                                Filtrar por Data
                             </button>
 
                             {mostrarFiltroData && (

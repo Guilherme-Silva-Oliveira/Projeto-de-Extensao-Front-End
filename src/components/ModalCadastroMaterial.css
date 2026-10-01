@@ -9,6 +9,7 @@
 }
 
 .modal-cadastro-material {
+    position: relative;
     width: 100%;
     max-width: 430px;
     background-color: white;
@@ -16,6 +17,23 @@
     overflow: hidden;
     box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.25);
     font-family: "Inter", sans-serif;
+}
+
+.modal-cadastro-material-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+    padding: 0 24px;
+    background-color: #0A086B;
+}
+
+.modal-cadastro-material-logo {
+    width: 190px;
+    max-width: calc(100% - 48px);
+    max-height: 46px;
+    object-fit: contain;
+    object-position: left center;
 }
 
 .modal-cadastro-material-conteudo {
@@ -30,6 +48,28 @@
     font-weight: 500;
     color: #333;
     margin: 0;
+}
+
+.modal-cadastro-material-fechar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.modal-cadastro-material-fechar:hover {
+    background-color: transparent;
+    color: #fff;
 }
 
 .modal-cadastro-material-categoria {
@@ -78,7 +118,7 @@
     height: 48px;
     padding-left: 0;
     border: none;
-    border-radius: 24px;
+    border-radius: 10px;
     background-color: #4caf50;
     color: white;
     font-size: 17px;

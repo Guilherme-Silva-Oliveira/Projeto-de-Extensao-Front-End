@@ -43,8 +43,8 @@
     font-family: "Inter", sans-serif;
 }
 
-.linha-laranja {
-    width: 150px;
+.almoxarifado-titulo-area .linha-laranja {
+    width: 240px;
     height: 4px;
     background-color: #ff5a1f;
     margin-top: 10px;

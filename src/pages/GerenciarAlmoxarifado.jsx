@@ -140,9 +140,7 @@ function GerenciarAlmoxarifado() {
 
             <main className="almoxarifado-container">
                 <div className="almoxarifado-breadcrumb">
-                    <Link to="/menu">Menu de opções</Link>
-                    <span> &gt; </span>
-                    <span>Gerenciar Almoxarifado</span>
+                    
                 </div>
 
                 <div className="almoxarifado-topo">
