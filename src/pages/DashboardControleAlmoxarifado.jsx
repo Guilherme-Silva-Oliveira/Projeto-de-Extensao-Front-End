@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CardDashboard from "../components/CardDashboard";
-import NavBarDashboard from "../components/NavBarDashboard";
+import NavBar from "../components/NavBar";
 import SelectData from "../components/SelectData";
 import GraficoMovimentacao from "../components/GraficoMovimentacao";
 import ButtonFormOption from "../components/ButtonFormOption";
@@ -125,7 +125,7 @@ function DashboardControleAlmoxarifado() {
 
     return (
         <div className="dashboard">
-            <NavBarDashboard onVoltar={() => navigate(-1)} onCadastrar={() => navigate("/cadastro-material")} />
+            <NavBar mostrarVoltar={true} mostrarLinks={true} onVoltar={() => navigate(-1)} onCadastrar={() => navigate("/cadastro-material")} />
             <section className="dashboard-content">
                 <div className="titulo-dashboard">
                     <h1>Dashboard de Controle de Almoxarifado</h1>
