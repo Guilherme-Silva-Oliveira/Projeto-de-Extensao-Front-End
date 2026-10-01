@@ -18,6 +18,7 @@ import CadastroTipoFornecedor from "./pages/CadastroTipoFornecedor";
 import GerenciarAlmoxarifes from "./pages/GerenciarAlmoxarifes";
 import GerenciarSolicitacoesReprovadas from "./pages/GerenciarSolicitacoesReprovadas";
 import CadastroAlmoxarife from "./pages/CadastroAlmoxarife";
+import GerenciarEntidade from "./pages/GerenciarEntidade";
 
 const routes = createBrowserRouter([
   {
@@ -108,6 +109,11 @@ const routes = createBrowserRouter([
   {
     path: "/gerenciar-solicitacoes-reprovadas",
     element: <GerenciarSolicitacoesReprovadas />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/gerenciamentos/:entidade",
+    element: <GerenciarEntidade />,
     errorElement: <div>erro</div>,
   },
 ]);

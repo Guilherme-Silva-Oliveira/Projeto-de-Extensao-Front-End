@@ -7,7 +7,9 @@ import { useEffect, useRef, useState } from "react";
 function NavBar({ mostrarVoltar, mostrarLinks }) {
     const navigate = useNavigate();
     const [cadastrosAberto, setCadastrosAberto] = useState(false);
+    const [gerenciamentosAberto, setGerenciamentosAberto] = useState(false);
     const cadastrosRef = useRef(null);
+    const gerenciamentosRef = useRef(null);
 
     const cadastros = [
         { label: "Categoria", rota: "/cadastro-categoria" },
@@ -15,12 +17,26 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
         { label: "Motivo", rota: "/cadastro-motivo" },
         { label: "Professor", rota: "/cadastro-professor" },
         { label: "Tipo de Fornecedor", rota: "/cadastro-tipo-fornecedor" },
+        { label: "Setor do Estoque", rota: "/cadastro-tipo-fornecedor" },
+    ];
+    const gerenciamentos = [
+        { label: "Categoria", rota: "categorias" },
+        { label: "Tipo de Fornecedor", rota: "tipos-fornecedor" },
+        { label: "Fornecedor", rota: "fornecedores" },
+        { label: "Setor de Estoque", rota: "setores-estoque" },
+        { label: "Unidade de Medida", rota: "unidades-medida" },
+        { label: "Professor", rota: "professores" },
+        { label: "Motivo", rota: "motivos" },
+        { label: "Limite", rota: "limites" },
     ];
 
     useEffect(() => {
         function fecharAoClicarFora(evento) {
             if (cadastrosRef.current && !cadastrosRef.current.contains(evento.target)) {
                 setCadastrosAberto(false);
+            }
+            if (gerenciamentosRef.current && !gerenciamentosRef.current.contains(evento.target)) {
+                setGerenciamentosAberto(false);
             }
         }
 
@@ -43,7 +59,10 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
                             type="button"
                             aria-expanded={cadastrosAberto}
                             aria-haspopup="true"
-                            onClick={() => setCadastrosAberto((aberto) => !aberto)}
+                            onClick={() => {
+                                setCadastrosAberto((aberto) => !aberto);
+                                setGerenciamentosAberto(false);
+                            }}
                         >
                             Cadastros ▾
                         </button>
@@ -59,6 +78,38 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
                                         >
                                             {item.label}
                                         </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="dropdown" ref={gerenciamentosRef}>
+                        <button
+                            type="button"
+                            aria-expanded={gerenciamentosAberto}
+                            aria-haspopup="true"
+                            onClick={() => {
+                                setGerenciamentosAberto((aberto) => !aberto);
+                                setCadastrosAberto(false);
+                            }}
+                        >
+                            Gerenciamentos ▾
+                        </button>
+                        {gerenciamentosAberto && (
+                            <div className="dropdown-menu dropdown-menu-gerenciamentos">
+                                <div className="dropdown-itens">
+                                    {gerenciamentos.map((item) => (
+                                        <button
+                                            type="button"
+                                            className="dropdown-option"
+                                            key={item.rota}
+                                            onClick={() => {
+                                                setGerenciamentosAberto(false);
+                                                navigate(`/gerenciamentos/${item.rota}`);
+                                            }}
+                                        >
+                                            {item.label}
+                                        </button>
                                     ))}
                                 </div>
                             </div>
