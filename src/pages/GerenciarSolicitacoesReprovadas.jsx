@@ -183,7 +183,7 @@ function SolicitacoesReprovadas() {
                 <div className="devolucoes-topo">
                     <div className="devolucoes-titulo-area">
                         <h1 className="titulo-devolucoes">SOLICITAÇÕES REPROVADAS</h1>
-                        <div className="linha-laranja"></div>
+                        <div className="linha-laranja" id="linha-laranja-reprovadas"></div>
                     </div>
 
                     <div className="devolucoes-filtros">

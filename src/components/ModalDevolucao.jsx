@@ -1,5 +1,5 @@
 import { useState } from "react";
-import NavBar from "./NavBar";
+import logo from "../assets/logo_colegio_xingu.png";
 import "./ModalDevolucao.css";
 
 function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {
@@ -65,7 +65,17 @@ function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-devolucao" onClick={(event) => event.stopPropagation()}>
-                <NavBar mostrarVoltar={true} onVoltar={onClose} />
+                <div className="modal-devolucao-cabecalho">
+                    <img src={logo} alt="Colégio Xingu" className="modal-devolucao-logo" />
+                    <button
+                        type="button"
+                        className="modal-devolucao-fechar"
+                        onClick={onClose}
+                        aria-label="Fechar"
+                    >
+                        ×
+                    </button>
+                </div>
                 <div className="modal-devolucao-conteudo">
                     <h2 className="modal-devolucao-titulo">Devolução de material</h2>
                     <p className="modal-devolucao-solicitante">Solicitante: {solicitacao.solicitante}</p>

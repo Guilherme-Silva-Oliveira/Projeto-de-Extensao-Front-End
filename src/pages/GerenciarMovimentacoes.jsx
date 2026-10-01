@@ -3,7 +3,6 @@ import NavBar from "../components/NavBar";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api.js";
-import Pagination from "../components/Pagination";
 
 function formatarData(dataMovimentacao) {
     if (!dataMovimentacao) return "-";
@@ -23,7 +22,9 @@ function normalizarTipoAcao(acao) {
 
 function GerenciarMovimentacoes() {
     const navigate = useNavigate();
+    const tamanhoPagina = 7;
     const [movimentacoes, setMovimentacoes] = useState([]);
+    const [paginacaoNoServidor, setPaginacaoNoServidor] = useState(false);
     const [filtroData, setFiltroData] = useState("");
     const [mostrarFiltroData, setMostrarFiltroData] = useState(false);
     const [carregando, setCarregando] = useState(true);
@@ -38,10 +39,21 @@ function GerenciarMovimentacoes() {
                 setCarregando(true);
                 setErro("");
                 const response = await api.get("/v1/frontend/movimentacoes", {
-                    params: { page, size: 10 }
+                    params: { page, size: tamanhoPagina }
                 });
-                setMovimentacoes(Array.isArray(response.data) ? response.data : response.data.content || []);
-                setTotalPages(response.data.totalPages || 1);
+                const respostaPaginada = !Array.isArray(response.data) && Array.isArray(response.data?.content);
+                const registros = Array.isArray(response.data)
+                    ? response.data
+                    : respostaPaginada
+                        ? response.data.content
+                        : [];
+
+                setMovimentacoes(registros);
+                setPaginacaoNoServidor(respostaPaginada);
+                setTotalPages(respostaPaginada
+                    ? Math.max(1, response.data.totalPages ?? Math.ceil((response.data.totalElements ?? registros.length) / tamanhoPagina))
+                    : Math.max(1, Math.ceil(registros.length / tamanhoPagina))
+                );
             } catch (error) {
                 console.error("Erro ao buscar movimentações:", error);
                 setErro("Não foi possível carregar as movimentações.");
@@ -56,6 +68,9 @@ function GerenciarMovimentacoes() {
     const movimentacoesFiltradas = movimentacoes.filter((movimentacao) =>
         !filtroData || movimentacao.dataMovimentacao?.startsWith(filtroData)
     );
+    const movimentacoesVisiveis = paginacaoNoServidor
+        ? movimentacoesFiltradas.slice(0, tamanhoPagina)
+        : movimentacoesFiltradas.slice(page * tamanhoPagina, (page + 1) * tamanhoPagina);
 
     return (
         <div className="page-container">
@@ -81,7 +96,7 @@ function GerenciarMovimentacoes() {
                                 className="filtro-movimentacoes filtro-data-btn"
                                 onClick={() => setMostrarFiltroData((valorAtual) => !valorAtual)}
                             >
-                                Filtrar por<br />Data
+                                Filtrar por Data
                             </button>
 
                             {mostrarFiltroData && (
@@ -89,7 +104,10 @@ function GerenciarMovimentacoes() {
                                     type="date"
                                     className="filtro-data-input"
                                     value={filtroData}
-                                    onChange={(event) => setFiltroData(event.target.value)}
+                                    onChange={(event) => {
+                                        setFiltroData(event.target.value);
+                                        setPage(0);
+                                    }}
                                     aria-label="Filtrar por data"
                                 />
                             )}
@@ -104,7 +122,7 @@ function GerenciarMovimentacoes() {
                     {!carregando && !erro && movimentacoesFiltradas.length === 0 && (
                         <p className="movimentacoes-status">Nenhuma movimentação encontrada.</p>
                     )}
-                    {!carregando && !erro && movimentacoesFiltradas.map((movimentacao, index) => (
+                    {!carregando && !erro && movimentacoesVisiveis.map((movimentacao, index) => (
                         <article className="card-movimentacao" key={`${movimentacao.dataMovimentacao}-${index}`}>
                             <div className="movimentacao-campo">
                                 <span>Ação:</span>
@@ -131,15 +149,30 @@ function GerenciarMovimentacoes() {
                         </article>
                     ))}
                     
-                    {!carregando && !erro && movimentacoesFiltradas.length > 0 && (
-                        <Pagination 
-                            currentPage={page} 
-                            totalPages={totalPages} 
-                            onPageChange={setPage} 
-                        />
-                    )}
                 </div>
             </main>
+
+            {!carregando && !erro && movimentacoesFiltradas.length > 0 && (
+                <nav className="movimentacoes-paginacao" aria-label="Paginação das movimentações">
+                    <button
+                        type="button"
+                        aria-label="Página anterior"
+                        onClick={() => setPage((paginaAtual) => Math.max(0, paginaAtual - 1))}
+                        disabled={page === 0}
+                    >
+                        ‹
+                    </button>
+                    <span>Página {page + 1} de {totalPages}</span>
+                    <button
+                        type="button"
+                        aria-label="Próxima página"
+                        onClick={() => setPage((paginaAtual) => Math.min(totalPages - 1, paginaAtual + 1))}
+                        disabled={page >= totalPages - 1}
+                    >
+                        ›
+                    </button>
+                </nav>
+            )}
         </div>
     );
 }

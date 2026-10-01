@@ -1,5 +1,5 @@
 import "./CadastroTipoFornecedor.css";
-import NavBarAdmin from "../components/NavBarAdmin";
+import NavBar from "../components/NavBar";
 
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
@@ -27,7 +27,7 @@ function CadastroTipoFornecedor() {
 
     return (
         <div className="page-container">
-            <NavBarAdmin mostrarLinks={true} mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+            <NavBar mostrarLinks={true} mostrarVoltar={true} />
 
             <main className="cadastro-container">
                 <h1 className="titulo-cadastro">CADASTRO DE TIPO DE FORNECEDOR</h1>

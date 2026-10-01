@@ -1,5 +1,5 @@
 import "./CadastroProfessor.css";
-import NavBarAdmin from "../components/NavBarAdmin";
+import NavBar from "../components/NavBar";
 import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import { useState } from "react";
@@ -53,7 +53,7 @@ function CadastroCategoria() {
 
     return (
         <div className="page-container">
-            <NavBarAdmin mostrarLinks={true} mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+            <NavBar mostrarLinks={true} mostrarVoltar={true} />
                 
             <main className="cadastro-container">
                 <h1 className="titulo-cadastro">CADASTRO DE CATEGORIA</h1>
