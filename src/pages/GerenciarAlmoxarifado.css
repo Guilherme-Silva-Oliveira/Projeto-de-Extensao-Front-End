@@ -201,24 +201,6 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-height: 60vh;
-    overflow-y: auto;
-    padding-right: 10px;
-}
-
-.almoxarifado-lista::-webkit-scrollbar {
-    width: 10px;
-}
-
-.almoxarifado-lista::-webkit-scrollbar-track {
-    background: #f0f0f0;
-    border-radius: 10px;
-}
-
-.almoxarifado-lista::-webkit-scrollbar-thumb {
-    background-color: #797979;
-    border-radius: 10px;
-    border: 2px solid #f0f0f0;
 }
 
 .almoxarifado-status {

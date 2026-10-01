@@ -24,8 +24,10 @@ function normalizarMaterial(material) {
 function GerenciarAlmoxarifado() {
     const navigate = useNavigate();
     const filtroRef = useRef(null);
+    const tamanhoPagina = 7;
 
     const [materiais, setMateriais] = useState([]);
+    const [paginacaoNoServidor, setPaginacaoNoServidor] = useState(false);
     const [categorias, setCategorias] = useState([]);
     const [carregando, setCarregando] = useState(true);
 
@@ -62,16 +64,24 @@ function GerenciarAlmoxarifado() {
             try {
                 setCarregando(true);
                 const materiaisResponse = await api.get("/v1/materiais", {
-                    params: { page, size: 10 }
+                    params: { page, size: tamanhoPagina }
                 });
-                
-                const content = materiaisResponse.data.content || materiaisResponse.data;
-                const materiaisRecebidos = Array.isArray(content)
-                    ? content.map(normalizarMaterial)
-                    : [];
+
+                const respostaPaginada = !Array.isArray(materiaisResponse.data) && Array.isArray(materiaisResponse.data?.content);
+                const content = Array.isArray(materiaisResponse.data)
+                    ? materiaisResponse.data
+                    : respostaPaginada
+                        ? materiaisResponse.data.content
+                        : [];
+                const materiaisRecebidos = content
+                    .map(normalizarMaterial);
 
                 setMateriais(materiaisRecebidos);
-                setTotalPages(materiaisResponse.data.totalPages || 1);
+                setPaginacaoNoServidor(respostaPaginada);
+                setTotalPages(respostaPaginada
+                    ? Math.max(1, materiaisResponse.data.totalPages ?? Math.ceil((materiaisResponse.data.totalElements ?? content.length) / tamanhoPagina))
+                    : Math.max(1, Math.ceil(content.length / tamanhoPagina))
+                );
             } catch (error) {
                 console.error("Erro ao buscar materiais:", error);
             } finally {
@@ -94,6 +104,7 @@ function GerenciarAlmoxarifado() {
     }, []);
 
     function alternarCategoria(nomeCategoria) {
+        setPage(0);
         setCategoriasSelecionadas((prev) =>
             prev.includes(nomeCategoria)
                 ? prev.filter((c) => c !== nomeCategoria)
@@ -132,6 +143,9 @@ function GerenciarAlmoxarifado() {
             categoriasSelecionadas.includes(m.categoriaGrupo);
         return nomeCombina && categoriaCombina;
     });
+    const materiaisVisiveis = paginacaoNoServidor
+        ? materiaisFiltrados.slice(0, tamanhoPagina)
+        : materiaisFiltrados.slice(page * tamanhoPagina, (page + 1) * tamanhoPagina);
 
     return (
         <div className="page-container">
@@ -191,7 +205,10 @@ function GerenciarAlmoxarifado() {
                                     className="busca-input"
                                     placeholder="Nome do material"
                                     value={busca}
-                                    onChange={(e) => setBusca(e.target.value)}
+                                    onChange={(e) => {
+                                        setBusca(e.target.value);
+                                        setPage(0);
+                                    }}
                                 />
                                 <img
                                     src={lupaIcon}
@@ -233,7 +250,7 @@ function GerenciarAlmoxarifado() {
                     )}
 
                     {!carregando &&
-                        materiaisFiltrados.map((material) => (
+                        materiaisVisiveis.map((material) => (
                             <CardMaterial
                                 key={material.id}
                                 material={material}
