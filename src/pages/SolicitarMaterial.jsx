@@ -5,7 +5,7 @@ import MainButton from "../components/MainButton";
 import SelectForm from "../components/SelectForm";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, iaApi } from "../provider/api.js"; // ======= ALTERADO: importa iaApi também =======
+import { api, iaApi } from "../provider/api.js";
 
 const criarItemVazio = (materialIdPadrao) => ({
     id: Date.now() + Math.random(),
@@ -14,11 +14,16 @@ const criarItemVazio = (materialIdPadrao) => ({
     deveDevolver: false,
 });
 
-// ======= NOVO: helper para achar item de uma lista pelo nome (case-insensitive) =======
 function encontrarPorNome(lista, nomeAlvo, campoNome) {
     if (!nomeAlvo) return null;
     const alvo = nomeAlvo.trim().toLowerCase();
     return lista.find((item) => (item[campoNome] ?? "").trim().toLowerCase() === alvo) ?? null;
+}
+
+
+function toLocalDateTimeString(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 function SolicitarMaterial() {
@@ -32,7 +37,6 @@ function SolicitarMaterial() {
     const [erroCarregamento, setErroCarregamento] = useState(null);
 
     const [mensagemAuto, setMensagemAuto] = useState("");
-    // ======= NOVO: states do fluxo de análise por IA =======
     const [analisandoIA, setAnalisandoIA] = useState(false);
     const [modeloIAId, setModeloIAId] = useState(null);
     const [alertaIA, setAlertaIA] = useState(null);
@@ -83,7 +87,6 @@ function SolicitarMaterial() {
         carregarDadosIniciais();
     }, []);
 
-    // ======= NOVO: chama a IA e preenche os campos existentes (professor, motivo, prazo, itens) =======
     async function handleAnalisarComIA() {
         if (!mensagemAuto.trim()) {
             alert("Digite a mensagem de solicitação antes de analisar.");
@@ -194,9 +197,9 @@ function SolicitarMaterial() {
             materiais: nomesMateriais,
             quantidade: quantidades,
             deveDevolver,
-            inteligenciaArtificialId: modoAtivo === "Automático" ? modeloIAId : null, // ======= ALTERADO: era hardcoded 1 =======
+            inteligenciaArtificialId: modoAtivo === "Automático" ? modeloIAId : null,
             descricao: motivoSelecionado?.descricao ?? motivoSelecionado?.nome ?? "Solicitação de material",
-            dataSolicitacao: new Date().toISOString(),
+            dataSolicitacao: toLocalDateTimeString(new Date()), // ======= ALTERADO: era new Date().toISOString() =======
             dataParaEnvio: `${prazo}T00:00:00`,
             alerta: null,
         };
@@ -280,7 +283,6 @@ function SolicitarMaterial() {
                                     rows={3}
                                     placeholder="Eu Matheus Torres, gostaria de 50 cartolinas de cor verde claro para o dia 10/05/2026 para uma atividade avaliativa."
                                 />
-                                {/* ======= NOVO: botão de análise + feedback do alerta da IA ======= */}
                                 <button
                                     type="button"
                                     className="adicionar-btn"
