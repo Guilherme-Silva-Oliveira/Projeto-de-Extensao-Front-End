@@ -8,5 +8,5 @@ export const api = axios.create({
 // ia
 export const iaApi = axios.create({
     baseURL: import.meta.env.VITE_IA_API_URL || "http://localhost:8080",
-    withCredentials: true
+    withCredentials: false
 });
