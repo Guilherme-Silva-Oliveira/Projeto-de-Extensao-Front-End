@@ -1,6 +1,6 @@
 import { useState } from "react";
-import NavBar from "./NavBar";
 import SelectForm from "./SelectForm";
+import logo from "../assets/logo_colegio_xingu.png";
 import "./ModalCadastroMaterial.css";
 
 // temporário
@@ -71,8 +71,17 @@ function ModalCadastroMaterial({
                 className="modal-cadastro-material"
                 onClick={(e) => e.stopPropagation()}
             >
-                <NavBar mostrarVoltar={false} onVoltar={onClose} />
-
+                <div className="modal-cadastro-material-cabecalho">
+                    <img src={logo} alt="Colégio Xingu" className="modal-cadastro-material-logo" />
+                    <button
+                        type="button"
+                        className="modal-cadastro-material-fechar"
+                        onClick={onClose}
+                        aria-label="Fechar"
+                    >
+                        ×
+                    </button>
+                </div>
                 <div className="modal-cadastro-material-conteudo">
                     <h2 className="modal-cadastro-material-titulo">
                         Adição de {nomeMaterial || "Material"}

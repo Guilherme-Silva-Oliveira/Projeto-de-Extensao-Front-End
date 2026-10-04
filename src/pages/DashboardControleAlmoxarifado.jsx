@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CardDashboard from "../components/CardDashboard";
-import NavBarDashboard from "../components/NavBarDashboard";
+import NavBar from "../components/NavBar";
 import SelectData from "../components/SelectData";
 import GraficoMovimentacao from "../components/GraficoMovimentacao";
 import ButtonFormOption from "../components/ButtonFormOption";
@@ -12,13 +12,22 @@ import { api } from "../provider/api";
 
 function DashboardControleAlmoxarifado() {
     const navigate = useNavigate();
-    const hoje = new Date();
+    const hoje = new Date().toLocaleDateString("en-CA");
 
     const [dataInicio, setDataInicio] = useState("");
     const [dataFim, setDataFim] = useState(hoje);
     const [materialMaisSolicitado, setMaterialMaisSolicitado] = useState("Carregando...");
+    const [carregandoMaterial, setCarregandoMaterial] = useState(true);
 
-    //Listagem minimo
+    const [gestaoSolicitacoes, setGestaoSolicitacoes] = useState({ emAberto: 0, proximas: 0 });
+    const [carregandoGestao, setCarregandoGestao] = useState(true);
+
+    const [dadosMinimo, setDadosMinimo] = useState([]);
+    const [carregandoMinimo, setCarregandoMinimo] = useState(true);
+
+    const [dadosMovimentacao, setDadosMovimentacao] = useState([]);
+    const [carregandoMovimentacao, setCarregandoMovimentacao] = useState(true);
+
     const colunasMinimo = [
         { label: "Material", key: "material" },
         { label: "Quantidade Total", key: "quantidade" },
@@ -26,38 +35,97 @@ function DashboardControleAlmoxarifado() {
         { label: "Diferença", key: "diferenca" },
     ];
 
-    const dadosMinimo = [
-        { material: "Item A", quantidade: 90, minimo: 130, diferenca: -40 },
-        { material: "Item B", quantidade: 225, minimo: 200, diferenca: 25 },
-        { material: "Item X", quantidade: 300, minimo: 220, diferenca: 80 },
-        { material: "Item Y", quantidade: 302, minimo: 218, diferenca: 84 },
-        { material: "Item Z", quantidade: 310, minimo: 180, diferenca: 130 },
-    ];
-
     const buscarMaterialMaisSolicitado = async () => {
         try {
+            setCarregandoMaterial(true);
+
             const response = await api.get("/v1/materiais/mais-solicitado", {
                 params: {
                     dataInicio: dataInicio ? `${dataInicio}T00:00:00` : undefined,
-                    dataFim: dataFim ? `${dataFim instanceof Date ? dataFim.toISOString().split("T")[0] : dataFim}T23:59:59` : undefined
-                }
+                    dataFim: dataFim ? `${dataFim}T23:59:59` : undefined,
+                },
             });
 
-            setMaterialMaisSolicitado(response.data.nomeMaterial);
-            console.log("Material mais solicitado:", response.data.nomeMaterial);
+            setMaterialMaisSolicitado(response.data.nomeMaterial || "Nenhuma solicitação no período");
         } catch (error) {
             console.error("Erro ao buscar material mais solicitado:", error);
             setMaterialMaisSolicitado("Erro ao carregar");
+        } finally {
+            setCarregandoMaterial(false);
+        }
+    };
+
+    const buscarGestaoSolicitacoes = async () => {
+        try {
+            setCarregandoGestao(true);
+
+            const response = await api.get("/v1/solicitacoes/gestao-solicitacoes");
+
+            setGestaoSolicitacoes({
+                emAberto: response.data.emAberto ?? 0,
+                proximas: response.data.proximas ?? 0,
+            });
+        } catch (error) {
+            console.error("Erro ao buscar gestão de solicitações:", error);
+            setGestaoSolicitacoes({ emAberto: 0, proximas: 0 });
+        } finally {
+            setCarregandoGestao(false);
+        }
+    };
+
+    const buscarMateriaisProximosMinimo = async () => {
+        try {
+            setCarregandoMinimo(true);
+
+            const response = await api.get("/v1/materiais/proximos-minimo");
+
+            const dadosAdaptados = response.data.map((item) => ({
+                material: item.nomeMaterial,
+                quantidade: item.quantidadeAtual,
+                minimo: item.quantidadeMinima,
+                diferenca: item.diferenca,
+            }));
+
+            setDadosMinimo(dadosAdaptados);
+        } catch (error) {
+            console.error("Erro ao buscar materiais próximos do mínimo:", error);
+            setDadosMinimo([]);
+        } finally {
+            setCarregandoMinimo(false);
+        }
+    };
+
+    const buscarMovimentacoes = async () => {
+        try {
+            setCarregandoMovimentacao(true);
+
+            const response = await api.get("/v1/materiais/movimentacoes");
+
+            const dadosAdaptados = response.data.map((item) => ({
+                material: item.nomeMaterial,
+                entradas: item.entradas,
+                saidas: item.saidas,
+            }));
+
+            setDadosMovimentacao(dadosAdaptados);
+        } catch (error) {
+            console.error("Erro ao buscar movimentações:", error);
+            setDadosMovimentacao([]);
+        } finally {
+            setCarregandoMovimentacao(false);
         }
     };
 
     useEffect(() => {
         buscarMaterialMaisSolicitado();
+        buscarGestaoSolicitacoes();
+        buscarMateriaisProximosMinimo();
+        buscarMovimentacoes();
     }, []);
 
     return (
         <div className="dashboard">
-            <NavBarDashboard onVoltar={() => navigate(-1)} onCadastrar={() => navigate("/cadastro-material")} />
+            <NavBar mostrarVoltar={true} mostrarLinks={true} onVoltar={() => navigate(-1)} onCadastrar={() => navigate("/cadastro-material")} />
             <section className="dashboard-content">
                 <div className="titulo-dashboard">
                     <h1>Dashboard de Controle de Almoxarifado</h1>
@@ -67,7 +135,7 @@ function DashboardControleAlmoxarifado() {
                     <CardDashboard className="card-kpi-topo">
                         <p className="titulo-kpi">Material mais solicitado</p>
                         <div className="conteudo-kpi">
-                            <h3>{materialMaisSolicitado}</h3>
+                            <h3>{carregandoMaterial ? "Carregando..." : materialMaisSolicitado}</h3>
                         </div>
                     </CardDashboard>
                     <CardDashboard className="card-kpi-topo">
@@ -75,11 +143,11 @@ function DashboardControleAlmoxarifado() {
                         <div className="conteudo-kpi">
                             <div className="kpi-divisao">
                                 <div>
-                                    <h3>10</h3>
+                                    <h3>{carregandoGestao ? "..." : gestaoSolicitacoes.emAberto}</h3>
                                     <p>Solicitações em aberto</p>
                                 </div>
                                 <div>
-                                    <h3>6</h3>
+                                    <h3>{carregandoGestao ? "..." : gestaoSolicitacoes.proximas}</h3>
                                     <p>Solicitações próximas</p>
                                 </div>
                             </div>
@@ -104,13 +172,25 @@ function DashboardControleAlmoxarifado() {
                 <div className="conteudo-dashboard">
                     <CardDashboard className="grafico-movimentacao">
                         <p>10 materiais com mais movimentações (Entradas e Saídas) no Almoxarifado</p>
-                        <GraficoMovimentacao />
+                        {carregandoMovimentacao ? (
+                            <p>Carregando...</p>
+                        ) : dadosMovimentacao.length === 0 ? (
+                            <p>Nenhuma movimentação registrada.</p>
+                        ) : (
+                            <GraficoMovimentacao dados={dadosMovimentacao} />
+                        )}
                     </CardDashboard>
 
                     <div className="coluna-direita">
                         <CardDashboard className="listagem-minimo">
                             <p>Materiais mais próximos ou abaixo do mínimo</p>
-                            <TabelaListagem colunas={colunasMinimo} dados={dadosMinimo} />
+                            {carregandoMinimo ? (
+                                <p>Carregando...</p>
+                            ) : dadosMinimo.length === 0 ? (
+                                <p>Nenhum material próximo ou abaixo do mínimo.</p>
+                            ) : (
+                                <TabelaListagem colunas={colunasMinimo} dados={dadosMinimo} />
+                            )}
                         </CardDashboard>
 
                         <ButtonFormOption

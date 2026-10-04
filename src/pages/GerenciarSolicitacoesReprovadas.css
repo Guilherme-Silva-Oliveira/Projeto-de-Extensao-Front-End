@@ -1,0 +1,215 @@
+.menu-reprovadas-abrir {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 120;
+    width: 70px;
+    height: 70px;
+    padding: 0;
+    border: 0;
+    border-radius: 40px;
+    background: #0a086b;
+    color: white;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.menu-reprovadas-abrir-alerta {
+    animation: menu-reprovadas-pulso 1s ease-in-out infinite;
+}
+
+@keyframes menu-reprovadas-pulso {
+    0%,
+    100% {
+        background-color: #0a086b;
+        transform: scale(1);
+    }
+
+    50% {
+        background-color: #ff5a1f;
+        transform: scale(1.22);
+    }
+}
+
+.menu-reprovadas-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 130;
+    padding: 0;
+    border: 0;
+    background: rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+    cursor: pointer;
+}
+
+.menu-reprovadas-overlay-aberto {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s ease;
+}
+
+.menu-reprovadas-painel {
+    position: fixed;
+    inset: 0 0 0 auto;
+    z-index: 131;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 33.333vw;
+    min-width: 300px;
+    max-width: 640px;
+    box-sizing: border-box;
+    padding: 24px;
+    background: white;
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.16);
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform 0.25s ease, visibility 0s linear 0.25s;
+}
+
+.menu-reprovadas-painel-aberto {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform 0.25s ease;
+}
+
+.menu-reprovadas-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.menu-reprovadas-cabecalho h2 {
+    margin: 0;
+    color: #333;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.menu-reprovadas-cabecalho button {
+    padding: 8px 12px;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    background: white;
+    color: #555;
+    font: inherit;
+    cursor: pointer;
+}
+
+.menu-reprovadas-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.menu-reprovadas-card {
+    padding: 12px;
+    border: 1px solid #dedede;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.menu-reprovadas-card-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.menu-reprovadas-card-topo h3 {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.alerta-status {
+    flex: 0 0 auto;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.alerta-status.aberto {
+    color: #b64416;
+}
+
+.alerta-status.resolvido {
+    color: #28734a;
+}
+
+.menu-reprovadas-professor {
+    margin: 0 0 4px;
+    color: #555;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.menu-reprovadas-descricao {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.menu-reprovadas-resolver {
+    flex: 0 0 auto;
+    margin-top: 0;
+    padding: 8px 12px;
+    border: 1px solid #0a086b;
+    border-radius: 5px;
+    background: #0a086b;
+    color: white;
+    font: inherit;
+    cursor: pointer;
+}
+
+.menu-reprovadas-card-conteudo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.menu-reprovadas-card-textos {
+    min-width: 0;
+}
+
+.menu-reprovadas-vazio {
+    margin: 8px 0;
+    color: #777;
+    font-size: 14px;
+}
+
+#linha-laranja-reprovadas{
+    width: 430px;
+}
+
+@media (max-width: 640px) {
+    .menu-reprovadas-abrir {
+        right: 18px;
+        bottom: 18px;
+    }
+
+    .menu-reprovadas-painel {
+        width: 85vw;
+        min-width: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .menu-reprovadas-abrir-alerta {
+        animation: none;
+    }
+}
