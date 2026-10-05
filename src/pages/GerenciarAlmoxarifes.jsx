@@ -93,29 +93,19 @@ function GerenciarAlmoxarifes() {
 
   
     
-    function handleSalvarEdicao(dadosAtualizados) {
-
-        setAlmoxarifes((prev) =>
-            prev.map((a) => (a.id === dadosAtualizados.id ? { ...a, ...dadosAtualizados } : a))
-        );
-        setAlmoxarifeEditando(null);
-
-        // chamada à api sem travar o modal
-        api.put(`/v1/almoxarifes/${dadosAtualizados.id}`, dadosAtualizados).catch((error) => {
-            console.error("Erro ao editar almoxarife:", error);
-        });
-    }
+    async function handleSalvarEdicao({ id, nome, email, telefone }) {
+    const response = await api.patch(`/v1/almoxarifes/${id}`, { nome, email, telefone });
+    const atualizado = adaptarAlmoxarife(response.data);
+    setAlmoxarifes((prev) => prev.map((a) => (a.id === id ? atualizado : a)));
+    setAlmoxarifeEditando(null);
+}
 
    
-    function handleSalvarSenha({ almoxarifeId, senhaAntiga, senhaNova }) {
-        setAlmoxarifeRedefinindoSenha(null);
-
-        api.patch(`/v1/almoxarifes/${almoxarifeId}/senha`, { senhaAntiga, senhaNova }).catch(
-            (error) => {
-                console.error("Erro ao redefinir senha:", error);
-            }
-        );
-    }
+    async function handleSalvarSenha({ almoxarifeId, senhaAntiga, senhaNova }) {
+    await api.patch(`/v1/almoxarifes/${almoxarifeId}/senha`, { senhaAntiga, senhaNova });
+    setAlmoxarifeRedefinindoSenha(null);
+    alert("Senha redefinida com sucesso.");
+}
 
 
 
