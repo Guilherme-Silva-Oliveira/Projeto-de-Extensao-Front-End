@@ -188,9 +188,7 @@ function GerenciarSolicitacoes() {
 
             <main className="devolucoes-container">
                 <div className="devolucoes-breadcrumb">
-                    <Link to="/dashboard">Menu de opções</Link>
-                    <span> &gt; </span>
-                    <span>Gerenciar Solicitações</span>
+                    
                 </div>
 
                 <div className="devolucoes-topo">

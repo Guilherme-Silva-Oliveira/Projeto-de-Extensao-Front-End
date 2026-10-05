@@ -419,9 +419,9 @@ function GerenciarDevolucoes() {
 
             <main className="devolucoes-container">
                 <div className="devolucoes-breadcrumb">
-                    <Link to="/dashboard">Menu de opções</Link>
+                    {/* <Link to="/dashboard">Menu de opções</Link>
                     <span> &gt; </span>
-                    <span>Gerenciar Devoluções</span>
+                    <span>Gerenciar Devoluções</span> */}
                 </div>
 
                 <div className="devolucoes-topo">
@@ -484,6 +484,14 @@ function GerenciarDevolucoes() {
                             onClick={() => navigate("/gerenciar-solicitacoes-reprovadas")}
                         >
                             Solicitações Reprovadas
+                        </button>
+                        
+                        <button
+                            type="button"
+                            className="tab-btn tab-reprovadas"
+                            onClick={() => navigate("/gerenciar-solicitacoes-finalizadas")}
+                        >
+                            Solicitações Finalizadas
                         </button>
                     </div>
                 </div>
