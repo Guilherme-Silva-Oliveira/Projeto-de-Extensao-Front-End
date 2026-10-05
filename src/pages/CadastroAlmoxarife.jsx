@@ -30,7 +30,7 @@ function CadastroAlmoxarife() {
                 senha,
                 idAlmoxarifado: 1, // TODO: trocar por um select quando houver mais de 1 almoxarifado
             });
-            navigate("/gerenciar-almoxarifado");
+            navigate("/gerenciar-almoxarifes");
         } catch (error) {
             console.error("Erro ao cadastrar almoxarife:", error);
             setErro(error?.response?.data?.message ?? "Não foi possível cadastrar o almoxarife.");
@@ -42,7 +42,7 @@ function CadastroAlmoxarife() {
             <NavBar mostrarLinks={true} mostrarVoltar={true} />
             <main className="cadastro-almoxarife-container">
                 <h1 className="titulo-cadastro-almoxarife">CADASTRO DE ALMOXARIFE</h1>
-                <div className="linha-laranja"></div>
+                <div className="cadastro-almoxarife-linha"></div>
 
                 <div className="cadastro-almoxarife-form">
                     <div className="cadastro-almoxarife-field">
