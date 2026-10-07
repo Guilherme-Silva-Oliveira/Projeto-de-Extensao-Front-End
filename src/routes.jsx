@@ -11,14 +11,17 @@ import GerenciarDevolucoes from "./pages/GerenciarDevolucoes";
 import GerenciarMovimentacoes from "./pages/GerenciarMovimentacoes";
 import CadastroMotivo from "./pages/CadastroMotivo";
 import Menu from "./pages/Menu";
-import GerenciarAlmoxarifado from "./pages/GerenciarAlmoxarifado";
+import GerenciarMaterial from "./pages/GerenciarMaterial";
 import GerenciarSolicitacoes from "./pages/GerenciarSolicitacoes";
 import CadastroAlmoxarifado from "./pages/CadastroAlmoxarifado";
+import GerenciarAlmoxarifados from "./pages/GerenciarAlmoxarifados";
 import CadastroTipoFornecedor from "./pages/CadastroTipoFornecedor";
 import GerenciarAlmoxarifes from "./pages/GerenciarAlmoxarifes";
 import GerenciarSolicitacoesReprovadas from "./pages/GerenciarSolicitacoesReprovadas";
 import CadastroAlmoxarife from "./pages/CadastroAlmoxarife";
 import GerenciarEntidade from "./pages/GerenciarEntidade";
+import CadastroLimite from "./pages/CadastroLimite";
+import CadastroUnidadeMedida from "./pages/CadastroUnidadeMedida";
 
 const routes = createBrowserRouter([
   {
@@ -77,6 +80,16 @@ const routes = createBrowserRouter([
     errorElement: <div>erro</div>,
   },
   {
+    path: "/cadastro-limite",
+    element: <CadastroLimite />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/cadastro-unidade-medida",
+    element: <CadastroUnidadeMedida />,
+    errorElement: <div>erro</div>,
+  },
+  {
     path: "/gerenciar-devolucoes",
     element: <GerenciarDevolucoes />,
     errorElement: <div>erro</div>,
@@ -87,8 +100,8 @@ const routes = createBrowserRouter([
     errorElement: <div>erro</div>,
   },
   {
-    path: "/gerenciar-almoxarifado",
-    element: <GerenciarAlmoxarifado />,
+    path: "/gerenciar-material",
+    element: <GerenciarMaterial />,
     errorElement: <div>erro</div>,
   },
   {
@@ -96,9 +109,14 @@ const routes = createBrowserRouter([
     element: <CadastroTipoFornecedor />,
     errorElement: <div>erro</div>,
   },
-   {
+  {
      path: "/gerenciar-almoxarifes",
      element: <GerenciarAlmoxarifes />,
+     errorElement: <div>erro</div>,
+   },
+   {
+     path: "/gerenciar-almoxarifados",
+     element: <GerenciarAlmoxarifados />,
      errorElement: <div>erro</div>,
    },
    {

@@ -11,7 +11,7 @@ function NavBarDashboard() {
             <img src={logo} alt="logo" className="navbardashboard-logo" />
 
             <div className="navbardashboard-bottom">
-                <button onClick={() => navigate("/gerenciar-almoxarifado")}>
+                <button onClick={() => navigate("/gerenciar-material")}>
                     <img src={voltar} alt="Voltar" className="navbardashboard-voltar" />
                 </button>
             </div>
