@@ -188,7 +188,7 @@ import NavBar from "../components/NavBar";
 import CardDevolucao from "../components/CardDevolucao";
 import ModalDevolucao from "../components/ModalDevolucao";
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api.js";
 import Pagination from "../components/Pagination";
 import lupaIcon from "../assets/lupa.png";
@@ -347,43 +347,72 @@ function GerenciarDevolucoes() {
             throw new Error("Dados da devolução inválidos.");
         }
 
+        const itensValidados = itensDevolucao.map((itemDevolucao) => {
+            const material = solicitacao?.materiais.find(
+                (item) =>
+                    String(item.materialId) === String(itemDevolucao.materialId) ||
+                    item.nome?.trim().toLowerCase() ===
+                        itemDevolucao.materialNome?.trim().toLowerCase()
+            );
+            const materialDoCatalogo = catalogoMateriais.find(
+                (item) =>
+                    String(item.id) === String(itemDevolucao.materialId) ||
+                    String(item.nomeMaterial ?? item.nome ?? "")
+                        .trim()
+                        .toLowerCase() ===
+                        itemDevolucao.materialNome?.trim().toLowerCase()
+            );
+            const materialIdInformado = Number(itemDevolucao.materialId);
+            const materialId = Number.isInteger(materialIdInformado) && materialIdInformado > 0
+                ? materialIdInformado
+                : Number(materialDoCatalogo?.id ?? material?.materialId);
+            const quantidade = Number(itemDevolucao.quantidade);
+
+            if (!Number.isInteger(materialId) || materialId <= 0) {
+                throw new Error("Material sem ID válido.");
+            }
+            if (!Number.isInteger(quantidade) || quantidade <= 0) {
+                throw new Error("Quantidade inválida.");
+            }
+
+            const quantidadeSolicitada = Number(material?.quantidadeSolicitada);
+            if (!Number.isFinite(quantidadeSolicitada)) {
+                throw new Error(
+                    `Não foi possível identificar a quantidade solicitada de ${material?.nome ?? "um material"}.`
+                );
+            }
+
+            return {
+                materialNome: material.nome,
+                quantidade,
+                quantidadeSolicitada,
+                fornecedorId: 1,
+                materialId,
+            };
+        });
+
+        const quantidadesPorMaterial = new Map();
+        for (const item of itensValidados) {
+            const quantidadeTotal =
+                (quantidadesPorMaterial.get(item.materialId) ?? 0) + item.quantidade;
+            if (quantidadeTotal > item.quantidadeSolicitada) {
+                throw new Error(
+                    `A quantidade devolvida de ${item.materialNome} não pode exceder ${item.quantidadeSolicitada}.`
+                );
+            }
+            quantidadesPorMaterial.set(item.materialId, quantidadeTotal);
+        }
+
         await Promise.all(
-            itensDevolucao.map((itemDevolucao) => {
-                const material = solicitacao?.materiais.find(
-                    (item) =>
-                        String(item.materialId) === String(itemDevolucao.materialId) ||
-                        item.nome?.trim().toLowerCase() ===
-                            itemDevolucao.materialNome?.trim().toLowerCase()
-                );
-                const materialDoCatalogo = catalogoMateriais.find(
-                    (item) =>
-                        String(item.id) === String(itemDevolucao.materialId) ||
-                        String(item.nomeMaterial ?? item.nome ?? "")
-                            .trim()
-                            .toLowerCase() ===
-                            itemDevolucao.materialNome?.trim().toLowerCase()
-                );
-                const materialIdInformado = Number(itemDevolucao.materialId);
-                const materialId = Number.isInteger(materialIdInformado) && materialIdInformado > 0
-                    ? materialIdInformado
-                    : Number(materialDoCatalogo?.id ?? material?.materialId);
-                const quantidade = Number(itemDevolucao.quantidade);
-
-                if (!Number.isInteger(materialId) || materialId <= 0) {
-                    throw new Error("Material sem ID válido.");
-                }
-                if (!Number.isInteger(quantidade) || quantidade <= 0) {
-                    throw new Error("Quantidade inválida.");
-                }
-
-                return api.post("/v1/entradas", {
-                    fornecedorId: 1,
-                    materialId,
-                    quantidade,
+            itensValidados.map((item) =>
+                api.post("/v1/entradas", {
+                    fornecedorId: item.fornecedorId,
+                    materialId: item.materialId,
+                    quantidade: item.quantidade,
                     dataEntrada: new Date().toISOString().slice(0, 19),
                     isDevolucao: true,
-                });
-            })
+                })
+            )
         );
 
         await api.post(

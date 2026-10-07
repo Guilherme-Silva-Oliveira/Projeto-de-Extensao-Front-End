@@ -1,0 +1,161 @@
+.almoxarifados-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 30px 40px 40px;
+    font-family: "Inter", sans-serif;
+    box-sizing: border-box;
+}
+
+.almoxarifados-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.titulo-almoxarifados {
+    color: #333333;
+    font-weight: 400;
+    font-size: 32px;
+    margin: 0;
+    font-family: "Inter", sans-serif;
+}
+
+.linha-laranja {
+    width: 150px;
+    height: 4px;
+    background-color: #ff5a1f;
+    margin-top: 10px;
+    border-radius: 10px;
+}
+
+.busca-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.busca-label {
+    font-size: 15px;
+    color: #555;
+}
+
+.busca-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.busca-input {
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    padding: 10px 40px 10px 14px;
+    font-size: 15px;
+    font-family: "Inter", sans-serif;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    outline: none;
+    min-width: 260px;
+}
+
+.busca-input:focus {
+    border-color: #0A086B;
+}
+
+.busca-icone {
+    position: absolute;
+    right: 12px;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+    object-fit: contain;
+}
+
+.almoxarifados-cadastrar-btn {
+    background-color: #0A086B;
+    color: white;
+    border: 1px solid #0A086B;
+    border-radius: 5px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-family: "Inter", sans-serif;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    white-space: nowrap;
+    height: fit-content;
+    align-self: flex-end;
+    transition: 0.2s;
+}
+
+.almoxarifados-cadastrar-btn:hover {
+    background-color: #0d0b8a;
+}
+
+.almoxarifados-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.almoxarifado-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border: 1px solid #e2e2e2;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #333;
+    font-size: 16px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.almoxarifado-card-id {
+    color: #777;
+    font-size: 14px;
+}
+
+.almoxarifado-excluir-btn {
+    margin-left: auto;
+    width: 140px;
+    height: 40px;
+    padding-left: 0;
+    border: none;
+    border-radius: 6px;
+    background-color: #ef5350;
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.almoxarifado-excluir-btn:hover:not(:disabled) {
+    background-color: #d94743;
+}
+
+.almoxarifado-excluir-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.almoxarifados-status {
+    color: #777;
+    font-size: 16px;
+    text-align: center;
+    margin-top: 40px;
+}
+
+@media (max-width: 600px) {
+    .almoxarifados-container {
+        padding: 24px 20px;
+    }
+
+    .busca-input {
+        min-width: 0;
+        width: 100%;
+    }
+}

@@ -10,6 +10,30 @@ function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {
     const [erro, setErro] = useState("");
     const itemAtual = itens[indiceAtual];
 
+    function encontrarMaterial(item) {
+        return materiais.find((material) =>
+            String(material.materialId ?? material.nome) === String(item.materialId)
+        );
+    }
+
+    function quantidadeRestante(indiceItem) {
+        const item = itens[indiceItem];
+        const materialSelecionado = encontrarMaterial(item);
+        if (!materialSelecionado) return undefined;
+
+        const quantidadeSolicitada = Number(materialSelecionado.quantidadeSolicitada);
+        if (!Number.isFinite(quantidadeSolicitada)) return undefined;
+
+        const quantidadeEmOutrasLinhas = itens.reduce((total, outroItem, indice) => {
+            if (indice === indiceItem || encontrarMaterial(outroItem) !== materialSelecionado) {
+                return total;
+            }
+            return total + (Number(outroItem.quantidade) || 0);
+        }, 0);
+
+        return Math.max(0, quantidadeSolicitada - quantidadeEmOutrasLinhas);
+    }
+
     function atualizarItem(campo, valor) {
         setItens((itensAtuais) => itensAtuais.map((item, indice) =>
             indice === indiceAtual ? { ...item, [campo]: valor } : item
@@ -41,13 +65,30 @@ function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {
             setErro("Informe uma quantidade válida em cada seção.");
             return;
         }
+        const quantidadesPorMaterial = new Map();
+        for (const item of itens) {
+            const material = encontrarMaterial(item);
+            const quantidadeSolicitada = Number(material?.quantidadeSolicitada);
+            const quantidadeDevolvida =
+                (quantidadesPorMaterial.get(material) ?? 0) + Number(item.quantidade);
+
+            if (!material || !Number.isFinite(quantidadeSolicitada)) {
+                setErro("Não foi possível identificar a quantidade solicitada deste material.");
+                return;
+            }
+            if (quantidadeDevolvida > quantidadeSolicitada) {
+                setErro(
+                    `A quantidade devolvida de ${material.nome} não pode exceder ${quantidadeSolicitada}.`
+                );
+                return;
+            }
+            quantidadesPorMaterial.set(material, quantidadeDevolvida);
+        }
 
         try {
             setEnviando(true);
             await onConfirmar(itens.map((item) => {
-                const material = materiais.find((itemMaterial) =>
-                    String(itemMaterial.materialId ?? itemMaterial.nome) === String(item.materialId)
-                );
+                const material = encontrarMaterial(item);
                 return {
                     materialId: Number(item.materialId),
                     materialNome: material?.nome,
@@ -95,7 +136,14 @@ function ModalDevolucao({ solicitacao, onClose, onConfirmar }) {
                     </div>
                     <div className="modal-devolucao-campo">
                         <label className="modal-devolucao-label">Quantidade:</label>
-                        <input type="number" min="1" className="modal-devolucao-input" value={itemAtual.quantidade} onChange={(event) => atualizarItem("quantidade", event.target.value)} />
+                        <input
+                            type="number"
+                            min="1"
+                            max={quantidadeRestante(indiceAtual)}
+                            className="modal-devolucao-input"
+                            value={itemAtual.quantidade}
+                            onChange={(event) => atualizarItem("quantidade", event.target.value)}
+                        />
                     </div>
                     <div className="modal-devolucao-materiais-acoes">
                         <button type="button" className="btn-adicionar-material" onClick={adicionarMaterial}>+ Adicionar Outro Material</button>

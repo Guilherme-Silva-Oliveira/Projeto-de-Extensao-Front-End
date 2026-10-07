@@ -9,16 +9,6 @@ function NavBarAdmin({ mostrarVoltar, mostrarLinks }) {
     const [menuAberto, setMenuAberto] = useState(false);
     const dropdownRef = useRef(null);
 
-    const cadastros = [
-        { label: "Almoxarifado", rota: "/cadastro-almoxarifado" },
-        { label: "Almoxarife", rota: "/cadastro-almoxarife" },
-        { label: "Categoria", rota: "/cadastro-categoria" },
-        { label: "Fornecedor", rota: "/cadastro-fornecedor" },
-        { label: "Motivo", rota: "/cadastro-motivo" },
-        { label: "Professor", rota: "/cadastro-professor" },
-        { label: "Tipo de Fornecedor", rota: "/cadastro-tipo-fornecedor" },
-    ];
-
     useEffect(() => {
         function handleClickFora(e) {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -35,7 +25,7 @@ function NavBarAdmin({ mostrarVoltar, mostrarLinks }) {
 
             {mostrarLinks && (
                 <div className="navbar-links">
-                    <button onClick={() => navigate("/cadastrar-almoxarifados")}>Gerenciar Almoxarifados</button>
+                    <button onClick={() => navigate("/gerenciar-almoxarifados")}>Gerenciar Almoxarifados</button>
                     <button onClick={() => navigate("/gerenciar-almoxarifes")}>Gerenciar Almoxarifes</button>
                 </div>
             )}

@@ -18,6 +18,8 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
         { label: "Professor", rota: "/cadastro-professor" },
         { label: "Tipo de Fornecedor", rota: "/cadastro-tipo-fornecedor" },
         { label: "Setor do Estoque", rota: "/cadastro-tipo-fornecedor" },
+        { label: "Limite", rota: "/cadastro-limite" },
+        { label: "Unidade de Medida", rota: "/cadastro-unidade-medida" },
     ];
     const gerenciamentos = [
         { label: "Categoria", rota: "categorias" },
@@ -51,7 +53,7 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
             {mostrarLinks && (
                 <div className="navbar-links">
                     <button onClick={() => navigate("/dashboard")}>Dashboard </button>
-                    <button onClick={() => navigate("/gerenciar-almoxarifado")}>Almoxarifado</button>
+                    <button onClick={() => navigate("/gerenciar-material")}>Materiais</button>
                     <button onClick={() => navigate("/gerenciar-solicitacoes")}>Solicitações</button>
                     <button onClick={() => navigate("/gerenciar-movimentacoes")}>Movimentações</button>
                     <div className="dropdown" ref={cadastrosRef}>
