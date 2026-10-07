@@ -35,40 +35,7 @@ function NavBarAdmin({ mostrarVoltar, mostrarLinks }) {
 
             {mostrarLinks && (
                 <div className="navbar-links">
-                    <div className="dropdown" ref={dropdownRef}>
-                        <button
-                            className={menuAberto ? "ativo" : ""}
-                            onClick={() => setMenuAberto(!menuAberto)}
-                        >
-                            Cadastros ▾
-                        </button>
-
-                        {menuAberto && (
-                            <div className="dropdown-menu">
-                                <Link
-                                    to="/cadastro"
-                                    className="dropdown-destaque"
-                                    onClick={() => setMenuAberto(false)}
-                                >
-                                    Visualizar todos os cadastros
-                                </Link>
-
-                                <div className="dropdown-itens">
-                                    {cadastros.map((item) => (
-                                        <Link
-                                            key={item.rota}
-                                            to={item.rota}
-                                            className="dropdown-link"
-                                            onClick={() => setMenuAberto(false)}
-                                        >
-                                            {item.label}
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
+                    <button onClick={() => navigate("/cadastrar-almoxarifados")}>Gerenciar Almoxarifados</button>
                     <button onClick={() => navigate("/gerenciar-almoxarifes")}>Gerenciar Almoxarifes</button>
                 </div>
             )}
