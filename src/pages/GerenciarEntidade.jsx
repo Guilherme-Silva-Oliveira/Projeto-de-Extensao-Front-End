@@ -64,8 +64,9 @@ const entidades = {
         titulo: "LIMITES",
         endpoint: "/v1/limites",
         colunas: [
+            { chave: "descLimite", titulo: "Descrição do Limite" },
             { chave: "limite", titulo: "Limite" },
-            { chave: "tipoLimite.nomeTipo", titulo: "Tipo de Limite" },
+            { chave: "material.nomeMaterial", titulo: "Material Associado" },
         ],
     },
 };
