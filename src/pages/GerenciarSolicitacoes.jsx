@@ -1,8 +1,9 @@
 import "./GerenciarSolicitacoes.css";
 import NavBar from "../components/NavBar";
 import CardSolicitacao from "../components/CardSolicitacao";
-import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import ModalReprovarSolicitacao from "../components/ModalReprovarSolicitacao";
+import { useEffect, useRef, useState } from "react"; // ======= ALTERADO: + useRef =======
+import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api.js";
 import Pagination from "../components/Pagination";
 import lupaIcon from "../assets/lupa.png";
@@ -63,6 +64,13 @@ function GerenciarSolicitacoes() {
     const [dataInicioSelecionada, setDataInicioSelecionada] = useState("");
     const [dataFimSelecionada, setDataFimSelecionada] = useState("");
 
+    // solicitação que está sendo reprovada (abre o modal de motivo)
+    const [solicitacaoReprovando, setSolicitacaoReprovando] = useState(null);
+
+    // ======= NOVO: ids que estão sendo finalizados agora, para ignorar clique duplo
+    // (um segundo POST geraria alerta de devolução duplicado) =======
+    const finalizandoRef = useRef(new Set());
+
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
 
@@ -70,7 +78,8 @@ function GerenciarSolicitacoes() {
         async function carregarSolicitacoes() {
             try {
                 setCarregando(true);
-                const response = await api.get("/v1/solicitacoes", {
+                // só traz as solicitações em aberto (sem reprovadas, finalizadas, expiradas ou pendentes de devolução)
+                const response = await api.get("/v1/solicitacoes/abertas", {
                     params: { page, size: 10 },
                 });
 
@@ -101,48 +110,51 @@ function GerenciarSolicitacoes() {
         carregarSolicitacoes();
     }, [page]);
 
-    // "Finalizar" no CardSolicitacao = entregar os materiais marcados no checkbox.
-    // O back não tem endpoint de entrega parcial por item ainda: hoje só existe
-    // POST /v1/solicitacoes/finalizarSolicitacao/{id}, que fecha a solicitação inteira.
-    // remoção parcial continua local (igual já era), e só chama o
-    // back quando o ÚLTIMO material pendente daquela solicitação for marcado —
-    // nesse momento a solicitação é de fato finalizada no servidor.
+    // ======= ALTERADO =======
+    // "Finalizar" = entregar os materiais marcados no checkbox.
+    // - Se TODOS os materiais da solicitação foram marcados: chama o back
+    //   (POST /finalizarSolicitacao/{id}) e só tira o card da tela quando o back confirmar.
+    //   Antes o card sumia primeiro e, se o POST falhasse, ele ficava sumido só até recarregar.
+    // - Se só ALGUNS foram marcados: continua apenas local (o back ainda não tem endpoint de
+    //   entrega parcial), ou seja, ao recarregar a página a solicitação volta completa.
     async function finalizarMateriais(solicitacaoId, idsSelecionados) {
+        if (finalizandoRef.current.has(solicitacaoId)) return;
+
         const solicitacaoAtual = solicitacoes.find((s) => s.id === solicitacaoId);
         if (!solicitacaoAtual) return;
 
         const materiaisRestantes = solicitacaoAtual.materiais.filter(
             (m) => !idsSelecionados.includes(m.id)
         );
-        const eraUltimaLeva = materiaisRestantes.length === 0;
 
-        setSolicitacoes((prev) =>
-            prev
-                .map((s) => (s.id === solicitacaoId ? { ...s, materiais: materiaisRestantes } : s))
-                .filter((s) => s.materiais.length > 0)
-        );
-
-        if (eraUltimaLeva) {
-            try {
-                await api.post(`/v1/solicitacoes/finalizarSolicitacao/${solicitacaoId}`);
-            } catch (error) {
-                console.error("Erro ao finalizar solicitação:", error);
-                alert("Os materiais foram marcados como entregues, mas houve um erro ao finalizar a solicitação no servidor.");
-            }
+        if (materiaisRestantes.length > 0) {
+            setSolicitacoes((prev) =>
+                prev.map((s) => (s.id === solicitacaoId ? { ...s, materiais: materiaisRestantes } : s))
+            );
+            return;
         }
-        // solicitações parciaisi!!!
-    }
 
-    // "Cancelar" cancela a solicitação inteira (ignora os checkbox),
-    // usando o mesmo endpoint de decisão que rejeita a solicitação.
-    async function cancelarSolicitacao(solicitacaoId) {
+        finalizandoRef.current.add(solicitacaoId);
         try {
-            await api.patch(`/v1/solicitacoes/${solicitacaoId}/decisao`, { aceita: false });
+            await api.post(`/v1/solicitacoes/finalizarSolicitacao/${solicitacaoId}`);
             setSolicitacoes((prev) => prev.filter((s) => s.id !== solicitacaoId));
         } catch (error) {
-            console.error("Erro ao cancelar solicitação:", error);
-            alert("Não foi possível cancelar a solicitação.");
+            console.error("Erro ao finalizar solicitação:", error);
+            alert(
+                error?.response?.data?.message ||
+                "Não foi possível finalizar a solicitação. Tente novamente."
+            );
+        } finally {
+            finalizandoRef.current.delete(solicitacaoId);
         }
+    }
+
+    // Reprova a solicitação inteira (ignora os checkboxes) e registra o motivo no histórico.
+    // Não trata o erro aqui: o modal captura e mostra a mensagem sem perder o texto digitado.
+    async function reprovarSolicitacao(solicitacaoId, motivo) {
+        await api.patch(`/v1/solicitacoes/${solicitacaoId}/decisao`, { aceita: false, motivo });
+        setSolicitacoes((prev) => prev.filter((s) => s.id !== solicitacaoId));
+        setSolicitacaoReprovando(null);
     }
 
     function limparFiltroData() {
@@ -188,7 +200,7 @@ function GerenciarSolicitacoes() {
 
             <main className="devolucoes-container">
                 <div className="devolucoes-breadcrumb">
-                    
+
                 </div>
 
                 <div className="devolucoes-topo">
@@ -301,7 +313,7 @@ function GerenciarSolicitacoes() {
                                 key={solicitacao.id}
                                 solicitacao={solicitacao}
                                 onFinalizar={(idsSelecionados) => finalizarMateriais(solicitacao.id, idsSelecionados)}
-                                onCancelar={() => cancelarSolicitacao(solicitacao.id)}
+                                onCancelar={() => setSolicitacaoReprovando(solicitacao)}
                             />
                         ))}
 
@@ -310,6 +322,14 @@ function GerenciarSolicitacoes() {
                     )}
                 </div>
             </main>
+
+            {solicitacaoReprovando && (
+                <ModalReprovarSolicitacao
+                    solicitante={solicitacaoReprovando.solicitante}
+                    onConfirmar={(motivo) => reprovarSolicitacao(solicitacaoReprovando.id, motivo)}
+                    onCancelar={() => setSolicitacaoReprovando(null)}
+                />
+            )}
         </div>
     );
 }
