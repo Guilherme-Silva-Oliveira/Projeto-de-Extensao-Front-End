@@ -1,0 +1,47 @@
+.modal-reprovar-texto {
+    margin: 0;
+    font-size: 15px;
+    color: #555;
+    line-height: 1.5;
+}
+
+.modal-reprovar-nome {
+    font-weight: 600;
+    color: #333;
+}
+
+.modal-reprovar-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.modal-reprovar-label {
+    font-size: 16px;
+    color: #555;
+}
+
+.modal-reprovar-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.4;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    resize: vertical;
+    outline: none;
+}
+
+.modal-reprovar-textarea:focus {
+    border-color: #0A086B;
+}
+
+.modal-reprovar-contador {
+    align-self: flex-end;
+    font-size: 12px;
+    color: #999;
+}

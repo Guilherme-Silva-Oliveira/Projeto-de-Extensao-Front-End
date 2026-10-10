@@ -2,7 +2,7 @@ import "./GerenciarSolicitacoes.css";
 import NavBar from "../components/NavBar";
 import CardSolicitacao from "../components/CardSolicitacao";
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api.js";
 import Pagination from "../components/Pagination";
 import lupaIcon from "../assets/lupa.png";
@@ -25,6 +25,7 @@ function normalizarSolicitacao(solicitacao) {
         motivo: solicitacao.motivo ?? "--",
         dataEntrega: formatarData(solicitacao.dataSolicitacao),
         dataEncerramento: formatarData(solicitacao.dataParaEnvio),
+        dataFinalizacao: formatarData(solicitacao.dataFinalizacao), 
         materiais: [],
     };
 }
@@ -141,11 +142,7 @@ function SolicitacoesFinalizadas() {
             <NavBar mostrarVoltar={true} mostrarLinks={true} />
 
             <main className="devolucoes-container">
-                <div className="devolucoes-breadcrumb">
-                    <Link to="/dashboard">Menu de opções</Link>
-                    <span> &gt; </span>
-                    <span>Solicitações Finalizadas</span>
-                </div>
+                <div className="devolucoes-breadcrumb"></div>
 
                 <div className="devolucoes-topo">
                     <div className="devolucoes-titulo-area">

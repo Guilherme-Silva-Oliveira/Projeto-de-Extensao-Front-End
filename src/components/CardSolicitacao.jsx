@@ -5,7 +5,8 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
     const [aberto, setAberto] = useState(false);
     const [materiaisSelecionados, setMateriaisSelecionados] = useState([]);
 
-    const { solicitante, dataEntrega, dataEncerramento, motivo, alerta, materiais = [] } =
+
+    const { solicitante, dataEntrega, dataEncerramento, dataReprovacao, dataFinalizacao, motivo, alerta, materiais = [] } =
         solicitacao;
 
     function alternarSelecao(materialId) {
@@ -25,13 +26,9 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
         setMateriaisSelecionados([]);
     }
 
+
     function handleCancelar() {
-        if (materiaisSelecionados.length === 0) {
-            alert("Selecione ao menos um material para cancelar.");
-            return;
-        }
-        onCancelar(materiaisSelecionados);
-        setMateriaisSelecionados([]);
+        onCancelar();
     }
 
     return (
@@ -68,6 +65,21 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
                     <span className="card-devolucao-label">Alerta:</span>
                     <span className="card-devolucao-valor">{alerta || "--"}</span>
                 </div>
+
+                {dataReprovacao && (
+                    <div className="card-devolucao-info">
+                        <span className="card-devolucao-label">Data e Hora da Reprovação:</span>
+                        <span className="card-devolucao-valor">{dataReprovacao}</span>
+                    </div>
+                )}
+
+                
+                {dataFinalizacao && (
+                    <div className="card-devolucao-info">
+                        <span className="card-devolucao-label">Data e Hora da Finalização:</span>
+                        <span className="card-devolucao-valor">{dataFinalizacao}</span>
+                    </div>
+                )}
 
                 <span className={`card-devolucao-seta ${aberto ? "seta-aberta" : ""}`}>
                     ⌄

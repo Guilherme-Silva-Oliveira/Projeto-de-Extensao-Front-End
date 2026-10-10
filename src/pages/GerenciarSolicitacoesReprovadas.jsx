@@ -25,6 +25,7 @@ function normalizarSolicitacao(solicitacao) {
         motivo: solicitacao.motivo ?? "--",
         dataEntrega: formatarData(solicitacao.dataSolicitacao),
         dataEncerramento: formatarData(solicitacao.dataParaEnvio),
+        dataReprovacao: formatarData(solicitacao.dataReprovacao),
         materiais: [],
     };
 }

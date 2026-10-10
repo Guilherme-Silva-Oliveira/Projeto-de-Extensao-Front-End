@@ -19,6 +19,7 @@ import GerenciarAlmoxarifes from "./pages/GerenciarAlmoxarifes";
 import GerenciarSolicitacoesReprovadas from "./pages/GerenciarSolicitacoesReprovadas";
 import CadastroAlmoxarife from "./pages/CadastroAlmoxarife";
 import GerenciarEntidade from "./pages/GerenciarEntidade";
+import GerenciarSolicitacoesFinalizadas from "./pages/GerenciarSolicitacoesFinalizadas";
 
 const routes = createBrowserRouter([
   {
@@ -116,6 +117,11 @@ const routes = createBrowserRouter([
     element: <GerenciarEntidade />,
     errorElement: <div>erro</div>,
   },
+  {
+    path: "/gerenciar-solicitacoes-finalizadas",
+    element: <GerenciarSolicitacoesFinalizadas />,
+    errorElement: <div>erro</div>,
+  }
 ]);
 
 export default routes;

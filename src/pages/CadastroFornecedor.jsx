@@ -15,7 +15,7 @@ function CadastroFornecedor() {
     const [telefone, setTelefone] = useState("");
 
     const [tiposFornecedor, setTiposFornecedor] = useState([]); // [{id, nomeTipo}]
-    const [tipoSelecionado, setTipoSelecionado] = useState(""); // nomeTipo (string, o que o SelectForm exibe)
+    const [tipoSelecionadoId, setTipoSelecionadoId] = useState(null); 
 
     const [erro, setErro] = useState("");
     const [carregando, setCarregando] = useState(false);
@@ -27,7 +27,7 @@ function CadastroFornecedor() {
                 const response = await api.get("/v1/fornecedores/tipos");
                 setTiposFornecedor(response.data);
                 if (response.data.length > 0) {
-                    setTipoSelecionado(response.data[0].nomeTipo);
+                    setTipoSelecionadoId(response.data[0].id); 
                 }
             } catch (error) {
                 setErro("Não foi possível carregar os tipos de fornecedor.");
@@ -40,11 +40,8 @@ function CadastroFornecedor() {
         event.preventDefault();
         setErro("");
 
-        const tipoEncontrado = tiposFornecedor.find(
-            (tipo) => tipo.nomeTipo === tipoSelecionado
-        );
-
-        if (!tipoEncontrado) {
+       
+        if (!tipoSelecionadoId) {
             setErro("Selecione um tipo de fornecedor válido.");
             return;
         }
@@ -56,7 +53,7 @@ function CadastroFornecedor() {
                 nome: nomeFornecedor,
                 email,
                 telefone,
-                idTipoFornecedor: tipoEncontrado.id,
+                idTipoFornecedor: tipoSelecionadoId, 
             });
 
             navigate(-1);
@@ -102,11 +99,14 @@ function CadastroFornecedor() {
                     </div>
 
                     <div className="cadastro-field">
+                    
                         <SelectForm
                             titulo="Tipo do Fornecedor:"
-                            opcoes={tiposFornecedor.map((tipo) => tipo.nomeTipo)}
-                            valor={tipoSelecionado}
-                            onChange={setTipoSelecionado}
+                            opcoes={tiposFornecedor}
+                            valor={tipoSelecionadoId ?? ""}
+                            onChange={(val) => setTipoSelecionadoId(Number(val))}
+                            labelField="nomeTipo"
+                            valueField="id"
                         />
                     </div>
 
