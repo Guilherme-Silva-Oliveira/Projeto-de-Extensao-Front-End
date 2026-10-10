@@ -133,9 +133,6 @@ function GerenciarAlmoxarifes() {
 
             <main className="almoxarifes-container">
                 <div className="almoxarifes-breadcrumb">
-                    <Link to="/menu">Menu de opções</Link>
-                    <span> &gt; </span>
-                    <span>Gerenciar Almoxarifes</span>
                 </div>
 
                 <div className="almoxarifes-topo">

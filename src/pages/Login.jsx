@@ -11,7 +11,7 @@ import { api } from "../provider/api";
 // Mapeia cada botão da tela para a role correspondente no banco
 // (ajuste os valores conforme o que o seu backend retorna)
 const PERFIS = {
-  almoxarife: { role: "ALMOXARIFE", rota: "/gerenciar-almoxarifado" },
+  almoxarife: { role: "ALMOXARIFE", rota: "/gerenciar-material" },
   administrador: { role: "ADMIN", rota: "/gerenciar-almoxarifes" },
 };
 

@@ -2,7 +2,13 @@ import Modal from "./Modal";
 import MainButton from "./MainButton";
 import "./ModalConfirmarExclusao.css";
 
-function ModalConfirmarExclusao({ almoxarife, onConfirmar, onCancelar }) {
+function ModalConfirmarExclusao({
+    almoxarife,
+    entidade = "o almoxarife",
+    onConfirmar,
+    onCancelar,
+    processando = false,
+}) {
     return (
         <Modal onFechar={onCancelar}>
             <div className="modal-exclusao-caixa">
@@ -19,7 +25,7 @@ function ModalConfirmarExclusao({ almoxarife, onConfirmar, onCancelar }) {
                 </div>
 
                 <p className="modal-exclusao-texto">
-                    Você está excluindo o almoxarife{" "}
+                    Você está excluindo {entidade}{" "}
                     <span className="modal-exclusao-nome">{almoxarife.nome}</span>
                 </p>
                 <p className="modal-exclusao-subtexto">
@@ -27,8 +33,18 @@ function ModalConfirmarExclusao({ almoxarife, onConfirmar, onCancelar }) {
                 </p>
 
                 <div className="modal-actions">
-                    <MainButton texto="Ok" cor="#0A086B" onClick={onConfirmar} />
-                    <MainButton texto="Cancelar" cor="#FF4B09" onClick={onCancelar} />
+                    <MainButton
+                        texto={processando ? "Excluindo..." : "Ok"}
+                        cor="#0A086B"
+                        onClick={onConfirmar}
+                        disabled={processando}
+                    />
+                    <MainButton
+                        texto="Cancelar"
+                        cor="#FF4B09"
+                        onClick={onCancelar}
+                        disabled={processando}
+                    />
                 </div>
             </div>
         </Modal>
