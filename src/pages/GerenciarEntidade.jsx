@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
+import AlertasPanel from "../components/AlertasPanel";
 import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
 import "./GerenciarEntidade.css";
@@ -248,6 +249,7 @@ function GerenciarEntidade() {
                     </button>
                 </nav>
             </main>
+            <AlertasPanel />
         </div>
     );
 }
