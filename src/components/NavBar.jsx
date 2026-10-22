@@ -16,6 +16,7 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
         { label: "Fornecedor", rota: "/cadastro-fornecedor" },
         { label: "Motivo", rota: "/cadastro-motivo" },
         { label: "Professor", rota: "/cadastro-professor" },
+        { label: "Solicitação", rota: "/solicitar-material" }, // NOVO
         { label: "Tipo de Fornecedor", rota: "/cadastro-tipo-fornecedor" },
         { label: "Setor do Estoque", rota: "/cadastro-tipo-fornecedor" },
         { label: "Limite", rota: "/cadastro-limite" },
@@ -55,6 +56,8 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
                     <button onClick={() => navigate("/dashboard")}>Dashboard </button>
                     <button onClick={() => navigate("/gerenciar-material")}>Materiais</button>
                     <button onClick={() => navigate("/gerenciar-solicitacoes")}>Solicitações</button>
+                    {/* NOVO: antes ficava nas abas das telas de solicitações */}
+                    <button onClick={() => navigate("/gerenciar-devolucoes")}>Devoluções</button>
                     <button onClick={() => navigate("/gerenciar-movimentacoes")}>Movimentações</button>
                     <div className="dropdown" ref={cadastrosRef}>
                         <button
@@ -73,7 +76,7 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
                                 <div className="dropdown-itens">
                                     {cadastros.map((item) => (
                                         <Link
-                                            key={item.rota}
+                                            key={item.label} // ALTERADO: era item.rota, que se repete em "Setor do Estoque"
                                             to={item.rota}
                                             className="dropdown-link"
                                             onClick={() => setCadastrosAberto(false)}

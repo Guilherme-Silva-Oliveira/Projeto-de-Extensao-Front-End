@@ -16,4 +16,3 @@ export const iaApi = axios.create({
     withCredentials: false
 })
 
-});

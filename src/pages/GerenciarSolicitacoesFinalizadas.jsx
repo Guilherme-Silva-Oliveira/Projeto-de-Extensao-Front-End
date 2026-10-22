@@ -25,7 +25,7 @@ function normalizarSolicitacao(solicitacao) {
         motivo: solicitacao.motivo ?? "--",
         dataEntrega: formatarData(solicitacao.dataSolicitacao),
         dataEncerramento: formatarData(solicitacao.dataParaEnvio),
-        dataFinalizacao: formatarData(solicitacao.dataFinalizacao), 
+        dataFinalizacao: formatarData(solicitacao.dataFinalizacao),
         materiais: [],
     };
 }
@@ -215,8 +215,9 @@ function SolicitacoesFinalizadas() {
 
                     <div className="devolucoes-tabs">
                         <div className="devolucoes-tabs-grupo">
-                            <button type="button" className="tab-btn" onClick={() => navigate("/gerenciar-devolucoes")}>
-                                Gerenciar Devoluções
+                            
+                            <button type="button" className="tab-btn" onClick={() => navigate("/solicitar-material")}>
+                                Solicitar Material
                             </button>
                             <button type="button" className="tab-btn" onClick={() => navigate("/gerenciar-solicitacoes")}>
                                 Gerenciar Solicitações
