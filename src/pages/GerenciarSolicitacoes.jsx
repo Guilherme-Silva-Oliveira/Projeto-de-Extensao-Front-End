@@ -1,4 +1,5 @@
 import "./GerenciarSolicitacoes.css";
+import "./GerenciarSolicitacoesReprovadas.css"; 
 import NavBar from "../components/NavBar";
 import CardSolicitacao from "../components/CardSolicitacao";
 import ModalReprovarSolicitacao from "../components/ModalReprovarSolicitacao";
@@ -66,14 +67,35 @@ function GerenciarSolicitacoes() {
     const [dataInicioSelecionada, setDataInicioSelecionada] = useState("");
     const [dataFimSelecionada, setDataFimSelecionada] = useState("");
 
-    // solicitação que está sendo reprovada (abre o modal de motivo)
     const [solicitacaoReprovando, setSolicitacaoReprovando] = useState(null);
 
-    // ======= NOVO: ids que estão sendo finalizados agora, para ignorar clique duplo
-    // (um segundo POST geraria alerta de devolução duplicado) =======
+
+    const [menuAberto, setMenuAberto] = useState(false);
+    const [alertas, setAlertas] = useState([]);
+
+
     const finalizandoRef = useRef(new Set());
 
     const [page, setPage] = useState(0);
+
+    // NOVO
+    useEffect(() => {
+        async function carregarAlertas() {
+            try {
+                const response = await api.get("/v1/frontend/alertas");
+                const alertasRecebidos = Array.isArray(response.data)
+                    ? response.data
+                    : Array.isArray(response.data?.content)
+                        ? response.data.content
+                        : [];
+                setAlertas(alertasRecebidos);
+            } catch (error) {
+                console.error("Erro ao buscar alertas:", error);
+            }
+        }
+
+        carregarAlertas();
+    }, []);
 
     useEffect(() => {
         async function carregarSolicitacoes() {
@@ -131,13 +153,28 @@ function GerenciarSolicitacoes() {
         carregarSolicitacoes();
     }, []);
 
-    // ======= ALTERADO =======
-    // "Finalizar" = entregar os materiais marcados no checkbox.
-    // - Se TODOS os materiais da solicitação foram marcados: chama o back
-    //   (POST /finalizarSolicitacao/{id}) e só tira o card da tela quando o back confirmar.
-    //   Antes o card sumia primeiro e, se o POST falhasse, ele ficava sumido só até recarregar.
-    // - Se só ALGUNS foram marcados: continua apenas local (o back ainda não tem endpoint de
-    //   entrega parcial), ou seja, ao recarregar a página a solicitação volta completa.
+
+    async function marcarAlertaResolvido(alerta) {
+        if (alerta.idAlerta == null || alerta.isResolvido) return;
+
+        try {
+            await api.put(
+                `/v1/frontend/alertas/${alerta.idAlerta}/${encodeURIComponent(alerta.causaAlerta)}`
+            );
+            setAlertas((anteriores) =>
+                anteriores.map((item) =>
+                    item.idAlerta === alerta.idAlerta &&
+                    item.causaAlerta === alerta.causaAlerta
+                        ? { ...item, isResolvido: true }
+                        : item
+                )
+            );
+        } catch (error) {
+            console.error("Erro ao resolver alerta:", error);
+            alert("Não foi possível marcar o alerta como resolvido.");
+        }
+    }
+
     async function finalizarMateriais(solicitacaoId, idsSelecionados) {
         if (finalizandoRef.current.has(solicitacaoId)) return;
 
@@ -170,8 +207,7 @@ function GerenciarSolicitacoes() {
         }
     }
 
-    // Reprova a solicitação inteira (ignora os checkboxes) e registra o motivo no histórico.
-    // Não trata o erro aqui: o modal captura e mostra a mensagem sem perder o texto digitado.
+
     async function reprovarSolicitacao(solicitacaoId, motivo) {
         await api.patch(`/v1/solicitacoes/${solicitacaoId}/decisao`, { aceita: false, motivo });
         setSolicitacoes((prev) => prev.filter((s) => s.id !== solicitacaoId));
@@ -228,9 +264,7 @@ function GerenciarSolicitacoes() {
             <NavBar mostrarVoltar={true} mostrarLinks={true} />
 
             <main className="devolucoes-container">
-                <div className="devolucoes-breadcrumb">
-
-                </div>
+                <div className="devolucoes-breadcrumb"></div>
 
                 <div className="devolucoes-topo">
                     <div className="devolucoes-titulo-area">
@@ -306,8 +340,9 @@ function GerenciarSolicitacoes() {
 
                     <div className="devolucoes-tabs">
                         <div className="devolucoes-tabs-grupo">
-                            <button type="button" className="tab-btn" onClick={() => navigate("/gerenciar-devolucoes")}>
-                                Gerenciar Devoluções
+                            
+                            <button type="button" className="tab-btn" onClick={() => navigate("/solicitar-material")}>
+                                Solicitar Material
                             </button>
                             <button type="button" className="tab-btn tab-ativa">
                                 Gerenciar Solicitações

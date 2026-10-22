@@ -1,13 +1,35 @@
 import { useState } from "react";
 import "./CardDevolucao.css";
 
+
+const ALERTAS = {
+    TUDO_CERTO: { rotulo: "Tudo certo", classe: "alerta-badge-ok" },
+    ESTOQUE_VAZIO: { rotulo: "Estoque zerado", classe: "alerta-badge-atencao" },
+    MATERIAIS_INSUFICIENTES: { rotulo: "Material insuficiente", classe: "alerta-badge-erro" },
+};
+
+function interpretarAlerta(alerta) {
+    if (!alerta) return null;
+    const separador = alerta.indexOf(":");
+    const codigo = (separador >= 0 ? alerta.slice(0, separador) : alerta).trim();
+    const detalhe = separador >= 0 ? alerta.slice(separador + 1).trim() : "";
+    const info = ALERTAS[codigo];
+    if (!info) return { rotulo: alerta, classe: "alerta-badge-neutro", detalhe: "" };
+    return { ...info, detalhe };
+}
+
+const temValor = (valor) => Boolean(valor) && valor !== "--";
+
 function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, somenteLeitura }) {
     const [aberto, setAberto] = useState(false);
     const [materiaisSelecionados, setMateriaisSelecionados] = useState([]);
 
+    const {
+        solicitante, dataEntrega, dataEncerramento, dataReprovacao, motivoReprovacao,
+        dataFinalizacao, motivo, alerta, materiais = [],
+    } = solicitacao;
 
-    const { solicitante, dataEntrega, dataEncerramento, dataReprovacao, dataFinalizacao, motivo, alerta, materiais = [] } =
-        solicitacao;
+    const alertaInfo = interpretarAlerta(alerta);
 
     function alternarSelecao(materialId) {
         setMateriaisSelecionados((prev) =>
@@ -26,7 +48,7 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
         setMateriaisSelecionados([]);
     }
 
-
+  
     function handleCancelar() {
         onCancelar();
     }
@@ -43,16 +65,12 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
                 </div>
 
                 <div className="card-devolucao-info">
-                    <span className="card-devolucao-label">
-                        Data e Hora da Solicitação
-                    </span>
+                    <span className="card-devolucao-label">Data e Hora da Solicitação</span>
                     <span className="card-devolucao-valor">{dataEntrega}</span>
                 </div>
 
                 <div className="card-devolucao-info">
-                    <span className="card-devolucao-label">
-                        Data Prevista para Entrega:
-                    </span>
+                    <span className="card-devolucao-label">Data Prevista para Entrega:</span>
                     <span className="card-devolucao-valor">{dataEncerramento}</span>
                 </div>
 
@@ -61,20 +79,29 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
                     <span className="card-devolucao-valor">{motivo}</span>
                 </div>
 
-                <div className="card-devolucao-info">
+                
+                <div className="card-devolucao-info card-devolucao-info-alerta">
                     <span className="card-devolucao-label">Alerta:</span>
-                    <span className="card-devolucao-valor">{alerta || "--"}</span>
+                    {alertaInfo ? (
+                        <>
+                            <span className={`alerta-badge ${alertaInfo.classe}`}>{alertaInfo.rotulo}</span>
+                            {alertaInfo.detalhe && (
+                                <span className="alerta-detalhe">{alertaInfo.detalhe}</span>
+                            )}
+                        </>
+                    ) : (
+                        <span className="card-devolucao-valor">--</span>
+                    )}
                 </div>
 
-                {dataReprovacao && (
+                {temValor(dataReprovacao) && (
                     <div className="card-devolucao-info">
                         <span className="card-devolucao-label">Data e Hora da Reprovação:</span>
                         <span className="card-devolucao-valor">{dataReprovacao}</span>
                     </div>
                 )}
 
-                
-                {dataFinalizacao && (
+                {temValor(dataFinalizacao) && (
                     <div className="card-devolucao-info">
                         <span className="card-devolucao-label">Data e Hora da Finalização:</span>
                         <span className="card-devolucao-valor">{dataFinalizacao}</span>
@@ -85,6 +112,14 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
                     ⌄
                 </span>
             </div>
+
+            
+            {temValor(dataReprovacao) && (
+                <div className="card-devolucao-reprovacao">
+                    <span className="card-devolucao-label">Motivo da reprovação:</span>
+                    <p>{motivoReprovacao || "Não informado"}</p>
+                </div>
+            )}
 
             {aberto && (
                 <div className="card-devolucao-corpo">
@@ -103,21 +138,15 @@ function CardSolicitacao({ solicitacao, onFinalizar, onCancelar, className, some
                                         />
                                     )}
                                     <span>
-                                        <span className="card-devolucao-label">
-                                            Material:{" "}
-                                        </span>
+                                        <span className="card-devolucao-label">Material: </span>
                                         {material.nome}
                                     </span>
                                     <span>
-                                        <span className="card-devolucao-label">
-                                            Quantidade Solicitada:{" "}
-                                        </span>
+                                        <span className="card-devolucao-label">Quantidade Solicitada: </span>
                                         {material.quantidadeSolicitada}
                                     </span>
                                     <span>
-                                        <span className="card-devolucao-label">
-                                            Quantidade Disponível:{" "}
-                                        </span>
+                                        <span className="card-devolucao-label">Quantidade Disponível: </span>
                                         {material.quantidadeDisponivel ?? "--"}
                                     </span>
                                 </div>

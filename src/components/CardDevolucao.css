@@ -125,3 +125,46 @@
     background-color: #fdecea;
     border-color: #f5c2c0;
 }
+
+/* ===== Selo de alerta ===== */
+.card-devolucao-info-alerta {
+    flex: 1.5;
+    gap: 6px;
+}
+
+.alerta-badge {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.alerta-badge-ok { background: #e3f5e8; color: #1f7a3d; }
+.alerta-badge-atencao { background: #fff4d6; color: #8a6100; }
+.alerta-badge-erro { background: #fde4e2; color: #b3261e; }
+.alerta-badge-neutro { background: #eeeeee; color: #555555; }
+
+.alerta-detalhe {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.35;
+}
+
+/* ===== Motivo da reprovação ===== */
+.card-devolucao-reprovacao {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 24px 16px;
+    border-top: 1px solid #eaeaea;
+}
+
+.card-devolucao-reprovacao p {
+    margin: 0;
+    font-size: 15px;
+    color: #333;
+    overflow-wrap: anywhere;
+}

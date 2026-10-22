@@ -4,7 +4,7 @@ import InputForm from "../components/InputForm";
 import MainButton from "../components/MainButton";
 import SelectForm from "../components/SelectForm";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { api, iaApi } from "../provider/api.js";
 
 const criarItemVazio = (materialIdPadrao) => ({
@@ -20,14 +20,39 @@ function encontrarPorNome(lista, nomeAlvo, campoNome) {
     return lista.find((item) => (item[campoNome] ?? "").trim().toLowerCase() === alvo) ?? null;
 }
 
-
 function toLocalDateTimeString(date) {
     const pad = (n) => String(n).padStart(2, "0");
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
+
+function IconeMais() {
+    return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="16" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+    );
+}
+
+function IconeLixeira() {
+    return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6" />
+            <path d="M14 11v6" />
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+        </svg>
+    );
+}
+
 function SolicitarMaterial() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [modoAtivo, setModoAtivo] = useState("Automático");
 
     const [listaProfessores, setListaProfessores] = useState([]);
@@ -48,6 +73,10 @@ function SolicitarMaterial() {
     const [itens, setItens] = useState([]);
     const [enviando, setEnviando] = useState(false);
 
+
+    const [sucesso, setSucesso] = useState(false);
+    const [erroRegistro, setErroRegistro] = useState("");
+
     useEffect(() => {
         async function carregarDadosIniciais() {
             try {
@@ -58,12 +87,19 @@ function SolicitarMaterial() {
                     api.get("/v1/materiais", { params: { page: 0, size: 100 } }),
                 ]);
 
-                const professores = respProfessores.data ?? [];
-                const motivos = respMotivos.data ?? [];
+                
+                const professores = Array.isArray(respProfessores.data) ? respProfessores.data : [];
+                const motivos = Array.isArray(respMotivos.data) ? respMotivos.data : [];
                 const materiaisPage = respMateriais.data;
                 const materiais = Array.isArray(materiaisPage)
                     ? materiaisPage
-                    : materiaisPage?.content ?? [];
+                    : Array.isArray(materiaisPage?.content)
+                        ? materiaisPage.content
+                        : [];
+
+                if (professores.length === 0 || motivos.length === 0) {
+                    setErroCarregamento("Cadastre ao menos um professor e um motivo antes de solicitar um material.");
+                }
 
                 setListaProfessores(professores);
                 setListaMotivos(motivos);
@@ -86,6 +122,13 @@ function SolicitarMaterial() {
 
         carregarDadosIniciais();
     }, []);
+
+    
+    useEffect(() => {
+        if (!sucesso) return;
+        const timer = setTimeout(() => setSucesso(false), 8000);
+        return () => clearTimeout(timer);
+    }, [sucesso]);
 
     async function handleAnalisarComIA() {
         if (!mensagemAuto.trim()) {
@@ -160,32 +203,55 @@ function SolicitarMaterial() {
         );
     }
 
-    async function handleRegistrar() {
-        const itensValidos = itens.filter((item) => Number(item.qtdSolicitada) > 0);
+    
+    function limparFormulario() {
+        setMensagemAuto("");
+        setAlertaIA(null);
+        setModeloIAId(null);
+        setPrazo("");
+        setProfessorId(listaProfessores[0]?.id ?? null);
+        setMotivoId(listaMotivos[0]?.id ?? null);
+        setItens(catalogoMateriais.length > 0 ? [criarItemVazio(catalogoMateriais[0].id)] : []);
+    }
 
-        if (itensValidos.length === 0) {
-            alert("Adicione ao menos um material com quantidade válida.");
+    async function handleRegistrar() {
+        if (enviando) return;
+        setSucesso(false);
+        setErroRegistro("");
+
+        
+        if (itens.length === 0) {
+            setErroRegistro("Adicione ao menos um material.");
+            return;
+        }
+        if (itens.some((item) => !(Number(item.qtdSolicitada) > 0))) {
+            setErroRegistro("Informe uma quantidade válida em todos os materiais ou remova os itens vazios.");
+            return;
+        }
+        const idsMateriais = itens.map((item) => item.materialId);
+        if (new Set(idsMateriais).size !== idsMateriais.length) {
+            setErroRegistro("Há materiais repetidos. Use um único item por material.");
             return;
         }
         if (!professorId || !motivoId) {
-            alert("Selecione o professor e o motivo.");
+            setErroRegistro("Selecione o professor e o motivo.");
             return;
         }
         if (!prazo) {
-            alert("Informe o prazo para a solicitação.");
+            setErroRegistro("Informe o prazo para a solicitação.");
             return;
         }
 
-        const nomesMateriais = itensValidos
+        const nomesMateriais = itens
             .map((item) => {
                 const material = catalogoMateriais.find((m) => m.id === item.materialId);
                 return material?.nomeMaterial ?? material?.nome ?? "";
             })
             .join(",");
 
-        const quantidades = itensValidos.map((item) => item.qtdSolicitada).join(",");
+        const quantidades = itens.map((item) => item.qtdSolicitada).join(",");
 
-        const deveDevolver = itensValidos
+        const deveDevolver = itens
             .map((item) => String(Boolean(item.deveDevolver)))
             .join(",");
 
@@ -199,7 +265,7 @@ function SolicitarMaterial() {
             deveDevolver,
             inteligenciaArtificialId: modoAtivo === "Automático" ? modeloIAId : null,
             descricao: motivoSelecionado?.descricao ?? motivoSelecionado?.nome ?? "Solicitação de material",
-            dataSolicitacao: toLocalDateTimeString(new Date()), // ======= ALTERADO: era new Date().toISOString() =======
+            dataSolicitacao: toLocalDateTimeString(new Date()),
             dataParaEnvio: `${prazo}T00:00:00`,
             alerta: null,
         };
@@ -207,27 +273,33 @@ function SolicitarMaterial() {
         try {
             setEnviando(true);
             await api.post("/v1/solicitacoes", payload);
-            alert("Solicitação registrada com sucesso!");
-            navigate(-1);
+           
+            limparFormulario();
+            setSucesso(true);
         } catch (error) {
             console.error("Erro ao registrar solicitação:", error);
-            const mensagemErro =
+            setErroRegistro(
                 error?.response?.data?.message ||
-                "Erro ao registrar a solicitação. Verifique os dados e tente novamente.";
-            alert(mensagemErro);
+                "Erro ao registrar a solicitação. Verifique os dados e tente novamente."
+            );
         } finally {
             setEnviando(false);
         }
     }
 
+   
     function handleCancelar() {
-        navigate(-1);
+        if (location.key !== "default") {
+            navigate(-1);
+        } else {
+            navigate("/gerenciar-solicitacoes");
+        }
     }
 
     if (carregando) {
         return (
             <div className="page-container">
-                <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+                <NavBar mostrarVoltar={true} mostrarLinks={true} />
                 <main className="solicitar-container">
                     <p>Carregando dados...</p>
                 </main>
@@ -238,7 +310,7 @@ function SolicitarMaterial() {
     if (erroCarregamento) {
         return (
             <div className="page-container">
-                <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+                <NavBar mostrarVoltar={true} mostrarLinks={true} />
                 <main className="solicitar-container">
                     <p>{erroCarregamento}</p>
                 </main>
@@ -248,7 +320,7 @@ function SolicitarMaterial() {
 
     return (
         <div className="page-container">
-            <NavBar mostrarVoltar={true} onVoltar={() => navigate(-1)} />
+            <NavBar mostrarVoltar={true} mostrarLinks={true} />
 
             <main className="solicitar-container">
                 <h1 className="titulo-solicitar">SOLICITE UM MATERIAL</h1>
@@ -270,6 +342,25 @@ function SolicitarMaterial() {
                         Manual
                     </button>
                 </div>
+
+          
+                {sucesso && (
+                    <div className="solicitar-banner solicitar-banner-sucesso" role="status">
+                        <span>Solicitação registrada com sucesso!</span>
+                        <button
+                            type="button"
+                            className="solicitar-banner-link"
+                            onClick={() => navigate("/gerenciar-solicitacoes")}
+                        >
+                            Ver solicitações
+                        </button>
+                    </div>
+                )}
+                {erroRegistro && (
+                    <div className="solicitar-banner solicitar-banner-erro" role="alert">
+                        {erroRegistro}
+                    </div>
+                )}
 
                 <div className="solicitar-scroll-area">
                     <div className="solicitar-form">
@@ -353,7 +444,8 @@ function SolicitarMaterial() {
                                                     onClick={() => removerItem(item.id)}
                                                     title="Excluir este item de solicitação"
                                                 >
-                                                    <span className="material-symbols-outlined btn-icone-lixeira">delete</span>
+                                                    
+                                                    <span className="btn-icone-lixeira"><IconeLixeira /></span>
                                                 </button>
                                             )}
                                         </div>
@@ -437,8 +529,20 @@ function SolicitarMaterial() {
                             })}
                         </div>
 
-                        <button type="button" className="adicionar-btn" onClick={adicionarItem}>
-                            <span className="material-symbols-outlined btn-icone-adicionar">add_circle</span> Adicionar Material
+                        {catalogoMateriais.length === 0 && (
+                            <p className="solicitar-aviso">
+                                Nenhum material cadastrado. Cadastre ao menos um material para solicitar.
+                            </p>
+                        )}
+
+                        <button
+                            type="button"
+                            className="adicionar-btn"
+                            onClick={adicionarItem}
+                            disabled={catalogoMateriais.length === 0}
+                        >
+                           
+                            <span className="btn-icone-adicionar"><IconeMais /></span> Adicionar Material
                         </button>
                     </div>
                 </div>
@@ -450,7 +554,8 @@ function SolicitarMaterial() {
                         onClick={handleRegistrar}
                         disabled={enviando}
                     />
-                    <MainButton texto="Cancelar Solicitação" cor="#FF4B09" onClick={handleCancelar} />
+                    
+                    <MainButton texto="Cancelar" cor="#FF4B09" onClick={handleCancelar} />
                 </div>
             </main>
         </div>
