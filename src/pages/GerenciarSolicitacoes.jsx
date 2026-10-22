@@ -3,10 +3,10 @@ import "./GerenciarSolicitacoesReprovadas.css";
 import NavBar from "../components/NavBar";
 import CardSolicitacao from "../components/CardSolicitacao";
 import ModalReprovarSolicitacao from "../components/ModalReprovarSolicitacao";
-import { useEffect, useRef, useState } from "react";
+import AlertasPanel from "../components/AlertasPanel";
+import { useEffect, useRef, useState } from "react"; // ======= ALTERADO: + useRef =======
 import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api.js";
-import Pagination from "../components/Pagination";
 import lupaIcon from "../assets/lupa.png";
 
 function formatarData(data) {
@@ -54,6 +54,8 @@ function parseDataEntrega(dataEntregaStr) {
 
 function GerenciarSolicitacoes() {
     const navigate = useNavigate();
+    const tamanhoPagina = 6;
+    const tamanhoPaginaApi = 100;
 
     const [solicitacoes, setSolicitacoes] = useState([]);
     const [carregando, setCarregando] = useState(true);
@@ -75,7 +77,6 @@ function GerenciarSolicitacoes() {
     const finalizandoRef = useRef(new Set());
 
     const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
 
     // NOVO
     useEffect(() => {
@@ -100,13 +101,34 @@ function GerenciarSolicitacoes() {
         async function carregarSolicitacoes() {
             try {
                 setCarregando(true);
-                
-                const response = await api.get("/v1/solicitacoes/abertas", {
-                    params: { page, size: 10 },
+                const primeiraResposta = await api.get("/v1/solicitacoes", {
+                    params: { page: 0, size: tamanhoPaginaApi },
                 });
-
-                const dataArray = Array.isArray(response.data) ? response.data : response.data.content || [];
-                const solicitacoesRecebidas = dataArray.map(normalizarSolicitacao);
+                const primeiraPagina = Array.isArray(primeiraResposta.data)
+                    ? primeiraResposta.data
+                    : Array.isArray(primeiraResposta.data?.content)
+                        ? primeiraResposta.data.content
+                        : [];
+                const totalPaginasApi = Array.isArray(primeiraResposta.data)
+                    ? 1
+                    : Math.max(1, primeiraResposta.data?.totalPages ?? 1);
+                const paginasRestantes = await Promise.all(
+                    Array.from({ length: totalPaginasApi - 1 }, (_, indice) =>
+                        api.get("/v1/solicitacoes", {
+                            params: { page: indice + 1, size: tamanhoPaginaApi },
+                        })
+                    )
+                );
+                const solicitacoesRecebidas = [
+                    ...primeiraPagina,
+                    ...paginasRestantes.flatMap((resposta) =>
+                        Array.isArray(resposta.data)
+                            ? resposta.data
+                            : Array.isArray(resposta.data?.content)
+                                ? resposta.data.content
+                                : []
+                    ),
+                ].map(normalizarSolicitacao);
 
                 const solicitacoesComMateriais = await Promise.all(
                     solicitacoesRecebidas.map(async (solicitacao) => {
@@ -119,9 +141,8 @@ function GerenciarSolicitacoes() {
                         }
                     })
                 );
-
                 setSolicitacoes(solicitacoesComMateriais);
-                setTotalPages(response.data.totalPages || 1);
+                setSolicitacoes(solicitacoesComMateriais);
             } catch (error) {
                 console.error("Erro ao buscar solicitacoes:", error);
             } finally {
@@ -130,7 +151,7 @@ function GerenciarSolicitacoes() {
         }
 
         carregarSolicitacoes();
-    }, [page]);
+    }, []);
 
 
     async function marcarAlertaResolvido(alerta) {
@@ -199,12 +220,14 @@ function GerenciarSolicitacoes() {
         setDataInicioSelecionada("");
         setDataFimSelecionada("");
         setMostrarFiltroData(false);
+        setPage(0);
     }
 
     function aplicarFiltroData() {
         setDataInicio(dataInicioSelecionada);
         setDataFim(dataFimSelecionada);
         setMostrarFiltroData(false);
+        setPage(0);
     }
 
     const solicitacoesFiltradas = solicitacoes.filter((s) => {
@@ -229,6 +252,12 @@ function GerenciarSolicitacoes() {
 
         return nomeCombina && dataCombina;
     });
+    const totalPages = Math.max(1, Math.ceil(solicitacoesFiltradas.length / tamanhoPagina));
+    const paginaAtual = Math.min(page, totalPages - 1);
+    const solicitacoesVisiveis = solicitacoesFiltradas.slice(
+        paginaAtual * tamanhoPagina,
+        (paginaAtual + 1) * tamanhoPagina
+    );
 
     return (
         <div className="page-container">
@@ -299,7 +328,10 @@ function GerenciarSolicitacoes() {
                                     className="busca-input"
                                     placeholder="Pesquise por um Professor"
                                     value={busca}
-                                    onChange={(e) => setBusca(e.target.value)}
+                                    onChange={(e) => {
+                                        setBusca(e.target.value);
+                                        setPage(0);
+                                    }}
                                 />
                                 <img src={lupaIcon} alt="Buscar" className="busca-icone" />
                             </div>
@@ -343,7 +375,7 @@ function GerenciarSolicitacoes() {
                     )}
 
                     {!carregando &&
-                        solicitacoesFiltradas.map((solicitacao) => (
+                        solicitacoesVisiveis.map((solicitacao) => (
                             <CardSolicitacao
                                 key={solicitacao.id}
                                 solicitacao={solicitacao}
@@ -352,11 +384,34 @@ function GerenciarSolicitacoes() {
                             />
                         ))}
 
-                    {!carregando && solicitacoesFiltradas.length > 0 && (
-                        <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
-                    )}
                 </div>
             </main>
+
+            {!carregando && totalPages > 1 && (
+                <nav className="solicitacoes-paginacao" aria-label="Paginação das solicitações">
+                    <button
+                        type="button"
+                        aria-label="Página anterior"
+                        onClick={() => setPage((pagina) => Math.max(0, pagina - 1))}
+                        disabled={paginaAtual === 0}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                    </button>
+                    <span>Página {paginaAtual + 1} de {totalPages}</span>
+                    <button
+                        type="button"
+                        aria-label="Próxima página"
+                        onClick={() => setPage((pagina) => Math.min(totalPages - 1, pagina + 1))}
+                        disabled={paginaAtual >= totalPages - 1}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                    </button>
+                </nav>
+            )}
 
             {solicitacaoReprovando && (
                 <ModalReprovarSolicitacao
@@ -365,89 +420,7 @@ function GerenciarSolicitacoes() {
                     onCancelar={() => setSolicitacaoReprovando(null)}
                 />
             )}
-
-           
-            <button
-                type="button"
-                className={`menu-reprovadas-abrir${alertas.length > 0 ? " menu-reprovadas-abrir-alerta" : ""}`}
-                aria-label="Abrir alertas"
-                aria-expanded={menuAberto}
-                aria-controls="menu-lateral-reprovadas"
-                onClick={() => setMenuAberto(true)}
-            >
-                <svg
-                    viewBox="0 0 24 24"
-                    width="28"
-                    height="28"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                >
-                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-                    <path d="M10 21h4" />
-                </svg>
-            </button>
-
-            <button
-                type="button"
-                className={`menu-reprovadas-overlay${menuAberto ? " menu-reprovadas-overlay-aberto" : ""}`}
-                aria-label="Fechar alertas"
-                tabIndex={menuAberto ? 0 : -1}
-                onClick={() => setMenuAberto(false)}
-            />
-
-            <aside
-                id="menu-lateral-reprovadas"
-                className={`menu-reprovadas-painel${menuAberto ? " menu-reprovadas-painel-aberto" : ""}`}
-                aria-label="Alertas em aberto"
-                aria-hidden={!menuAberto}
-            >
-                <div className="menu-reprovadas-cabecalho">
-                    <h2>ALERTAS EM ABERTO</h2>
-                    <button type="button" onClick={() => setMenuAberto(false)}>
-                        Fechar
-                    </button>
-                </div>
-                <div className="menu-reprovadas-lista">
-                    {alertas.map((alerta, index) => (
-                        <article
-                            className="menu-reprovadas-card"
-                            key={`${alerta.causaAlerta ?? "alerta"}-${index}`}
-                        >
-                            <div className="menu-reprovadas-card-topo">
-                                <h3>{alerta.causaAlerta || "Alerta"}</h3>
-                                <span className={alerta.isResolvido ? "alerta-status resolvido" : "alerta-status aberto"}>
-                                    {alerta.isResolvido ? "Resolvido" : "Em aberto"}
-                                </span>
-                            </div>
-                            <div className="menu-reprovadas-card-conteudo">
-                                <div className="menu-reprovadas-card-textos">
-                                    <p className="menu-reprovadas-professor">
-                                        {alerta.nomeProfessor || "Professor não informado"}
-                                    </p>
-                                    <p className="menu-reprovadas-descricao">
-                                        {alerta.descricao || "Sem descrição."}
-                                    </p>
-                                </div>
-                                <button
-                                    type="button"
-                                    className="menu-reprovadas-resolver"
-                                    disabled={alerta.isResolvido}
-                                    onClick={() => marcarAlertaResolvido(alerta)}
-                                >
-                                    {alerta.isResolvido ? "Resolvido" : "Resolver"}
-                                </button>
-                            </div>
-                        </article>
-                    ))}
-                    {alertas.length === 0 && (
-                        <p className="menu-reprovadas-vazio">Nenhum alerta listado.</p>
-                    )}
-                </div>
-            </aside>
+            <AlertasPanel />
         </div>
     );
 }
