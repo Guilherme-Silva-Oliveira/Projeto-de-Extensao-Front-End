@@ -136,7 +136,7 @@
 }
 
 .btn-remover-bloco {
-    background: none;
+    background-color: #ef5350;
     border: none;
     cursor: pointer;
     padding: 4px;
@@ -152,17 +152,19 @@
 }
 
 .btn-icone-lixeira {
-    color: #666666;
+    color: white;
     font-size: 22px;
     transition: color 0.2s;
 }
 
-.btn-remover-bloco:hover {
-    background-color: #fee2e2;
+.btn-remover-bloco:hover,
+.btn-remover-bloco:focus-visible {
+    background-color: #d94743;
 }
 
-.btn-remover-bloco:hover .btn-icone-lixeira {
-    color: #d32f2f;
+.btn-remover-bloco:hover .btn-icone-lixeira,
+.btn-remover-bloco:focus-visible .btn-icone-lixeira {
+    color: white;
 }
 
 .btn-icone-adicionar {

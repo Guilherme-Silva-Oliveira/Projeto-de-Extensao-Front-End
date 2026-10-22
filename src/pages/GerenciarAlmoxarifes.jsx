@@ -132,9 +132,6 @@ function GerenciarAlmoxarifes() {
             <NavBarAdmin mostrarVoltar={true} mostrarLinks={true} />
 
             <main className="almoxarifes-container">
-                <div className="almoxarifes-breadcrumb">
-                </div>
-
                 <div className="almoxarifes-topo">
                     <div>
                         <h1 className="titulo-almoxarifes">ALMOXARIFES</h1>

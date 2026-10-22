@@ -8,12 +8,23 @@
 }
 
 .almoxarifados-topo {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 20px;
     flex-wrap: wrap;
     margin-bottom: 30px;
+}
+
+.almoxarifados-topo > .busca-wrapper {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.almoxarifados-cadastrar-btn {
+    margin-left: auto;
 }
 
 .titulo-almoxarifados {
@@ -147,6 +158,15 @@
     font-size: 16px;
     text-align: center;
     margin-top: 40px;
+}
+
+@media (max-width: 900px) {
+    .almoxarifados-topo > .busca-wrapper {
+        position: static;
+        order: 3;
+        flex-basis: 100%;
+        transform: none;
+    }
 }
 
 @media (max-width: 600px) {
