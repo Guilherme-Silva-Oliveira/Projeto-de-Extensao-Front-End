@@ -1,5 +1,6 @@
 import "./GerenciarMovimentacoes.css";
 import NavBar from "../components/NavBar";
+import AlertasPanel from "../components/AlertasPanel";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api.js";
@@ -173,6 +174,7 @@ function GerenciarMovimentacoes() {
                     </button>
                 </nav>
             )}
+            <AlertasPanel />
         </div>
     );
 }

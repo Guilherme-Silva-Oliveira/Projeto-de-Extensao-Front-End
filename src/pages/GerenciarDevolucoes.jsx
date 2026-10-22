@@ -187,6 +187,7 @@ import "./GerenciarDevolucoes.css";
 import NavBar from "../components/NavBar";
 import CardDevolucao from "../components/CardDevolucao";
 import ModalDevolucao from "../components/ModalDevolucao";
+import AlertasPanel from "../components/AlertasPanel";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api.js";
@@ -566,6 +567,7 @@ function GerenciarDevolucoes() {
                     }
                 />
             )}
+            <AlertasPanel />
         </div>
     );
 }
