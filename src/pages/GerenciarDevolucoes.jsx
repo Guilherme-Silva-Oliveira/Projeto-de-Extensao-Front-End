@@ -191,7 +191,6 @@ import AlertasPanel from "../components/AlertasPanel";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api.js";
-import Pagination from "../components/Pagination";
 import lupaIcon from "../assets/lupa.png";
 
 function normalizarMateriais(materiais, solicitacaoId, catalogoMateriais = []) {
@@ -246,6 +245,8 @@ function normalizarMateriais(materiais, solicitacaoId, catalogoMateriais = []) {
 
 function GerenciarDevolucoes() {
     const navigate = useNavigate();
+    const tamanhoPagina = 6;
+    const tamanhoPaginaApi = 100;
 
     const [solicitacoes, setSolicitacoes] = useState([]);
     const [catalogoMateriais, setCatalogoMateriais] = useState([]);
@@ -256,7 +257,6 @@ function GerenciarDevolucoes() {
     const [mostrarFiltroData, setMostrarFiltroData] = useState(false);
 
     const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
 
     // guarda a solicitação (com seus materiais) que está sendo devolvida no momento
     const [solicitacaoEmDevolucao, setSolicitacaoEmDevolucao] = useState(null);
@@ -265,11 +265,34 @@ function GerenciarDevolucoes() {
         async function carregarDevolucoes() {
             try {
                 setCarregando(true);
-                const response = await api.get("/v1/solicitacoes/devolucoes", {
-                    params: { page, size: 10 }
+                const primeiraResposta = await api.get("/v1/solicitacoes/devolucoes", {
+                    params: { page: 0, size: tamanhoPaginaApi }
                 });
-                const alertas = Array.isArray(response.data) ? response.data : response.data.content || [];
-                setTotalPages(response.data.totalPages || 1);
+                const primeiraPagina = Array.isArray(primeiraResposta.data)
+                    ? primeiraResposta.data
+                    : Array.isArray(primeiraResposta.data?.content)
+                        ? primeiraResposta.data.content
+                        : [];
+                const totalPaginasApi = Array.isArray(primeiraResposta.data)
+                    ? 1
+                    : Math.max(1, primeiraResposta.data?.totalPages ?? 1);
+                const paginasRestantes = await Promise.all(
+                    Array.from({ length: totalPaginasApi - 1 }, (_, indice) =>
+                        api.get("/v1/solicitacoes/devolucoes", {
+                            params: { page: indice + 1, size: tamanhoPaginaApi }
+                        })
+                    )
+                );
+                const devolucoesRecebidas = [
+                    ...primeiraPagina,
+                    ...paginasRestantes.flatMap((resposta) =>
+                        Array.isArray(resposta.data)
+                            ? resposta.data
+                            : Array.isArray(resposta.data?.content)
+                                ? resposta.data.content
+                                : []
+                    )
+                ];
                 let catalogoMateriais = [];
 
                 try {
@@ -285,7 +308,7 @@ function GerenciarDevolucoes() {
                 }
 
                 const solicitacoesComMateriais = await Promise.all(
-                    alertas.map(async (alerta) => {
+                    devolucoesRecebidas.map(async (alerta) => {
                         const solicitacaoId = alerta.solicitacao;
 
                         try {
@@ -331,7 +354,7 @@ function GerenciarDevolucoes() {
         }
 
         carregarDevolucoes();
-    }, [page]);
+    }, []);
 
     function abrirModalDevolucao(solicitacao) {
         setSolicitacaoEmDevolucao(solicitacao);
@@ -442,6 +465,12 @@ function GerenciarDevolucoes() {
         const dataCombina = !filtroData || (s.dataEntrega || "").startsWith(filtroData);
         return nomeCombina && dataCombina;
     });
+    const totalPages = Math.max(1, Math.ceil(solicitacoesFiltradas.length / tamanhoPagina));
+    const paginaAtual = Math.min(page, totalPages - 1);
+    const solicitacoesVisiveis = solicitacoesFiltradas.slice(
+        paginaAtual * tamanhoPagina,
+        (paginaAtual + 1) * tamanhoPagina
+    );
 
     return (
         <div className="page-container">
@@ -474,7 +503,10 @@ function GerenciarDevolucoes() {
                                     type="date"
                                     className="filtro-data-input"
                                     value={filtroData}
-                                    onChange={(e) => setFiltroData(e.target.value)}
+                                    onChange={(e) => {
+                                        setFiltroData(e.target.value);
+                                        setPage(0);
+                                    }}
                                 />
                             )}
                         </div>
@@ -487,7 +519,10 @@ function GerenciarDevolucoes() {
                                     className="busca-input"
                                     placeholder="Nome do solicitante"
                                     value={busca}
-                                    onChange={(e) => setBusca(e.target.value)}
+                                    onChange={(e) => {
+                                        setBusca(e.target.value);
+                                        setPage(0);
+                                    }}
                                 />
                                 <img src={lupaIcon} alt="Buscar" className="busca-icone" />
                             </div>
@@ -495,34 +530,6 @@ function GerenciarDevolucoes() {
                     </div>
 
                     <div className="devolucoes-tabs">
-                        <div className="devolucoes-tabs-grupo">
-                            <button type="button" className="tab-btn tab-ativa">
-                                Gerenciar Devoluções
-                            </button>
-                            <button
-                                type="button"
-                                className="tab-btn"
-                                onClick={() => navigate("/gerenciar-solicitacoes")}
-                            >
-                                Gerenciar Solicitações
-                            </button>
-                        </div>
-
-                        <button
-                            type="button"
-                            className="tab-btn tab-reprovadas"
-                            onClick={() => navigate("/gerenciar-solicitacoes-reprovadas")}
-                        >
-                            Solicitações Reprovadas
-                        </button>
-                        
-                        <button
-                            type="button"
-                            className="tab-btn tab-reprovadas"
-                            onClick={() => navigate("/gerenciar-solicitacoes-finalizadas")}
-                        >
-                            Solicitações Finalizadas
-                        </button>
                     </div>
                 </div>
 
@@ -536,7 +543,7 @@ function GerenciarDevolucoes() {
                     )}
 
                     {!carregando &&
-                        solicitacoesFiltradas.map((solicitacao) => (
+                        solicitacoesVisiveis.map((solicitacao) => (
                             <CardDevolucao
                                 key={solicitacao.id}
                                 solicitacao={solicitacao}
@@ -545,15 +552,34 @@ function GerenciarDevolucoes() {
                             />
                         ))}
                     
-                    {!carregando && solicitacoesFiltradas.length > 0 && (
-                        <Pagination 
-                            currentPage={page} 
-                            totalPages={totalPages} 
-                            onPageChange={setPage} 
-                        />
-                    )}
                 </div>
             </main>
+
+            {!carregando && totalPages > 1 && (
+                <nav className="devolucoes-paginacao" aria-label="Paginação das devoluções">
+                    <button
+                        type="button"
+                        aria-label="Página anterior"
+                        onClick={() => setPage((pagina) => Math.max(0, pagina - 1))}
+                        disabled={paginaAtual === 0}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                    </button>
+                    <span>Página {paginaAtual + 1} de {totalPages}</span>
+                    <button
+                        type="button"
+                        aria-label="Próxima página"
+                        onClick={() => setPage((pagina) => Math.min(totalPages - 1, pagina + 1))}
+                        disabled={paginaAtual >= totalPages - 1}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                    </button>
+                </nav>
+            )}
 
             {solicitacaoEmDevolucao && (
                 <ModalDevolucao

@@ -101,7 +101,7 @@ function GerenciarSolicitacoes() {
         async function carregarSolicitacoes() {
             try {
                 setCarregando(true);
-                const primeiraResposta = await api.get("/v1/solicitacoes", {
+                const primeiraResposta = await api.get("/v1/solicitacoes/abertas", {
                     params: { page: 0, size: tamanhoPaginaApi },
                 });
                 const primeiraPagina = Array.isArray(primeiraResposta.data)
@@ -114,7 +114,7 @@ function GerenciarSolicitacoes() {
                     : Math.max(1, primeiraResposta.data?.totalPages ?? 1);
                 const paginasRestantes = await Promise.all(
                     Array.from({ length: totalPaginasApi - 1 }, (_, indice) =>
-                        api.get("/v1/solicitacoes", {
+                        api.get("/v1/solicitacoes/abertas", {
                             params: { page: indice + 1, size: tamanhoPaginaApi },
                         })
                     )
@@ -141,7 +141,6 @@ function GerenciarSolicitacoes() {
                         }
                     })
                 );
-                setSolicitacoes(solicitacoesComMateriais);
                 setSolicitacoes(solicitacoesComMateriais);
             } catch (error) {
                 console.error("Erro ao buscar solicitacoes:", error);
@@ -209,9 +208,25 @@ function GerenciarSolicitacoes() {
 
 
     async function reprovarSolicitacao(solicitacaoId, motivo) {
-        await api.patch(`/v1/solicitacoes/${solicitacaoId}/decisao`, { aceita: false, motivo });
-        setSolicitacoes((prev) => prev.filter((s) => s.id !== solicitacaoId));
-        setSolicitacaoReprovando(null);
+        const url = `/v1/solicitacoes/${solicitacaoId}/decisao`;
+        const payload = { aceita: false, motivo };
+
+        try {
+            await api.patch(url, payload);
+            setSolicitacoes((prev) => prev.filter((s) => s.id !== solicitacaoId));
+            setSolicitacaoReprovando(null);
+        } catch (error) {
+            console.error("Falha na requisição de reprovação:", {
+                method: "PATCH",
+                url,
+                solicitacaoId,
+                payload,
+                status: error.response?.status ?? null,
+                respostaBackend: error.response?.data ?? null,
+                erro: error,
+            });
+            throw error;
+        }
     }
 
     function limparFiltroData() {

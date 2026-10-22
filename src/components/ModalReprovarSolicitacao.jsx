@@ -26,7 +26,20 @@ function ModalReprovarSolicitacao({ solicitante, onConfirmar, onCancelar }) {
             await onConfirmar(motivoLimpo);
         } catch (error) {
             console.error("Erro ao reprovar solicitação:", error);
-            setErro("Não foi possível reprovar a solicitação. Tente novamente.");
+            const resposta = error?.response?.data;
+            const mensagemBackend =
+                typeof resposta === "string"
+                    ? resposta
+                    : resposta?.detail ?? resposta?.message ?? resposta?.error;
+            const status = error?.response?.status;
+
+            if (typeof mensagemBackend === "string" && mensagemBackend.trim()) {
+                setErro(mensagemBackend);
+            } else if (status) {
+                setErro(`O servidor recusou a reprovação (HTTP ${status}). Consulte o console para detalhes.`);
+            } else {
+                setErro("Não foi possível conectar ao servidor. Verifique a conexão e tente novamente.");
+            }
             setSalvando(false);
         }
     }

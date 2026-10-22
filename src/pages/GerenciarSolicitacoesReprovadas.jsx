@@ -2,6 +2,7 @@ import "./GerenciarSolicitacoes.css";
 import "./GerenciarSolicitacoesReprovadas.css";
 import NavBar from "../components/NavBar";
 import CardSolicitacao from "../components/CardSolicitacao";
+import AlertasPanel from "../components/AlertasPanel";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../provider/api.js";
@@ -263,6 +264,7 @@ function SolicitacoesReprovadas() {
                         ))}
                 </div>
             </main>
+            <AlertasPanel />
         </div>
     );
 }
