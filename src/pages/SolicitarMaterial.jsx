@@ -152,11 +152,17 @@ function SolicitarMaterial() {
             const motivoEncontrado = encontrarPorNome(listaMotivos, data.motivo, "descricao");
             setMotivoId(motivoEncontrado ? motivoEncontrado.id : listaMotivos[0]?.id ?? null);
 
-            if (data.data_solicitacao) {
-                setPrazo(data.data_solicitacao.slice(0, 10));
-            }
+            const prazoSugerido = typeof data.data_solicitacao === "string"
+                ? data.data_solicitacao.trim().match(/^\d{4}-\d{2}-\d{2}/)?.[0] ?? ""
+                : "";
+            setPrazo(prazoSugerido);
 
-            const nomesMateriais = (data.nome_material ?? "").split(",").map((s) => s.trim());
+            const nomesMateriais = (data.nome_material ?? "")
+                .split(",")
+                .map((s) => s.trim())
+                .filter((nome, index, nomes) =>
+                    nomes.findIndex((outroNome) => outroNome.toLowerCase() === nome.toLowerCase()) === index
+                );
             const quantidades = (data.quantidade ?? "").split(",").map((s) => s.trim());
             const devolucoes = (data.deveDevolver ?? "").split(",").map((s) => s.trim());
 
