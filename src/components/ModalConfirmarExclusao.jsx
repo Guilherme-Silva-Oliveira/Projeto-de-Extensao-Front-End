@@ -8,6 +8,7 @@ function ModalConfirmarExclusao({
     onConfirmar,
     onCancelar,
     processando = false,
+    erro = "",
 }) {
     return (
         <Modal onFechar={onCancelar}>
@@ -31,6 +32,7 @@ function ModalConfirmarExclusao({
                 <p className="modal-exclusao-subtexto">
                     Tem certeza que deseja prosseguir?
                 </p>
+                {erro && <p className="modal-exclusao-erro" role="alert">{erro}</p>}
 
                 <div className="modal-actions">
                     <MainButton

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import AlertasPanel from "../components/AlertasPanel";
+import ModalConfirmarExclusao from "../components/ModalConfirmarExclusao";
 import { api } from "../provider/api.js";
 import lupaIcon from "../assets/lupa.png";
 import "./GerenciarEntidade.css";
@@ -10,6 +11,7 @@ const entidades = {
     categorias: {
         titulo: "CATEGORIAS",
         endpoint: "/v1/categorias",
+        entidadeExclusao: "a categoria",
         colunas: [
             { chave: "nomeCategoria", titulo: "Nome da Categoria" },
         ],
@@ -17,6 +19,7 @@ const entidades = {
     "tipos-fornecedor": {
         titulo: "TIPOS DE FORNECEDOR",
         endpoint: "/v1/fornecedores/tipos",
+        entidadeExclusao: "o tipo de fornecedor",
         colunas: [
             { chave: "nomeTipo", titulo: "Tipo de Fornecedor" },
         ],
@@ -24,6 +27,7 @@ const entidades = {
     fornecedores: {
         titulo: "FORNECEDORES",
         endpoint: "/v1/fornecedores",
+        entidadeExclusao: "o fornecedor",
         colunas: [
             { chave: "nome", titulo: "Nome" },
             { chave: "email", titulo: "Email" },
@@ -34,6 +38,7 @@ const entidades = {
     "setores-estoque": {
         titulo: "SETORES DE ESTOQUE",
         endpoint: "/v1/setores",
+        entidadeExclusao: "o setor de estoque",
         colunas: [
             { chave: "identificadorSetor", titulo: "Identificador do Setor" },
         ],
@@ -41,6 +46,7 @@ const entidades = {
     "unidades-medida": {
         titulo: "UNIDADES DE MEDIDA",
         endpoint: "/v1/unidademedida",
+        entidadeExclusao: "a unidade de medida",
         colunas: [
             { chave: "nomeUnidade", titulo: "Unidade de Medida" },
         ],
@@ -48,6 +54,7 @@ const entidades = {
     professores: {
         titulo: "PROFESSORES",
         endpoint: "/v1/professores",
+        entidadeExclusao: "o professor",
         colunas: [
             { chave: "nome", titulo: "Nome" },
             { chave: "email", titulo: "Email" },
@@ -57,6 +64,7 @@ const entidades = {
     motivos: {
         titulo: "MOTIVOS",
         endpoint: "/v1/motivos",
+        entidadeExclusao: "o motivo",
         colunas: [
             { chave: "descricao", titulo: "Descrição" },
         ],
@@ -64,6 +72,7 @@ const entidades = {
     limites: {
         titulo: "LIMITES",
         endpoint: "/v1/limites",
+        entidadeExclusao: "o limite",
         colunas: [
             { chave: "descLimite", titulo: "Descrição do Limite" },
             { chave: "limite", titulo: "Limite" },
@@ -94,6 +103,9 @@ function GerenciarEntidade() {
     const [dadosEntidades, setDadosEntidades] = useState({});
     const [carregandoEntidades, setCarregandoEntidades] = useState({});
     const [errosEntidades, setErrosEntidades] = useState({});
+    const [registroParaExcluir, setRegistroParaExcluir] = useState(null);
+    const [registroExcluindoId, setRegistroExcluindoId] = useState(null);
+    const [erroExclusao, setErroExclusao] = useState("");
 
     useEffect(() => {
         setSecaoAtual(encontrarSecao(chaveEntidade));
@@ -162,6 +174,29 @@ function GerenciarEntidade() {
         );
     }
 
+    async function confirmarExclusao() {
+        if (!registroParaExcluir) return;
+
+        const { chave, registro } = registroParaExcluir;
+        try {
+            setRegistroExcluindoId(registro.id);
+            setErroExclusao("");
+            await api.delete(`${entidades[chave].endpoint}/${registro.id}`);
+            setDadosEntidades((atuais) => ({
+                ...atuais,
+                [chave]: (atuais[chave] ?? []).filter((item) => item.id !== registro.id),
+            }));
+            setRegistroParaExcluir(null);
+        } catch (error) {
+            console.error(`Erro ao excluir ${entidades[chave].titulo.toLowerCase()}:`, error);
+            setErroExclusao(
+                error?.response?.data?.message ?? "Não foi possível excluir este registro."
+            );
+        } finally {
+            setRegistroExcluindoId(null);
+        }
+    }
+
     return (
         <div className="page-container">
             <NavBar mostrarVoltar={true} mostrarLinks={true} />
@@ -208,16 +243,35 @@ function GerenciarEntidade() {
                                         {registros.map((registro) => (
                                             <article
                                                 className="gerenciar-entidade-card"
-                                                key={entidade.colunas.map((coluna) => obterValor(registro, coluna.chave)).join("-")}
+                                                key={registro.id}
                                             >
-                                                {entidade.colunas.map((coluna) => (
-                                                    <div className="gerenciar-entidade-campo" key={coluna.chave}>
-                                                        <span className="gerenciar-entidade-label">{coluna.titulo}</span>
-                                                        <span className="gerenciar-entidade-valor">
-                                                            {obterValor(registro, coluna.chave)}
-                                                        </span>
-                                                    </div>
-                                                ))}
+                                                <div className="gerenciar-entidade-card-campos">
+                                                    {entidade.colunas.map((coluna) => (
+                                                        <div className="gerenciar-entidade-campo" key={coluna.chave}>
+                                                            <span className="gerenciar-entidade-label">{coluna.titulo}</span>
+                                                            <span className="gerenciar-entidade-valor">
+                                                                {obterValor(registro, coluna.chave)}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="gerenciar-entidade-excluir"
+                                                    aria-label={`Excluir ${entidade.entidadeExclusao.replace(/^(a|o)\s+/, "")}`}
+                                                    title="Excluir"
+                                                    onClick={() => {
+                                                        setErroExclusao("");
+                                                        setRegistroParaExcluir({
+                                                            chave: entidade.chave,
+                                                            registro,
+                                                            nome: obterValor(registro, entidade.colunas[0].chave),
+                                                        });
+                                                    }}
+                                                    disabled={registroExcluindoId !== null}
+                                                >
+                                                    ×
+                                                </button>
                                             </article>
                                         ))}
                                     </div>
@@ -250,6 +304,16 @@ function GerenciarEntidade() {
                 </nav>
             </main>
             <AlertasPanel />
+            {registroParaExcluir && (
+                <ModalConfirmarExclusao
+                    almoxarife={{ nome: registroParaExcluir.nome }}
+                    entidade={entidades[registroParaExcluir.chave].entidadeExclusao}
+                    onConfirmar={confirmarExclusao}
+                    onCancelar={() => setRegistroParaExcluir(null)}
+                    processando={registroExcluindoId !== null}
+                    erro={erroExclusao}
+                />
+            )}
         </div>
     );
 }
