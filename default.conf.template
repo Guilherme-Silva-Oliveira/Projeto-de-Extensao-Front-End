@@ -13,7 +13,11 @@ server {
     }
 
     location /api/ {
-        proxy_pass ${BACKEND_HOST}/;
+        proxy_pass http://${BACKEND_HOST}:${BACKEND_PORT}/;
+    }
+
+    location /ia/ {
+        proxy_pass http://${IA_HOST}:${IA_PORT}/;
     }
 
     # redirect server error pages to the static page /50x.html
