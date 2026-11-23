@@ -175,15 +175,25 @@ function MapaMateriais() {
         return () => controller.abort();
     }, [tentativa]);
 
-    const materiaisPorSetor = useMemo(() => {
-        const contagem = new Map();
+    const estoquePorSetor = useMemo(() => {
+        const estoque = new Map();
         materiais.forEach((material) => {
             if (material.setorId) {
-                contagem.set(material.setorId, (contagem.get(material.setorId) ?? 0) + 1);
+                const atual = estoque.get(material.setorId) ?? {
+                    quantidadeMateriais: 0,
+                    quantidadeTotal: 0,
+                };
+                atual.quantidadeMateriais += 1;
+                atual.quantidadeTotal += material.quantidade;
+                estoque.set(material.setorId, atual);
             }
         });
-        return contagem;
+        return estoque;
     }, [materiais]);
+    const maiorQuantidadePorSetor = Math.max(
+        0,
+        ...Array.from(estoquePorSetor.values(), (estoque) => estoque.quantidadeTotal)
+    );
 
     const topMateriais = useMemo(
         () =>
@@ -240,6 +250,11 @@ function MapaMateriais() {
                             <h2 id="titulo-setores">Setores do estoque</h2>
                             <span>{setores.length} setores</span>
                         </div>
+                        <div className="mapa-setores-legenda" aria-label="Escala de quantidade em estoque">
+                            <span>Menor</span>
+                            <div className="mapa-setores-legenda-barra" aria-hidden="true" />
+                            <span>Maior</span>
+                        </div>
                         {carregando ? (
                             <p className="mapa-materiais-vazio">Carregando setores...</p>
                         ) : setores.length > 0 ? (
@@ -252,11 +267,26 @@ function MapaMateriais() {
                                     >
                                         {coluna.map((setor) => {
                                             const ativo = setorEmFoco === setor.id;
+                                            const estoque = estoquePorSetor.get(setor.id);
+                                            const quantidadeTotal = estoque?.quantidadeTotal ?? 0;
+                                            const intensidade = maiorQuantidadePorSetor > 0
+                                                ? Math.max(
+                                                    1,
+                                                    Math.ceil((quantidadeTotal / maiorQuantidadePorSetor) * 4)
+                                                )
+                                                : 0;
+                                            const percentual = maiorQuantidadePorSetor > 0
+                                                ? Math.min(
+                                                    100,
+                                                    (quantidadeTotal / maiorQuantidadePorSetor) * 100
+                                                )
+                                                : 0;
                                             return (
                                                 <button
                                                     type="button"
                                                     key={setor.id}
-                                                    className={`mapa-setor${ativo ? " mapa-setor-ativo" : ""}`}
+                                                    className={`mapa-setor mapa-setor-nivel-${intensidade}${ativo ? " mapa-setor-ativo" : ""}`}
+                                                    title={`${estoque?.quantidadeMateriais ?? 0} materiais; quantidade somada: ${quantidadeTotal}`}
                                                     onMouseEnter={() => {
                                                         setSetorEmFoco(setor.id);
                                                         setMaterialEmFoco("");
@@ -270,7 +300,17 @@ function MapaMateriais() {
                                                 >
                                                     <span className="mapa-setor-nome">{setor.nome}</span>
                                                     <span className="mapa-setor-contagem">
-                                                        {materiaisPorSetor.get(setor.id) ?? 0} materiais
+                                                        {estoque?.quantidadeMateriais ?? 0} materiais · {quantidadeTotal} qtd.
+                                                    </span>
+                                                    <span
+                                                        className="mapa-setor-barra"
+                                                        role="meter"
+                                                        aria-label={`Quantidade total em estoque no ${setor.nome}`}
+                                                        aria-valuemin={0}
+                                                        aria-valuemax={maiorQuantidadePorSetor || 1}
+                                                        aria-valuenow={quantidadeTotal}
+                                                    >
+                                                        <span style={{ width: `${percentual}%` }} />
                                                     </span>
                                                 </button>
                                             );

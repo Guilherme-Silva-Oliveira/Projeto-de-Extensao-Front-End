@@ -78,6 +78,22 @@
     font-size: 12px;
 }
 
+.mapa-setores-legenda {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 0;
+    color: #777;
+    font-size: 10px;
+}
+
+.mapa-setores-legenda-barra {
+    height: 7px;
+    flex: 1;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #60a5fa 0%, #34d399 35%, #facc15 68%, #ef4444 100%);
+}
+
 .mapa-setores-grade {
     display: grid;
     flex: 1;
@@ -115,7 +131,7 @@
     padding: 17px 8px 10px;
     border: 1px solid #bfc2cc;
     border-radius: 2px;
-    background: #fff;
+    background: var(--mapa-setor-fundo, #fff);
     color: #292a52;
     font-family: inherit;
     font-size: 14px;
@@ -129,8 +145,33 @@
 .mapa-setor.mapa-setor-ativo {
     border-color: #ff5a1f;
     outline: none;
-    background: #fff3ed;
+    background: var(--mapa-setor-fundo, #fff);
     box-shadow: 0 0 0 2px rgba(255, 90, 31, 0.13);
+}
+
+.mapa-setor-nivel-0 {
+    --mapa-setor-cor: #cbd5e1;
+    --mapa-setor-fundo: #f8fafc;
+}
+
+.mapa-setor-nivel-1 {
+    --mapa-setor-cor: #60a5fa;
+    --mapa-setor-fundo: #eff6ff;
+}
+
+.mapa-setor-nivel-2 {
+    --mapa-setor-cor: #34d399;
+    --mapa-setor-fundo: #ecfdf5;
+}
+
+.mapa-setor-nivel-3 {
+    --mapa-setor-cor: #facc15;
+    --mapa-setor-fundo: #fefce8;
+}
+
+.mapa-setor-nivel-4 {
+    --mapa-setor-cor: #ef4444;
+    --mapa-setor-fundo: #fef2f2;
 }
 
 .mapa-setor-nome {
@@ -141,7 +182,25 @@
 
 .mapa-setor-contagem {
     color: #777;
-    font-size: 11px;
+    font-size: 10px;
+    overflow-wrap: anywhere;
+}
+
+.mapa-setor-barra {
+    width: 100%;
+    height: 7px;
+    margin-top: 2px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(60, 70, 100, 0.13);
+}
+
+.mapa-setor-barra > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--mapa-setor-cor, #cbd5e1);
+    transition: width 0.2s ease;
 }
 
 .mapa-materiais-lista {
@@ -423,6 +482,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .mapa-setor,
+    .mapa-setor-barra > span,
     .mapa-material {
         transition: none;
     }
