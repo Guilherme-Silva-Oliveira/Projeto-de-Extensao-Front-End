@@ -7,10 +7,16 @@ import { useEffect, useRef, useState } from "react";
 function NavBar({ mostrarVoltar, mostrarLinks }) {
     const navigate = useNavigate();
     const [cadastrosAberto, setCadastrosAberto] = useState(false);
+    const [materiaisAberto, setMateriaisAberto] = useState(false);
     const [gerenciamentosAberto, setGerenciamentosAberto] = useState(false);
     const cadastrosRef = useRef(null);
+    const materiaisRef = useRef(null);
     const gerenciamentosRef = useRef(null);
 
+    const materiais = [
+        { label: "Gerenciar Materiais", rota: "/gerenciar-material" },
+        { label: "Mapa Materiais", rota: "/mapa-materiais" },
+    ];
     const cadastros = [
         { label: "Categoria", rota: "/cadastro-categoria" },
         { label: "Fornecedor", rota: "/cadastro-fornecedor" },
@@ -38,6 +44,9 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
             if (cadastrosRef.current && !cadastrosRef.current.contains(evento.target)) {
                 setCadastrosAberto(false);
             }
+            if (materiaisRef.current && !materiaisRef.current.contains(evento.target)) {
+                setMateriaisAberto(false);
+            }
             if (gerenciamentosRef.current && !gerenciamentosRef.current.contains(evento.target)) {
                 setGerenciamentosAberto(false);
             }
@@ -54,8 +63,36 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
             {mostrarLinks && (
                 <div className="navbar-links">
                     <button onClick={() => navigate("/dashboard")}>Dashboard </button>
-                    <button onClick={() => navigate("/gerenciar-material")}>Materiais</button>
-                    <button onClick={() => navigate("/mapa-materiais")}>Mapa Materiais</button>
+                    <div className="dropdown" ref={materiaisRef}>
+                        <button
+                            type="button"
+                            aria-expanded={materiaisAberto}
+                            aria-haspopup="true"
+                            onClick={() => {
+                                setMateriaisAberto((aberto) => !aberto);
+                                setCadastrosAberto(false);
+                                setGerenciamentosAberto(false);
+                            }}
+                        >
+                            Materiais ▾
+                        </button>
+                        {materiaisAberto && (
+                            <div className="dropdown-menu dropdown-menu-materiais">
+                                <div className="dropdown-itens">
+                                    {materiais.map((item) => (
+                                        <Link
+                                            key={item.rota}
+                                            to={item.rota}
+                                            className="dropdown-link"
+                                            onClick={() => setMateriaisAberto(false)}
+                                        >
+                                            {item.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                     <button onClick={() => navigate("/gerenciar-solicitacoes")}>Solicitações</button>
                     {/* NOVO: antes ficava nas abas das telas de solicitações */}
                     <button onClick={() => navigate("/gerenciar-devolucoes")}>Devoluções</button>
@@ -67,6 +104,7 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
                             aria-haspopup="true"
                             onClick={() => {
                                 setCadastrosAberto((aberto) => !aberto);
+                                setMateriaisAberto(false);
                                 setGerenciamentosAberto(false);
                             }}
                         >
@@ -97,6 +135,7 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
                             onClick={() => {
                                 setGerenciamentosAberto((aberto) => !aberto);
                                 setCadastrosAberto(false);
+                                setMateriaisAberto(false);
                             }}
                         >
                             Gerenciamentos ▾
