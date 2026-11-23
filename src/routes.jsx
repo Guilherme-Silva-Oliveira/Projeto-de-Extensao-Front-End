@@ -23,6 +23,7 @@ import GerenciarEntidade from "./pages/GerenciarEntidade";
 import GerenciarSolicitacoesFinalizadas from "./pages/GerenciarSolicitacoesFinalizadas";
 import CadastroLimite from "./pages/CadastroLimite";
 import CadastroUnidadeMedida from "./pages/CadastroUnidadeMedida";
+import MapaMateriais from "./pages/MapaMateriais";
 
 const routes = createBrowserRouter([
   {
@@ -103,6 +104,11 @@ const routes = createBrowserRouter([
   {
     path: "/gerenciar-material",
     element: <GerenciarMaterial />,
+    errorElement: <div>erro</div>,
+  },
+  {
+    path: "/mapa-materiais",
+    element: <MapaMateriais />,
     errorElement: <div>erro</div>,
   },
   {

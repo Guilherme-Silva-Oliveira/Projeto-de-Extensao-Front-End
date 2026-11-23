@@ -55,6 +55,7 @@ function NavBar({ mostrarVoltar, mostrarLinks }) {
                 <div className="navbar-links">
                     <button onClick={() => navigate("/dashboard")}>Dashboard </button>
                     <button onClick={() => navigate("/gerenciar-material")}>Materiais</button>
+                    <button onClick={() => navigate("/mapa-materiais")}>Mapa Materiais</button>
                     <button onClick={() => navigate("/gerenciar-solicitacoes")}>Solicitações</button>
                     {/* NOVO: antes ficava nas abas das telas de solicitações */}
                     <button onClick={() => navigate("/gerenciar-devolucoes")}>Devoluções</button>
