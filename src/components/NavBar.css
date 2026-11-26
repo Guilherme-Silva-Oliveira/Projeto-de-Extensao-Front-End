@@ -133,6 +133,14 @@
     transform: none;
 }
 
+.dropdown-menu-materiais {
+    width: min(240px, calc(100vw - 32px));
+}
+
+.dropdown-menu-materiais .dropdown-itens {
+    grid-template-columns: 1fr;
+}
+
 .dropdown-menu .dropdown-destaque {
     display: block;
     background: #09075c;
