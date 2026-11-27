@@ -4,7 +4,9 @@ import "./AlertasPanel.css";
 
 function AlertasPanel() {
     const [menuAberto, setMenuAberto] = useState(false);
+    const [categoriaSelecionada, setCategoriaSelecionada] = useState("alertas");
     const [alertas, setAlertas] = useState([]);
+    const [alertasVerificacao, setAlertasVerificacao] = useState([]);
 
     useEffect(() => {
         async function carregarAlertas() {
@@ -21,7 +23,22 @@ function AlertasPanel() {
             }
         }
 
+        async function carregarAlertasVerificacao() {
+            try {
+                const response = await api.get("/v1/frontend/alertas-verificacao");
+                const alertasRecebidos = Array.isArray(response.data)
+                    ? response.data
+                    : Array.isArray(response.data?.content)
+                        ? response.data.content
+                        : [];
+                setAlertasVerificacao(alertasRecebidos);
+            } catch (error) {
+                console.error("Erro ao buscar alertas de verificação:", error);
+            }
+        }
+
         carregarAlertas();
+        carregarAlertasVerificacao();
     }, []);
 
     async function marcarAlertaResolvido(alerta) {
@@ -49,7 +66,7 @@ function AlertasPanel() {
         <>
             <button
                 type="button"
-                className={`menu-reprovadas-abrir menu-alertas-materiais${alertas.length > 0 ? " menu-reprovadas-abrir-alerta" : ""}`}
+                className={`menu-reprovadas-abrir menu-alertas-materiais${alertas.length + alertasVerificacao.length > 0 ? " menu-reprovadas-abrir-alerta" : ""}`}
                 aria-label="Abrir alertas"
                 aria-expanded={menuAberto}
                 aria-controls="menu-lateral-alertas"
@@ -91,8 +108,33 @@ function AlertasPanel() {
                         Fechar
                     </button>
                 </div>
+                <fieldset className="menu-alertas-categorias">
+                    <legend>Categoria dos alertas</legend>
+                    <label className={`menu-alertas-categoria${categoriaSelecionada === "alertas" ? " selecionada" : ""}`}>
+                        <input
+                            type="radio"
+                            name="categoria-alertas"
+                            value="alertas"
+                            checked={categoriaSelecionada === "alertas"}
+                            onChange={() => setCategoriaSelecionada("alertas")}
+                        />
+                        Alertas
+                        <span>Devolução e solicitação</span>
+                    </label>
+                    <label className={`menu-alertas-categoria${categoriaSelecionada === "verificacao" ? " selecionada" : ""}`}>
+                        <input
+                            type="radio"
+                            name="categoria-alertas"
+                            value="verificacao"
+                            checked={categoriaSelecionada === "verificacao"}
+                            onChange={() => setCategoriaSelecionada("verificacao")}
+                        />
+                        Verificação
+                        <span>Alertas de verificação</span>
+                    </label>
+                </fieldset>
                 <div className="menu-reprovadas-lista">
-                    {alertas.map((alerta, index) => (
+                    {categoriaSelecionada === "alertas" && alertas.map((alerta, index) => (
                         <article
                             className="menu-reprovadas-card"
                             key={`${alerta.causaAlerta ?? "alerta"}-${index}`}
@@ -123,7 +165,40 @@ function AlertasPanel() {
                             </div>
                         </article>
                     ))}
-                    {alertas.length === 0 && (
+                    {categoriaSelecionada === "verificacao" && alertasVerificacao.map((alerta, index) => (
+                        <article
+                            className="menu-reprovadas-card"
+                            key={alerta.id ?? `verificacao-${index}`}
+                        >
+                            <div className="menu-reprovadas-card-topo">
+                                <h3>{alerta.nome || "Alerta de verificação"}</h3>
+                                <span className="alerta-status aberto">
+                                    {alerta.tipo || "Verificação"}
+                                </span>
+                            </div>
+                            <div className="menu-reprovadas-card-conteudo">
+                                <div className="menu-reprovadas-card-textos">
+                                    <p className="menu-reprovadas-professor">
+                                        Criado em: {alerta.dataCriacao
+                                            ? new Date(alerta.dataCriacao).toLocaleString("pt-BR")
+                                            : "Data não informada"}
+                                    </p>
+                                    <p className="menu-reprovadas-descricao">
+                                        {alerta.descricao || "Sem descrição."}
+                                    </p>
+                                    {(alerta.solicitacao?.idSolicitacao ?? alerta.solicitacao?.id) != null && (
+                                        <p className="menu-reprovadas-professor">
+                                            Solicitação #{alerta.solicitacao.idSolicitacao ?? alerta.solicitacao.id}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </article>
+                    ))}
+                    {categoriaSelecionada === "alertas" && alertas.length === 0 && (
+                        <p className="menu-reprovadas-vazio">Nenhum alerta listado.</p>
+                    )}
+                    {categoriaSelecionada === "verificacao" && alertasVerificacao.length === 0 && (
                         <p className="menu-reprovadas-vazio">Nenhum alerta listado.</p>
                     )}
                 </div>
