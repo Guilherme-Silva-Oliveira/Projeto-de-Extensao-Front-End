@@ -3,8 +3,39 @@ import NavBar from "../components/NavBar.jsx";
 import { api } from "../provider/api.js";
 import "./MapaMateriais.css";
 
-const ITENS_POR_PAGINA = 7;
-const LIMITE_TOP_MATERIAIS = 10;
+const ITENS_POR_PAGINA = 8;
+const AREAS_PLANTA = [
+    { id: "itens-pequenos", nome: "Itens Pequenos", aliases: ["itens pequenos", "item pequeno"] },
+    { id: "festas", nome: "Festas", aliases: ["festas", "festa"] },
+    { id: "tecidos", nome: "Tecidos", aliases: ["tecidos", "tecido"] },
+    {
+        id: "papeis-cartolinas",
+        nome: "Papéis e Cartolinas",
+        aliases: ["papeis e cartolinas", "papel e cartolina"],
+    },
+    { id: "tintas", nome: "Tintas", aliases: ["tintas", "tinta"] },
+    { id: "papeis", nome: "Papéis", aliases: ["papeis", "papel"] },
+    {
+        id: "cartazes-barbantes",
+        nome: "Cartazes e Barbantes",
+        aliases: ["cartazes e barbantes", "cartaz e barbante"],
+    },
+    {
+        id: "cestas-fitas",
+        nome: "Cestas e Fitas",
+        aliases: ["cestas e fitas", "cesta e fita"],
+    },
+    { id: "outros", nome: "Outros", aliases: ["outros", "outro"] },
+];
+
+function normalizarNomeChave(nome) {
+    return String(nome)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLocaleLowerCase("pt-BR")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+}
 
 async function carregarTodos(endpoint, signal) {
     const primeiraResposta = await api.get(endpoint, {
@@ -111,6 +142,8 @@ function MapaMateriais() {
     const [erro, setErro] = useState("");
     const [tentativa, setTentativa] = useState(0);
     const [setorEmFoco, setSetorEmFoco] = useState("");
+    const [setorSelecionado, setSetorSelecionado] = useState("");
+    const [buscaMaterial, setBuscaMaterial] = useState("");
     const [materialEmFoco, setMaterialEmFoco] = useState("");
 
     useEffect(() => {
@@ -194,22 +227,37 @@ function MapaMateriais() {
         0,
         ...Array.from(estoquePorSetor.values(), (estoque) => estoque.quantidadeTotal)
     );
-
-    const topMateriais = useMemo(
-        () =>
-            [...materiais]
-                .sort((a, b) => b.quantidade - a.quantidade)
-                .slice(0, LIMITE_TOP_MATERIAIS),
-        [materiais]
+    const setoresPorArea = useMemo(() => {
+        return new Map(
+            AREAS_PLANTA.map((area) => [
+                area.id,
+                setores.filter((setor) =>
+                    area.aliases.includes(normalizarNomeChave(setor.nome))
+                ),
+            ])
+        );
+    }, [setores]);
+    const idsSetoresPosicionados = new Set(
+        Array.from(setoresPorArea.values()).flat().map((setor) => setor.id)
     );
-    const totalPages = Math.max(1, Math.ceil(materiais.length / ITENS_POR_PAGINA));
-    const materiaisVisiveis = materiais.slice(
+    const setorSelecionadoSemPosicao = setores.find(
+        (setor) => setor.id === setorSelecionado && !idsSetoresPosicionados.has(setor.id)
+    );
+    const buscaNormalizada = normalizarNomeChave(buscaMaterial);
+    const materiaisFiltrados = useMemo(
+        () =>
+            materiais
+                .filter((material) =>
+                    (!setorSelecionado || material.setorId === setorSelecionado) &&
+                    normalizarNomeChave(material.nome).includes(buscaNormalizada)
+                )
+                .sort((a, b) => b.quantidade - a.quantidade),
+        [materiais, setorSelecionado, buscaNormalizada]
+    );
+    const totalPages = Math.max(1, Math.ceil(materiaisFiltrados.length / ITENS_POR_PAGINA));
+    const materiaisVisiveis = materiaisFiltrados.slice(
         page * ITENS_POR_PAGINA,
         (page + 1) * ITENS_POR_PAGINA
-    );
-    const setoresPorColuna = Math.ceil(setores.length / 3);
-    const colunasSetores = Array.from({ length: 3 }, (_, indice) =>
-        setores.slice(indice * setoresPorColuna, (indice + 1) * setoresPorColuna)
     );
 
     function focarMaterial(material) {
@@ -245,79 +293,130 @@ function MapaMateriais() {
                 )}
 
                 <div className="mapa-materiais-paineis">
-                    <section className="mapa-painel mapa-painel-setores" aria-labelledby="titulo-setores">
+                    <section className="mapa-painel mapa-painel-planta" aria-labelledby="titulo-setores">
                         <div className="mapa-painel-cabecalho">
-                            <h2 id="titulo-setores">Setores do estoque</h2>
+                            <h2 id="titulo-setores">Planta do almoxarifado</h2>
                             <span>{setores.length} setores</span>
-                        </div>
-                        <div className="mapa-setores-legenda" aria-label="Escala de quantidade em estoque">
-                            <span>Menor</span>
-                            <div className="mapa-setores-legenda-barra" aria-hidden="true" />
-                            <span>Maior</span>
                         </div>
                         {carregando ? (
                             <p className="mapa-materiais-vazio">Carregando setores...</p>
                         ) : setores.length > 0 ? (
-                            <div className="mapa-setores-grade">
-                                {colunasSetores.map((coluna, indiceColuna) => (
+                            <>
+                                <div className="mapa-planta-controles">
+                                    <div className="mapa-setores-legenda" aria-label="Escala de quantidade em estoque">
+                                        <span>Menor</span>
+                                        <div className="mapa-setores-legenda-barra" aria-hidden="true" />
+                                        <span>Maior</span>
+                                    </div>
+                                    <label className="mapa-planta-select-label" htmlFor="mapa-filtro-setor">
+                                        Selecionar setor
+                                        <select
+                                            id="mapa-filtro-setor"
+                                            value={setorSelecionado}
+                                            onChange={(event) => {
+                                                setSetorSelecionado(event.target.value);
+                                                setSetorEmFoco("");
+                                                setMaterialEmFoco("");
+                                                setPage(0);
+                                            }}
+                                        >
+                                            <option value="">Todos os setores</option>
+                                            {setores.map((setor) => (
+                                                <option key={setor.id} value={setor.id}>
+                                                    {setor.nome}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                </div>
+                                <div className="mapa-planta-grade-viewport">
                                     <div
-                                        className="mapa-setor-fileira"
-                                        key={`fileira-${indiceColuna}`}
-                                        aria-label={`Fileira ${indiceColuna + 1}`}
+                                        className="mapa-planta-grade"
+                                        aria-label="Planta dos setores do almoxarifado"
                                     >
-                                        {coluna.map((setor) => {
-                                            const ativo = setorEmFoco === setor.id;
-                                            const estoque = estoquePorSetor.get(setor.id);
-                                            const quantidadeTotal = estoque?.quantidadeTotal ?? 0;
-                                            const intensidade = maiorQuantidadePorSetor > 0
-                                                ? Math.max(
-                                                    1,
-                                                    Math.ceil((quantidadeTotal / maiorQuantidadePorSetor) * 4)
-                                                )
-                                                : 0;
-                                            const percentual = maiorQuantidadePorSetor > 0
-                                                ? Math.min(
-                                                    100,
-                                                    (quantidadeTotal / maiorQuantidadePorSetor) * 100
-                                                )
-                                                : 0;
+                                        <div className="mapa-planta-comodo mapa-planta-entrada">
+                                            <span>Entrada</span>
+                                        </div>
+                                        {AREAS_PLANTA.map((area) => {
+                                            const setoresDaArea = area.id === "outros" && setorSelecionadoSemPosicao
+                                                ? [setorSelecionadoSemPosicao]
+                                                : setoresPorArea.get(area.id) ?? [];
                                             return (
-                                                <button
-                                                    type="button"
-                                                    key={setor.id}
-                                                    className={`mapa-setor mapa-setor-nivel-${intensidade}${ativo ? " mapa-setor-ativo" : ""}`}
-                                                    title={`${estoque?.quantidadeMateriais ?? 0} materiais; quantidade somada: ${quantidadeTotal}`}
-                                                    onMouseEnter={() => {
-                                                        setSetorEmFoco(setor.id);
-                                                        setMaterialEmFoco("");
-                                                    }}
-                                                    onMouseLeave={limparFoco}
-                                                    onFocus={() => {
-                                                        setSetorEmFoco(setor.id);
-                                                        setMaterialEmFoco("");
-                                                    }}
-                                                    onBlur={limparFoco}
+                                                <div
+                                                    className={`mapa-planta-comodo mapa-planta-${area.id}`}
+                                                    key={area.id}
                                                 >
-                                                    <span className="mapa-setor-nome">{setor.nome}</span>
-                                                    <span className="mapa-setor-contagem">
-                                                        {estoque?.quantidadeMateriais ?? 0} materiais · {quantidadeTotal} qtd.
-                                                    </span>
-                                                    <span
-                                                        className="mapa-setor-barra"
-                                                        role="meter"
-                                                        aria-label={`Quantidade total em estoque no ${setor.nome}`}
-                                                        aria-valuemin={0}
-                                                        aria-valuemax={maiorQuantidadePorSetor || 1}
-                                                        aria-valuenow={quantidadeTotal}
-                                                    >
-                                                        <span style={{ width: `${percentual}%` }} />
-                                                    </span>
-                                                </button>
+                                                    {setoresDaArea.length > 0 ? (
+                                                        setoresDaArea.map((setor) => {
+                                                            const ativo =
+                                                                setorEmFoco === setor.id ||
+                                                                setorSelecionado === setor.id;
+                                                            const estoque = estoquePorSetor.get(setor.id);
+                                                            const quantidadeTotal = estoque?.quantidadeTotal ?? 0;
+                                                            const intensidade = maiorQuantidadePorSetor > 0
+                                                                ? Math.max(
+                                                                    1,
+                                                                    Math.ceil((quantidadeTotal / maiorQuantidadePorSetor) * 4)
+                                                                )
+                                                                : 0;
+                                                            const percentual = maiorQuantidadePorSetor > 0
+                                                                ? Math.min(
+                                                                    100,
+                                                                    (quantidadeTotal / maiorQuantidadePorSetor) * 100
+                                                                )
+                                                                : 0;
+
+                                                            return (
+                                                                <button
+                                                                    type="button"
+                                                                    key={setor.id}
+                                                                    className={`mapa-planta-setor mapa-setor-nivel-${intensidade}${ativo ? " mapa-setor-ativo" : ""}`}
+                                                                    title={`${estoque?.quantidadeMateriais ?? 0} materiais; quantidade somada: ${quantidadeTotal}`}
+                                                                    aria-pressed={setorSelecionado === setor.id}
+                                                                    onClick={() => {
+                                                                        setSetorSelecionado((atual) =>
+                                                                            atual === setor.id ? "" : setor.id
+                                                                        );
+                                                                        setMaterialEmFoco("");
+                                                                        setPage(0);
+                                                                    }}
+                                                                    onMouseEnter={() => {
+                                                                        setSetorEmFoco(setor.id);
+                                                                        setMaterialEmFoco("");
+                                                                    }}
+                                                                    onMouseLeave={limparFoco}
+                                                                    onFocus={() => {
+                                                                        setSetorEmFoco(setor.id);
+                                                                        setMaterialEmFoco("");
+                                                                    }}
+                                                                    onBlur={limparFoco}
+                                                                >
+                                                                    <span className="mapa-setor-nome">{setor.nome}</span>
+                                                                    <span className="mapa-setor-contagem">
+                                                                        {estoque?.quantidadeMateriais ?? 0} materiais · {quantidadeTotal} qtd.
+                                                                    </span>
+                                                                    <span
+                                                                        className="mapa-setor-barra"
+                                                                        role="meter"
+                                                                        aria-label={`Quantidade total em estoque no ${setor.nome}`}
+                                                                        aria-valuemin={0}
+                                                                        aria-valuemax={maiorQuantidadePorSetor || 1}
+                                                                        aria-valuenow={quantidadeTotal}
+                                                                    >
+                                                                        <span style={{ width: `${percentual}%` }} />
+                                                                    </span>
+                                                                </button>
+                                                            );
+                                                        })
+                                                    ) : (
+                                                        <span className="mapa-planta-setor-vazio">{area.nome}</span>
+                                                    )}
+                                                </div>
                                             );
                                         })}
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            </>
                         ) : (
                             <p className="mapa-materiais-vazio">Nenhum setor cadastrado.</p>
                         )}
@@ -326,14 +425,30 @@ function MapaMateriais() {
                     <section className="mapa-painel mapa-painel-lista" aria-labelledby="titulo-lista-materiais">
                         <div className="mapa-painel-cabecalho">
                             <h2 id="titulo-lista-materiais">Materiais</h2>
-                            <span>{materiais.length} itens</span>
+                            <label className="mapa-busca-material">
+                                <input
+                                    type="search"
+                                    aria-label="Pesquisar material pelo nome"
+                                    placeholder="Pesquisar material"
+                                    value={buscaMaterial}
+                                    onChange={(event) => {
+                                        setBuscaMaterial(event.target.value);
+                                        setPage(0);
+                                    }}
+                                />
+                            </label>
+                            <span>
+                                {materiaisFiltrados.length}
+                                {setorSelecionado ? " itens no setor" : " itens"}
+                            </span>
                         </div>
                         {carregando ? (
                             <p className="mapa-materiais-vazio">Carregando materiais...</p>
-                        ) : materiais.length > 0 ? (
+                        ) : materiaisFiltrados.length > 0 ? (
                             <div className="mapa-materiais-lista">
                                 {materiaisVisiveis.map((material) => {
-                                    const ativo = setorEmFoco && material.setorId === setorEmFoco;
+                                    const setorAtivo = setorEmFoco || setorSelecionado;
+                                    const ativo = setorAtivo && material.setorId === setorAtivo;
                                     const emFoco = materialEmFoco === material.chaveMapa;
                                     return (
                                         <article
@@ -358,7 +473,13 @@ function MapaMateriais() {
                                 })}
                             </div>
                         ) : (
-                            <p className="mapa-materiais-vazio">Nenhum material cadastrado.</p>
+                            <p className="mapa-materiais-vazio">
+                                {buscaMaterial.trim()
+                                    ? "Nenhum material encontrado."
+                                    : setorSelecionado
+                                        ? "Nenhum material cadastrado neste setor."
+                                        : "Nenhum material cadastrado."}
+                            </p>
                         )}
                         {!carregando && totalPages > 1 && (
                             <nav className="mapa-materiais-paginacao" aria-label="Paginação dos materiais do mapa">
@@ -385,32 +506,6 @@ function MapaMateriais() {
                         )}
                     </section>
 
-                    <section className="mapa-painel mapa-painel-top" aria-labelledby="titulo-top-materiais">
-                        <div className="mapa-painel-cabecalho">
-                            <h2 id="titulo-top-materiais">Top 10 em estoque</h2>
-                            <span>maiores quantidades</span>
-                        </div>
-                        {carregando ? (
-                            <p className="mapa-materiais-vazio">Carregando ranking...</p>
-                        ) : topMateriais.length > 0 ? (
-                            <ol className="mapa-top-lista">
-                                {topMateriais.map((material, indice) => (
-                                    <li key={material.chaveMapa}>
-                                        <span className="mapa-top-posicao">{indice + 1}</span>
-                                        <div className="mapa-top-info">
-                                            <strong>{material.nome}</strong>
-                                            <span>{material.setorNome || "Setor não informado"}</span>
-                                        </div>
-                                        <span className="mapa-top-quantidade">
-                                            {material.quantidade} <small>{material.unidade || "un."}</small>
-                                        </span>
-                                    </li>
-                                ))}
-                            </ol>
-                        ) : (
-                            <p className="mapa-materiais-vazio">Nenhum material para exibir.</p>
-                        )}
-                    </section>
                 </div>
             </main>
         </div>
