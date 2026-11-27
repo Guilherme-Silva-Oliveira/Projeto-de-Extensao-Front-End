@@ -44,7 +44,9 @@ function GerenciarMaterial() {
 
     const [page, setPage] = useState(0);
     const [menuAlertasAberto, setMenuAlertasAberto] = useState(false);
+    const [categoriaAlertaSelecionada, setCategoriaAlertaSelecionada] = useState("alertas");
     const [alertas, setAlertas] = useState([]);
+    const [alertasVerificacao, setAlertasVerificacao] = useState([]);
 
     useEffect(() => {
         async function carregarAlertas() {
@@ -61,7 +63,22 @@ function GerenciarMaterial() {
             }
         }
 
+        async function carregarAlertasVerificacao() {
+            try {
+                const response = await api.get("/v1/frontend/alertas-verificacao");
+                const alertasRecebidos = Array.isArray(response.data)
+                    ? response.data
+                    : Array.isArray(response.data?.content)
+                        ? response.data.content
+                        : [];
+                setAlertasVerificacao(alertasRecebidos);
+            } catch (error) {
+                console.error("Erro ao buscar alertas de verificação:", error);
+            }
+        }
+
         carregarAlertas();
+        carregarAlertasVerificacao();
     }, []);
 
     // Carregar categorias apenas uma vez
@@ -150,19 +167,22 @@ function GerenciarMaterial() {
         );
     }
 
-    async function registrarEntradaMaterial({ quantidade }, materialAlvo) {
+    async function registrarEntradaMaterial({ quantidade, validade }, materialAlvo) {
         const quantidadeAdicionada = Number(quantidade);
         const quantidadeAtual = Number(materialAlvo.quantidade) || 0;
+        const dataVencimento = validade || materialAlvo.dataVencimento || null;
 
         const response = await api.patch(`/v1/materiais/${materialAlvo.id}`, {
             nomeMaterial: materialAlvo.nomeMaterial ?? materialAlvo.nome,
             quantidade: quantidadeAtual + quantidadeAdicionada,
             descricao: materialAlvo.descricao ?? "",
+            dataVencimento,
         });
 
         const materialAtualizado = response.data ?? {
             ...materialAlvo,
             quantidade: quantidadeAtual + quantidadeAdicionada,
+            dataVencimento,
         };
 
         setMateriais((prev) =>
@@ -350,7 +370,7 @@ function GerenciarMaterial() {
 
             <button
                 type="button"
-                className={`menu-reprovadas-abrir menu-alertas-materiais${alertas.length > 0 ? " menu-reprovadas-abrir-alerta" : ""}`}
+                className={`menu-reprovadas-abrir menu-alertas-materiais${alertas.length + alertasVerificacao.length > 0 ? " menu-reprovadas-abrir-alerta" : ""}`}
                 aria-label="Abrir alertas"
                 aria-expanded={menuAlertasAberto}
                 aria-controls="menu-lateral-alertas-materiais"
@@ -392,8 +412,33 @@ function GerenciarMaterial() {
                         Fechar
                     </button>
                 </div>
+                <fieldset className="menu-alertas-categorias">
+                    <legend>Categoria dos alertas</legend>
+                    <label className={`menu-alertas-categoria${categoriaAlertaSelecionada === "alertas" ? " selecionada" : ""}`}>
+                        <input
+                            type="radio"
+                            name="categoria-alertas-materiais"
+                            value="alertas"
+                            checked={categoriaAlertaSelecionada === "alertas"}
+                            onChange={() => setCategoriaAlertaSelecionada("alertas")}
+                        />
+                        Alertas
+                        <span>Devolução e solicitação</span>
+                    </label>
+                    <label className={`menu-alertas-categoria${categoriaAlertaSelecionada === "verificacao" ? " selecionada" : ""}`}>
+                        <input
+                            type="radio"
+                            name="categoria-alertas-materiais"
+                            value="verificacao"
+                            checked={categoriaAlertaSelecionada === "verificacao"}
+                            onChange={() => setCategoriaAlertaSelecionada("verificacao")}
+                        />
+                        Verificação
+                        <span>Alertas de verificação</span>
+                    </label>
+                </fieldset>
                 <div className="menu-reprovadas-lista">
-                    {alertas.map((alerta, index) => (
+                    {categoriaAlertaSelecionada === "alertas" && alertas.map((alerta, index) => (
                         <article
                             className="menu-reprovadas-card"
                             key={`${alerta.causaAlerta ?? "alerta"}-${index}`}
@@ -424,7 +469,40 @@ function GerenciarMaterial() {
                             </div>
                         </article>
                     ))}
-                    {alertas.length === 0 && (
+                    {categoriaAlertaSelecionada === "verificacao" && alertasVerificacao.map((alerta, index) => (
+                        <article
+                            className="menu-reprovadas-card"
+                            key={alerta.id ?? `verificacao-${index}`}
+                        >
+                            <div className="menu-reprovadas-card-topo">
+                                <h3>{alerta.nome || "Alerta de verificação"}</h3>
+                                <span className="alerta-status aberto">
+                                    {alerta.tipo || "Verificação"}
+                                </span>
+                            </div>
+                            <div className="menu-reprovadas-card-conteudo">
+                                <div className="menu-reprovadas-card-textos">
+                                    <p className="menu-reprovadas-professor">
+                                        Criado em: {alerta.dataCriacao
+                                            ? new Date(alerta.dataCriacao).toLocaleString("pt-BR")
+                                            : "Data não informada"}
+                                    </p>
+                                    <p className="menu-reprovadas-descricao">
+                                        {alerta.descricao || "Sem descrição."}
+                                    </p>
+                                    {(alerta.solicitacao?.idSolicitacao ?? alerta.solicitacao?.id) != null && (
+                                        <p className="menu-reprovadas-professor">
+                                            Solicitação #{alerta.solicitacao.idSolicitacao ?? alerta.solicitacao.id}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </article>
+                    ))}
+                    {categoriaAlertaSelecionada === "alertas" && alertas.length === 0 && (
+                        <p className="menu-reprovadas-vazio">Nenhum alerta listado.</p>
+                    )}
+                    {categoriaAlertaSelecionada === "verificacao" && alertasVerificacao.length === 0 && (
                         <p className="menu-reprovadas-vazio">Nenhum alerta listado.</p>
                     )}
                 </div>
